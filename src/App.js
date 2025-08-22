@@ -124,7 +124,6 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
   );
 };
 
-// DEĞİŞİKLİK: 'AddOption' artık dışarıdan ref alıyor ve içindeki autofocus mantığı kaldırıldı
 const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const availableOptions = Object.keys(optionsDictionary);
@@ -152,7 +151,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack }, ref) => {
     return (
         <div className="add-option-container">
             <input 
-                ref={ref} // Ref artık dışarıdan geliyor
+                ref={ref} 
                 type="text" 
                 className="add-option-search" 
                 placeholder="+ Seçenek ekle veya ara... (Boşken Backspace ile geri dön)" 
@@ -174,10 +173,16 @@ const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack }, ref) => {
     );
 });
 
-// DEĞİŞİKLİK: 'OptionsBuilder' artık ref oluşturuyor ve 'onStopEditing' mantığı içeriyor
 const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
     const [editingIndex, setEditingIndex] = useState(null);
-    const addOptionInputRef = useRef(null); // 'AddOption' input'u için ref
+    const addOptionInputRef = useRef(null); 
+
+    // YENİ EKLENEN ÖZELLİK: Options ekranı açılır açılmaz arama kutusuna odaklan
+    useEffect(() => {
+        if (addOptionInputRef.current) {
+            addOptionInputRef.current.focus();
+        }
+    }, []); // Boş dizi sayesinde sadece ilk render olduğunda çalışır
 
     const handleValueChange = (newValue) => {
         const updatedOptions = [...ruleOptions];
@@ -195,7 +200,6 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
         });
     };
 
-    // Düzenleme bittiğinde 'AddOption' input'una odaklanma fonksiyonu
     const handleStopEditing = () => {
         setEditingIndex(null);
         setTimeout(() => {
@@ -214,12 +218,11 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
                         option={option}
                         isEditing={index === editingIndex}
                         onStartEditing={() => setEditingIndex(index)}
-                        onStopEditing={handleStopEditing} // Yeni fonksiyonu kullan
+                        onStopEditing={handleStopEditing}
                         onValueChange={handleValueChange}
                     />
                 ))}
             </div>
-            {/* ref'i AddOption'a iletiyoruz */}
             <AddOption ref={addOptionInputRef} onOptionAdd={handleAddOption} onNavigateBack={onNavigateBack} />
         </div>
     );
@@ -234,7 +237,7 @@ const HeaderEditor = () => {
   const editorRef = useRef(null); 
   const inputRefs = useRef([]); 
   const labels = Object.keys(headerData);
-  const isInitialMount = useRef(true); // Sayfanın ilk yüklenişini takip etmek için
+  const isInitialMount = useRef(true);
 
   const handleFocus = (label) => setActiveInput(label);
   const handleChange = (label, value) => setHeaderData(prev => ({ ...prev, [label]: value }));
@@ -278,7 +281,6 @@ const HeaderEditor = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // DEĞİŞİKLİK: Bu useEffect bloğu ilk yükleme ve geri dönme senaryolarını ayırıyor
   useEffect(() => {
       if (isInitialMount.current) {
           isInitialMount.current = false;

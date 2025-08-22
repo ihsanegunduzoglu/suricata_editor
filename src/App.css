@@ -1,13 +1,15 @@
 /* BU KOD BLOĞUNUN TAMAMINI src/App.css DOSYASINA YAPIŞTIR */
 
-/* Genel Stiller ve YENİ RENK PALETİ */
+/* Genel Stiller ve Renk Paleti */
 :root {
-  --text-color: #ffffff; /* Yazı rengi: Beyaz */
-  --border-color: #333333; /* Kenarlık rengi: Koyu Gri */
-  --input-background: #000000; /* Kutu arka planı: Siyah */
+  --text-color: #ffffff;
+  --border-color: #333333;
+  --input-background: #000000;
   --label-color: #aaaaaa;
   --accent-color: #007acc;
   --suggestion-hover-bg: #2a2d2e;
+  --keyword-color: #c586c0; /* Morumsu renk */
+  --value-color: #ce9178; /* Turuncumsu renk */
 }
 
 body {
@@ -27,110 +29,119 @@ body {
 }
 
 /* --- Header Yazma Modu Stilleri --- */
-
 .editor-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  width: 100%;
-  max-width: 1400px;
+  display: flex; align-items: flex-end; gap: 1rem;
+  width: 100%; max-width: 1400px;
 }
-
 .input-group {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 100px;
-  position: relative;
+  display: flex; flex-direction: column; flex: 1;
+  min-width: 100px; position: relative;
 }
-
 .input-group label {
-  color: var(--label-color);
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
+  color: var(--label-color); font-size: 0.8rem;
+  margin-bottom: 0.5rem; text-transform: uppercase;
 }
-
 .input-group input {
   background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 0.75rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-family: 'Consolas', 'Courier New', monospace;
-  text-align: center;
+  border: 1px solid var(--border-color); color: var(--text-color);
+  padding: 0.75rem; border-radius: 4px; font-size: 1rem;
+  font-family: 'Consolas', 'Courier New', monospace; text-align: center;
 }
-
-.input-group input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-}
-
+.input-group input:focus { outline: none; border-color: var(--accent-color); }
 .suggestions-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
+  position: absolute; top: 100%; left: 0; right: 0;
+  z-index: 10; background-color: var(--input-background);
+  border: 1px solid var(--border-color); border-top: none;
+  border-radius: 0 0 4px 4px; list-style: none; margin: 0;
+  padding: 0; max-height: 200px; overflow-y: auto;
 }
-
 .suggestion-item {
-  font-size: 1.1rem;
-  color: var(--text-color);
-  border: none;
-  background-color: transparent;
-  padding: 0.75rem;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-size: 1.1rem; color: var(--text-color); border: none;
+  background-color: transparent; padding: 0.75rem;
+  text-align: left; cursor: pointer; transition: background-color 0.2s ease;
 }
-
-.suggestion-item:hover {
-  background-color: var(--suggestion-hover-bg);
-}
+.suggestion-item:hover { background-color: var(--suggestion-hover-bg); }
 
 /* --- Options Yazma Modu Stilleri --- */
-
 .options-view-container {
-  width: 100%;
-  max-width: 1400px;
+  width: 100%; max-width: 1400px;
   font-family: 'Consolas', 'Courier New', monospace;
 }
-
 .final-header-text {
-  font-size: 1.2rem;
-  color: #569cd6;
-  white-space: pre-wrap;
-  word-break: break-all;
-  margin: 0;
+  font-size: 1.2rem; color: #569cd6;
+  white-space: pre-wrap; word-break: break-all; margin: 0;
 }
 
-.options-textarea {
-  width: 100%;
-  height: 300px;
-  background-color: #1e1e1e; /* Bunu da siyah yapabiliriz ama kontrast için hafif gri daha iyi durabilir */
+/* --- YENİ EKLENEN OptionsBuilder Stilleri --- */
+.options-builder {
+  background-color: #1e1e1e;
   border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 1rem;
-  margin: 0;
   border-radius: 4px;
+  padding: 1rem;
+  margin-top: 5px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.added-options-list {
+  flex-grow: 1;
+}
+.option-row {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
   font-size: 1.1rem;
+}
+.option-keyword { color: var(--keyword-color); margin-right: 0.5rem; }
+.option-value { color: var(--value-color); }
+.option-semicolon { color: var(--text-color); margin-left: 0.25rem;}
+.add-option-container {
+  position: relative;
+}
+.add-option-search {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  border-top: 1px dashed var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
   font-family: inherit;
-  resize: vertical;
   box-sizing: border-box;
 }
-
-.options-textarea:focus {
+.add-option-search:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-top-color: var(--accent-color);
+}
+.add-option-list {
+  position: absolute;
+  bottom: 100%; /* Arama kutusunun üstünde çıkar */
+  left: 0;
+  right: 0;
+  background-color: #252526;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  list-style: none;
+  margin: 0 0 5px 0;
+  padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 20;
+}
+.add-option-list li {
+  padding: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+.add-option-list li:last-child {
+  border-bottom: none;
+}
+.add-option-list li:hover {
+  background-color: var(--suggestion-hover-bg);
+}
+.option-description {
+    color: var(--label-color);
+    font-size: 0.9rem;
+    margin-left: 1rem;
 }

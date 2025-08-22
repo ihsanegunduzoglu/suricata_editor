@@ -147,6 +147,13 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         }
     }, [isValueConfirmed]);
     
+    const handleModifierInputKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commandInputRef.current?.focus();
+        }
+    };
+
     const handleCommandKeyDown = (e) => {
         if (e.key === 'Escape') {
             onStopEditing();
@@ -181,8 +188,8 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                     className="option-value-input"
                     value={option.value}
                     onChange={handleMainValueChange}
-                    onKeyDown={handleMainValueKeyDown}
-                    placeholder="Aranacak içeriği girip Enter'a bas..."
+                    onKeyDown={handleMainValueKeyDown}  
+                    placeholder=""
                     autoFocus
                 />
             </div>
@@ -198,12 +205,16 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                         <div className="modifier-item">
                             <label htmlFor={`depth-${option.value}`}>depth:</label>
                             <input type="number" id={`depth-${option.value}`} ref={modifierInputs.depth} value={option.modifiers?.depth || ''}
-                                   onChange={(e) => handleModifierChange('depth', e.target.value)} />
+                                  onChange={(e) => handleModifierChange('depth', e.target.value)}
+                                  onKeyDown={handleModifierInputKeyDown} // <-- BU SATIRI EKLE
+                            />
                         </div>
                         <div className="modifier-item">
                             <label htmlFor={`offset-${option.value}`}>offset:</label>
                             <input type="number" id={`offset-${option.value}`} ref={modifierInputs.offset} value={option.modifiers?.offset || ''}
-                                   onChange={(e) => handleModifierChange('offset', e.target.value)} />
+                                  onChange={(e) => handleModifierChange('offset', e.target.value)}
+                                  onKeyDown={handleModifierInputKeyDown} // <-- BU SATIRI EKLE
+                            />
                         </div>
                     </div>
                     <div className="add-option-container">

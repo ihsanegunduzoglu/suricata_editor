@@ -4,7 +4,7 @@
   --border-color: #333333;
   --input-background: #000000;
   --label-color: #aaaaaa;
-  --accent-color: #007acc;
+  --accent-color: #070c0f;
   --suggestion-hover-bg: #2a2d2e;
   --keyword-color: #c586c0; /* Morumsu renk */
   --value-color: #ce9178; /* Turuncumsu renk */
@@ -34,6 +34,7 @@ body {
   width: 100%;
   max-width: 1400px;
 }
+
 .input-group {
   display: flex;
   flex-direction: column;
@@ -41,12 +42,14 @@ body {
   min-width: 100px;
   position: relative;
 }
+
 .input-group label {
   color: var(--label-color);
   font-size: 0.8rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
+
 .input-group input {
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
@@ -57,10 +60,12 @@ body {
   font-family: 'Consolas', 'Courier New', monospace;
   text-align: center;
 }
+
 .input-group input:focus {
   outline: none;
   border-color: var(--accent-color);
 }
+
 .suggestions-list {
   position: absolute;
   top: 100%;
@@ -77,6 +82,7 @@ body {
   max-height: 200px;
   overflow-y: auto;
 }
+
 .suggestion-item:hover, .add-option-list li:hover {
   background-color: var(--suggestion-hover-bg);
 }
@@ -87,6 +93,7 @@ body {
   max-width: 1400px;
   font-family: 'Consolas', 'Courier New', monospace;
 }
+
 .final-header-text {
   font-size: 1.2rem;
   color: #569cd6;
@@ -94,8 +101,10 @@ body {
   word-break: break-all;
   margin: 0;
 }
+
+/* DEĞİŞİKLİK BURADA */
 .options-builder {
-  background-color: #1e1e1e;
+  background-color: var(--input-background); /* Siyah yapıldı */
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
@@ -104,9 +113,11 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .added-options-list {
   flex-grow: 1;
 }
+
 .option-row {
   display: flex;
   align-items: center;
@@ -116,23 +127,29 @@ body {
   border-radius: 3px;
   margin: 2px 0;
 }
+
 .option-row:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
+
 .option-keyword {
   color: var(--keyword-color);
   margin-right: 0.5rem;
 }
+
 .option-value {
   color: var(--value-color);
 }
+
 .option-semicolon {
   color: var(--text-color);
   margin-left: 0.25rem;
 }
+
 .add-option-container {
   position: relative;
 }
+
 .add-option-search {
   width: 100%;
   background-color: transparent;
@@ -145,39 +162,46 @@ body {
   font-family: inherit;
   box-sizing: border-box;
 }
+
 .add-option-search:focus {
   outline: none;
   border-top-style: solid;
   border-top-color: var(--accent-color);
 }
+
+/* DEĞİŞİKLİKLER BURADA */
 .add-option-list {
   position: absolute;
-  bottom: 100%;
+  top: 100%; /* Aşağı açılması için 'top' yapıldı */
   left: 0;
   right: 0;
-  background-color: #252526;
+  background-color: var(--input-background); /* Siyah yapıldı */
   border: 1px solid var(--border-color);
   border-radius: 4px;
   list-style: none;
-  margin: 0 0 5px 0;
+  margin: 5px 0 0 0; /* Üstten küçük bir boşluk */
   padding: 0;
   max-height: 250px;
   overflow-y: auto;
   z-index: 20;
 }
+
 .add-option-list li {
   padding: 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
 }
+
 .add-option-list li:last-child {
   border-bottom: none;
 }
+
 .option-description {
   color: var(--label-color);
   font-size: 0.9rem;
   margin-left: 1rem;
 }
+
 .option-value-input {
   flex-grow: 1;
   background-color: transparent;
@@ -189,11 +213,12 @@ body {
   margin: 0;
   border-bottom: 1px solid var(--accent-color);
 }
+
 .option-value-input:focus {
   outline: none;
 }
 
-/* Kısaltılmış jenerik list item stilleri (Suggestions ve AddOption için ortak) */
+/* Kısaltılmış jenerik list item stilleri */
 .suggestions-list li, .add-option-list li {
     font-size: 1.1rem;
     color: var(--text-color);

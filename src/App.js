@@ -1,4 +1,4 @@
-// BU KOD BLOĞUNUN TAMAMINI src/App.js DOSYASINA YAPIŞTIR
+// BU KOD BLOĞUNUN TAMAMINI src/App.js DOSYASINA YAPIŞTİR
 
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
@@ -27,7 +27,7 @@ const optionsDictionary = {
   'sid': { 
     description: 'Kural ID', 
     inputType: 'number', 
-    defaultValue: '1000001', 
+    defaultValue: '', 
     format: (val) => val 
   },
   'rev': { 
@@ -124,7 +124,8 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
   );
 };
 
-const AddOption = ({ onOptionAdd }) => {
+// DEĞİŞİKLİK: 'AddOption' artık dışarıdan ref alıyor ve içindeki autofocus mantığı kaldırıldı
+const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const availableOptions = Object.keys(optionsDictionary);
 
@@ -142,14 +143,19 @@ const AddOption = ({ onOptionAdd }) => {
             e.preventDefault();
             handleAdd(filteredOptions[0]);
         }
+        if (e.key === 'Backspace' && e.target.value === '') {
+            e.preventDefault();
+            onNavigateBack();
+        }
     };
 
     return (
         <div className="add-option-container">
             <input 
+                ref={ref} // Ref artık dışarıdan geliyor
                 type="text" 
                 className="add-option-search" 
-                placeholder="+ Seçenek ekle veya ara..." 
+                placeholder="+ Seçenek ekle veya ara... (Boşken Backspace ile geri dön)" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)} 
                 onKeyDown={handleKeyDown} 
@@ -166,10 +172,12 @@ const AddOption = ({ onOptionAdd }) => {
             )}
         </div>
     );
-};
+});
 
-const OptionsBuilder = ({ ruleOptions, setRuleOptions }) => {
+// DEĞİŞİKLİK: 'OptionsBuilder' artık ref oluşturuyor ve 'onStopEditing' mantığı içeriyor
+const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
     const [editingIndex, setEditingIndex] = useState(null);
+    const addOptionInputRef = useRef(null); // 'AddOption' input'u için ref
 
     const handleValueChange = (newValue) => {
         const updatedOptions = [...ruleOptions];
@@ -180,7 +188,21 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions }) => {
     };
     
     const handleAddOption = (newOption) => {
-        setRuleOptions(prevOptions => [...prevOptions, newOption]);
+        setRuleOptions(prevOptions => {
+            const newOptions = [...prevOptions, newOption];
+            setEditingIndex(newOptions.length - 1);
+            return newOptions;
+        });
+    };
+
+    // Düzenleme bittiğinde 'AddOption' input'una odaklanma fonksiyonu
+    const handleStopEditing = () => {
+        setEditingIndex(null);
+        setTimeout(() => {
+            if (addOptionInputRef.current) {
+                addOptionInputRef.current.focus();
+            }
+        }, 0);
     };
 
     return (
@@ -192,12 +214,13 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions }) => {
                         option={option}
                         isEditing={index === editingIndex}
                         onStartEditing={() => setEditingIndex(index)}
-                        onStopEditing={() => setEditingIndex(null)}
+                        onStopEditing={handleStopEditing} // Yeni fonksiyonu kullan
                         onValueChange={handleValueChange}
                     />
                 ))}
             </div>
-            <AddOption onOptionAdd={handleAddOption} />
+            {/* ref'i AddOption'a iletiyoruz */}
+            <AddOption ref={addOptionInputRef} onOptionAdd={handleAddOption} onNavigateBack={onNavigateBack} />
         </div>
     );
 };
@@ -211,6 +234,7 @@ const HeaderEditor = () => {
   const editorRef = useRef(null); 
   const inputRefs = useRef([]); 
   const labels = Object.keys(headerData);
+  const isInitialMount = useRef(true); // Sayfanın ilk yüklenişini takip etmek için
 
   const handleFocus = (label) => setActiveInput(label);
   const handleChange = (label, value) => setHeaderData(prev => ({ ...prev, [label]: value }));
@@ -254,8 +278,15 @@ const HeaderEditor = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // DEĞİŞİKLİK: Bu useEffect bloğu ilk yükleme ve geri dönme senaryolarını ayırıyor
   useEffect(() => {
-      if (!isHeaderComplete && inputRefs.current.length > 0) {
+      if (isInitialMount.current) {
+          isInitialMount.current = false;
+          const firstInput = inputRefs.current[0];
+          if (firstInput) {
+              firstInput.focus();
+          }
+      } else if (!isHeaderComplete && inputRefs.current.length > 0) {
           setTimeout(() => {
               const lastInput = inputRefs.current[labels.length - 1];
               if (lastInput) {
@@ -270,7 +301,11 @@ const HeaderEditor = () => {
       return (
           <div className="options-view-container">
               <pre className="final-header-text">{finalHeaderString} (</pre>
-              <OptionsBuilder ruleOptions={ruleOptions} setRuleOptions={setRuleOptions} />
+              <OptionsBuilder 
+                  ruleOptions={ruleOptions} 
+                  setRuleOptions={setRuleOptions} 
+                  onNavigateBack={() => setIsHeaderComplete(false)} 
+              />
               <div className="final-header-text">)</div>
           </div>
       );
@@ -282,13 +317,13 @@ const HeaderEditor = () => {
               <RuleInputBox 
                   key={label} 
                   ref={el => inputRefs.current[index] = el}
-                  label={label}
-                  value={headerData[label]}
+                  label={label} 
+                  value={headerData[label]} 
                   onChange={e => handleChange(label, e.target.value)}
-                  onFocus={() => handleFocus(label)}
+                  onFocus={() => handleFocus(label)} 
                   onKeyDown={e => handleKeyDown(e, index)}
-                  isActive={activeInput === label}
-                  suggestions={suggestionsData[label]}
+                  isActive={activeInput === label} 
+                  suggestions={suggestionsData[label]} 
                   onSuggestionClick={handleSuggestionClick} 
               />
           ))}

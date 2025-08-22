@@ -1,10 +1,12 @@
+/* BU KOD BLOĞUNUN TAMAMINI src/App.css DOSYASINA YAPIŞTİR */
+
 /* Genel Stiller ve Renk Paleti */
 :root {
   --text-color: #ffffff;
   --border-color: #333333;
   --input-background: #000000;
   --label-color: #aaaaaa;
-  --accent-color: #070c0f;
+  --accent-color: #007acc;
   --suggestion-hover-bg: #2a2d2e;
   --keyword-color: #c586c0; /* Morumsu renk */
   --value-color: #ce9178; /* Turuncumsu renk */
@@ -96,15 +98,14 @@ body {
 
 .final-header-text {
   font-size: 1.2rem;
-  color: #ffffff;
+  color: #569cd6;
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
 }
 
-/* DEĞİŞİKLİK BURADA */
 .options-builder {
-  background-color: var(--input-background); /* Siyah yapıldı */
+  background-color: var(--input-background);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
@@ -139,6 +140,8 @@ body {
 
 .option-value {
   color: var(--value-color);
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .option-semicolon {
@@ -169,17 +172,16 @@ body {
   border-top-color: var(--accent-color);
 }
 
-/* DEĞİŞİKLİKLER BURADA */
 .add-option-list {
   position: absolute;
-  top: 100%; /* Aşağı açılması için 'top' yapıldı */
+  top: 100%;
   left: 0;
   right: 0;
-  background-color: var(--input-background); /* Siyah yapıldı */
+  background-color: var(--input-background);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   list-style: none;
-  margin: 5px 0 0 0; /* Üstten küçük bir boşluk */
+  margin: 5px 0 0 0;
   padding: 0;
   max-height: 250px;
   overflow-y: auto;
@@ -218,7 +220,6 @@ body {
   outline: none;
 }
 
-/* Kısaltılmış jenerik list item stilleri */
 .suggestions-list li, .add-option-list li {
     font-size: 1.1rem;
     color: var(--text-color);
@@ -230,17 +231,11 @@ body {
     transition: background-color .2s ease;
 }
 
-.tag-item:hover {
-  border-color: var(--accent-color);
-}
-
 .autocomplete-container {
   position: relative;
   flex-grow: 1;
 }
 
-/* Bu kural, .autocomplete-container içindeki öneri listesinin
-   doğru konumda (input'un altında) görünmesini sağlar */
 .autocomplete-container .suggestions-list {
   top: 100%;
   left: 0;
@@ -248,3 +243,52 @@ body {
   margin-top: 2px;
 }
 
+/* YENİ ContentEditor Stilleri */
+.option-row-editing-card {
+  width: 100%;
+  background-color: #2a2d2e;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+}
+
+.content-value-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modifiers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.5rem;
+}
+
+.modifier-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modifier-item label {
+  color: var(--label-color);
+}
+
+.modifier-item input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.modifier-item input[type="number"] {
+  background-color: var(--input-background);
+  color: var(--value-color);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 0.25rem;
+  width: 80px;
+}

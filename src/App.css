@@ -1,38 +1,113 @@
-.App {
+/* BU KOD BLOĞUNUN TAMAMINI src/App.css DOSYASINA YAPIŞTIR */
+
+/* Genel Stiller */
+:root {
+  --text-color: #d4d4d4;
+  --border-color: #3c3c3c;
+  --input-background: #3c3c3c;
+  --label-color: #aaaaaa;
+  --accent-color: #007acc;
+  --suggestion-hover-bg: #2a2d2e;
+}
+
+body {
+  background-color: #000000;
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.editor-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* Giriş Kutusu Grubu (Etiket + Input) */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 100px;
+  /* ÖNERİ LİSTESİNİ KONUMLANDIRMAK İÇİN BU GEREKLİ */
+  position: relative;
+}
+
+.input-group label {
+  color: var(--label-color);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.input-group input {
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Consolas', 'Courier New', monospace;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.input-group input:focus {
+  outline: none;
+  border-color: var(--accent-color);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* --- YENİ EKLENEN CSS KODLARI --- */
+
+/* Öneri Listesinin Konteyneri */
+.suggestions-list {
+  /* Konumlandırma */
+  position: absolute;
+  top: 100%; /* Input grubunun hemen altında başla */
+  left: 0;   /* Sol kenara hizala */
+  right: 0;  /* Sağ kenara kadar uzanmasını sağla */
+  z-index: 10; /* Diğer elemanların üzerinde görünsün */
+
+  /* Stil */
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  border-top: none; /* Üstteki kutuyla birleşik görünsün */
+  border-radius: 0 0 4px 4px;
+  list-style: none; /* Madde işaretlerini kaldır */
+  margin: 0;
+  padding: 0;
+  max-height: 200px; /* Çok uzarsa scroll çıksın */
+  overflow-y: auto;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Tek bir öneri elemanı */
+.suggestion-item {
+  /* İstenen Stiller */
+  font-size: 1.1rem;  /* Yazıyı biraz büyüt */
+  color: white;       /* Yazı rengini beyaz yap */
+  border: none;       /* Çerçeveyi kaldır */
+  background-color: transparent; /* Arka planı şeffaf yap */
+  
+  /* Kullanışlılık */
+  padding: 0.75rem;
+  text-align: left; /* Yazıyı sola hizala */
+  cursor: pointer;  /* Üzerine gelince el işareti çıksın */
+  
+  /* Geçiş efekti */
+  transition: background-color 0.2s ease;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Önerinin üzerine gelince */
+.suggestion-item:hover {
+  background-color: var(--suggestion-hover-bg);
 }

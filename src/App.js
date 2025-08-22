@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-// HATA DÜZELTMESİ: Header kutucukları için gereken bu obje silinmişti, geri ekliyoruz.
+// --- VERİLER ---
+
+// Header kutucukları için öneriler
 const suggestionsData = {
   Action: ['alert', 'pass', 'drop', 'reject'],
   Protocol: ['tcp', 'udp', 'icmp', 'ip', 'http', 'tls', 'smb'],
@@ -14,52 +16,59 @@ const suggestionsData = {
   'Destination IP': ['$HOME_NET', '$EXTERNAL_NET', 'any'],
 };
 
-// --- SEÇENEK SÖZLÜĞÜ (OPTIONS DICTIONARY) ---
+// Options (kural seçenekleri) için "sözlük"
 const optionsDictionary = {
-  'msg': {
-    description: 'Kural tetiklendiğinde gösterilecek mesaj',
-    inputType: 'text',
-    defaultValue: '""',
+  'msg': { 
+    description: 'Kural mesajı', 
+    inputType: 'text', 
+    defaultValue: '', 
+    format: (val) => `"${val}"` 
   },
-  'sid': {
-    description: 'Kuralın benzersiz kimlik numarası',
-    inputType: 'number',
-    defaultValue: '1000001',
+  'sid': { 
+    description: 'Kural ID', 
+    inputType: 'number', 
+    defaultValue: '1000001', 
+    format: (val) => val 
   },
-   'rev': {
-    description: 'Kuralın revizyon numarası',
-    inputType: 'number',
-    defaultValue: '1',
+  'rev': { 
+    description: 'Revizyon numarası', 
+    inputType: 'number', 
+    defaultValue: '1', 
+    format: (val) => val 
   },
-  'flow': {
-    description: 'Oturum takibi için bağlantı durumu',
-    inputType: 'tags',
-    availableTags: ['established', 'to_client', 'from_server', 'not_established'],
-    defaultValue: 'established',
+  'flow': { 
+    description: 'Bağlantı durumu', 
+    inputType: 'tags', 
+    availableTags: ['established', 'to_client', 'from_server', 'not_established'], 
+    defaultValue: 'established', 
+    format: (val) => val 
   },
-  'content': {
-    description: 'Paket içinde aranacak içerik',
-    inputType: 'text',
-    defaultValue: '""',
+  'content': { 
+    description: 'Aranacak içerik', 
+    inputType: 'text', 
+    defaultValue: '', 
+    format: (val) => `"${val}"` 
   },
-  'nocase': {
-    description: 'Content aramasını büyük/küçük harf duyarsız yapar',
-    inputType: 'flag', // Değer almayan, sadece var olan bir seçenek
-    defaultValue: '',
-  }
+  'nocase': { 
+    description: 'Büyük/küçük harf duyarsız arama', 
+    inputType: 'flag', 
+    defaultValue: '', 
+    format: () => '' 
+  },
 };
 
 
 // --- BİLEŞENLER ---
 
 const SuggestionsList = ({ suggestions, onSuggestionClick }) => {
-  if (!suggestions || suggestions.length === 0) return null;
+  if (!suggestions || suggestions.length === 0) {
+    return null;
+  }
   return (
     <ul className="suggestions-list">
       {suggestions.map((suggestion, index) => (
         <li
           key={index}
-          className="suggestion-item"
           onMouseDown={(e) => { e.preventDefault(); onSuggestionClick(suggestion); }}
         >
           {suggestion}
@@ -79,41 +88,71 @@ const RuleInputBox = React.forwardRef(({ label, value, onChange, onFocus, onKeyD
   );
 });
 
-const OptionRow = ({ option }) => {
+const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
+  const optionInfo = optionsDictionary[option.keyword];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      onStopEditing();
+    }
+  };
+
+  if (isEditing) {
     return (
-        <div className="option-row">
+       <div className="option-row">
             <span className="option-keyword">{option.keyword}:</span>
-            <span className="option-value">{option.value}</span>
+            <input
+                type={optionInfo.inputType === 'number' ? 'number' : 'text'}
+                className="option-value-input"
+                value={option.value}
+                onChange={(e) => onValueChange(e.target.value)}
+                onBlur={onStopEditing}
+                onKeyDown={handleKeyDown}
+                autoFocus
+            />
             <span className="option-semicolon">;</span>
         </div>
     );
+  }
+
+  return (
+    <div className="option-row" onClick={onStartEditing}>
+      <span className="option-keyword">{option.keyword}:</span>
+      <span className="option-value">{optionInfo.format(option.value)}</span>
+      <span className="option-semicolon">;</span>
+    </div>
+  );
 };
 
 const AddOption = ({ onOptionAdd }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const availableOptions = Object.keys(optionsDictionary);
 
-    const filteredOptions = searchTerm === ''
-        ? [] // Arama kutusu boşken liste de boş olsun
-        : availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()));
-
+    const filteredOptions = searchTerm
+        ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()))
+        : [];
+    
     const handleAdd = (keyword) => {
-        const newOption = {
-            keyword: keyword,
-            value: optionsDictionary[keyword].defaultValue,
-        };
-        onOptionAdd(newOption);
-        setSearchTerm(''); // Ekleme sonrası arama kutusunu temizle
+        onOptionAdd({ keyword: keyword, value: optionsDictionary[keyword].defaultValue });
+        setSearchTerm('');
+    };
+    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && filteredOptions.length > 0) {
+            e.preventDefault();
+            handleAdd(filteredOptions[0]);
+        }
     };
 
     return (
         <div className="add-option-container">
-            <input
-                type="text"
-                className="add-option-search"
-                placeholder="+ Seçenek ekle veya ara..."
+            <input 
+                type="text" 
+                className="add-option-search" 
+                placeholder="+ Seçenek ekle veya ara..." 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                onKeyDown={handleKeyDown} 
             />
             {searchTerm && (
                 <ul className="add-option-list">
@@ -129,9 +168,18 @@ const AddOption = ({ onOptionAdd }) => {
     );
 };
 
-
 const OptionsBuilder = ({ ruleOptions, setRuleOptions }) => {
-    const onOptionAdd = (newOption) => {
+    const [editingIndex, setEditingIndex] = useState(null);
+
+    const handleValueChange = (newValue) => {
+        const updatedOptions = [...ruleOptions];
+        if (updatedOptions[editingIndex]) {
+            updatedOptions[editingIndex].value = newValue;
+            setRuleOptions(updatedOptions);
+        }
+    };
+    
+    const handleAddOption = (newOption) => {
         setRuleOptions(prevOptions => [...prevOptions, newOption]);
     };
 
@@ -139,114 +187,121 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions }) => {
         <div className="options-builder">
             <div className="added-options-list">
                 {ruleOptions.map((option, index) => (
-                    <OptionRow key={index} option={option} />
+                    <OptionRow 
+                        key={index} 
+                        option={option}
+                        isEditing={index === editingIndex}
+                        onStartEditing={() => setEditingIndex(index)}
+                        onStopEditing={() => setEditingIndex(null)}
+                        onValueChange={handleValueChange}
+                    />
                 ))}
             </div>
-            <AddOption onOptionAdd={onOptionAdd} />
+            <AddOption onOptionAdd={handleAddOption} />
         </div>
     );
 };
 
-
 const HeaderEditor = () => {
-  const [headerData, setHeaderData] = useState({
-    Action: '', Protocol: '', 'Source IP': '', 'Source Port': '',
-    Direction: '', 'Destination IP': '', 'Destination Port': '',
-  });
-  const [activeInput, setActiveInput] = useState(null);
-  const [isHeaderComplete, setIsHeaderComplete] = useState(false);
+  const [headerData, setHeaderData] = useState({'Action':'','Protocol':'','Source IP':'','Source Port':'','Direction':'','Destination IP':'','Destination Port':''});
+  const [activeInput, setActiveInput] = useState(null); 
+  const [isHeaderComplete, setIsHeaderComplete] = useState(false); 
   const [ruleOptions, setRuleOptions] = useState([]);
-
-  const editorRef = useRef(null);
-  const inputRefs = useRef([]);
-  const labels = ['Action', 'Protocol', 'Source IP', 'Source Port', 'Direction', 'Destination IP', 'Destination Port'];
+  
+  const editorRef = useRef(null); 
+  const inputRefs = useRef([]); 
+  const labels = Object.keys(headerData);
 
   const handleFocus = (label) => setActiveInput(label);
   const handleChange = (label, value) => setHeaderData(prev => ({ ...prev, [label]: value }));
   const handleSuggestionClick = (suggestion) => {
-    if (activeInput) {
-      setHeaderData(prev => ({ ...prev, [activeInput]: suggestion }));
-      const currentIndex = labels.indexOf(activeInput);
-      const nextIndex = currentIndex + 1;
-      if (nextIndex < labels.length) inputRefs.current[nextIndex].focus();
-    }
+      if (activeInput) {
+          handleChange(activeInput, suggestion);
+          const currentIndex = labels.indexOf(activeInput);
+          const nextIndex = currentIndex + 1;
+          if (nextIndex < labels.length) {
+              inputRefs.current[nextIndex].focus();
+          }
+      }
   };
   
-  const handleKeyDown = (event, currentIndex) => {
-    if (event.key === ' ' && event.target.value.trim() !== '') {
-      event.preventDefault();
-      const nextIndex = currentIndex + 1;
-      if (nextIndex < labels.length) inputRefs.current[nextIndex].focus();
-      else setIsHeaderComplete(true);
-    }
-    if (event.key === 'Backspace' && event.target.value === '') {
-      event.preventDefault();
-      const prevIndex = currentIndex - 1;
-      if (prevIndex >= 0) inputRefs.current[prevIndex].focus();
-    }
-  };
-
-  const handleOptionsKeyDown = (event) => {
-    if (event.key === 'Backspace' && event.target.value === '') {
-      event.preventDefault();
-      setIsHeaderComplete(false);
-    }
+  const handleKeyDown = (e, currentIndex) => {
+      if (e.key === ' ' && e.target.value.trim() !== '') {
+          e.preventDefault();
+          const nextIndex = currentIndex + 1;
+          if (nextIndex < labels.length) {
+              inputRefs.current[nextIndex].focus();
+          } else {
+              setIsHeaderComplete(true);
+          }
+      }
+      if (e.key === 'Backspace' && e.target.value === '') {
+          e.preventDefault();
+          const prevIndex = currentIndex - 1;
+          if (prevIndex >= 0) {
+              inputRefs.current[prevIndex].focus();
+          }
+      }
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (editorRef.current && !editorRef.current.contains(event.target)) setActiveInput(null);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+      const handleClickOutside = (e) => {
+          if (editorRef.current && !editorRef.current.contains(e.target)) {
+              setActiveInput(null);
+          }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
-    if (!isHeaderComplete && inputRefs.current.length > 0) {
-      setTimeout(() => {
-        const lastInput = inputRefs.current[labels.length - 1];
-        if (lastInput) lastInput.focus();
-      }, 0);
-    }
-  }, [isHeaderComplete]);
+      if (!isHeaderComplete && inputRefs.current.length > 0) {
+          setTimeout(() => {
+              const lastInput = inputRefs.current[labels.length - 1];
+              if (lastInput) {
+                  lastInput.focus();
+              }
+          }, 0);
+      }
+  }, [isHeaderComplete, labels.length]);
 
   if (isHeaderComplete) {
-    const finalHeaderString = labels.map(label => headerData[label]).join(' ');
-    return (
-      <div className="options-view-container">
-        <pre className="final-header-text">{finalHeaderString} (</pre>
-        <OptionsBuilder ruleOptions={ruleOptions} setRuleOptions={setRuleOptions} />
-        <div className="final-header-text">)</div>
-      </div>
-    );
+      const finalHeaderString = labels.map(label => headerData[label]).join(' ');
+      return (
+          <div className="options-view-container">
+              <pre className="final-header-text">{finalHeaderString} (</pre>
+              <OptionsBuilder ruleOptions={ruleOptions} setRuleOptions={setRuleOptions} />
+              <div className="final-header-text">)</div>
+          </div>
+      );
   }
 
   return (
-    <div className="editor-row" ref={editorRef}>
-      {labels.map((label, index) => (
-        <RuleInputBox
-          key={label}
-          ref={el => inputRefs.current[index] = el}
-          label={label}
-          value={headerData[label]}
-          onChange={(e) => handleChange(label, e.target.value)}
-          onFocus={() => handleFocus(label)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          isActive={activeInput === label}
-          suggestions={suggestionsData[label]} // Hata bu satırdaydı
-          onSuggestionClick={handleSuggestionClick}
-        />
-      ))}
-    </div>
+      <div className="editor-row" ref={editorRef}>
+          {labels.map((label, index) => (
+              <RuleInputBox 
+                  key={label} 
+                  ref={el => inputRefs.current[index] = el}
+                  label={label}
+                  value={headerData[label]}
+                  onChange={e => handleChange(label, e.target.value)}
+                  onFocus={() => handleFocus(label)}
+                  onKeyDown={e => handleKeyDown(e, index)}
+                  isActive={activeInput === label}
+                  suggestions={suggestionsData[label]}
+                  onSuggestionClick={handleSuggestionClick} 
+              />
+          ))}
+      </div>
   );
 };
 
-function App() {
-  return (
-    <div className="app-container">
-      <HeaderEditor />
-    </div>
-  );
+function App() { 
+    return (
+        <div className="app-container">
+            <HeaderEditor />
+        </div>
+    ); 
 }
 
 export default App;

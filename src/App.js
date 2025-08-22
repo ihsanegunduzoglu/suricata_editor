@@ -88,6 +88,37 @@ const RuleInputBox = React.forwardRef(({ label, value, onChange, onFocus, onKeyD
   );
 });
 
+// YENİ BİLEŞEN: 'flow' gibi seçenekler için tıklanabilir etiketler
+const TagsInput = ({ availableTags, value, onChange }) => {
+    const selectedTags = new Set(value.split(',').map(t => t.trim()).filter(Boolean));
+
+    const handleTagClick = (tag) => {
+        const newSelectedTags = new Set(selectedTags);
+        if (newSelectedTags.has(tag)) {
+            newSelectedTags.delete(tag);
+        } else {
+            newSelectedTags.add(tag);
+        }
+        onChange(Array.from(newSelectedTags).join(','));
+    };
+
+    return (
+        <div className="tags-input-container">
+            {availableTags.map(tag => (
+                <button
+                    key={tag}
+                    type="button"
+                    className={`tag-item ${selectedTags.has(tag) ? 'selected' : ''}`}
+                    onClick={() => handleTagClick(tag)}
+                >
+                    {tag}
+                </button>
+            ))}
+        </div>
+    );
+};
+
+
 const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
   const optionInfo = optionsDictionary[option.keyword];
 
@@ -101,15 +132,26 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
     return (
        <div className="option-row">
             <span className="option-keyword">{option.keyword}:</span>
-            <input
-                type={optionInfo.inputType === 'number' ? 'number' : 'text'}
-                className="option-value-input"
-                value={option.value}
-                onChange={(e) => onValueChange(e.target.value)}
-                onBlur={onStopEditing}
-                onKeyDown={handleKeyDown}
-                autoFocus
-            />
+            
+            {/* DEĞİŞİKLİK: 'inputType'a göre doğru bileşeni gösterme */}
+            {optionInfo.inputType === 'tags' ? (
+                <TagsInput
+                    availableTags={optionInfo.availableTags}
+                    value={option.value}
+                    onChange={onValueChange}
+                />
+            ) : (
+                <input
+                    type={optionInfo.inputType === 'number' ? 'number' : 'text'}
+                    className="option-value-input"
+                    value={option.value}
+                    onChange={(e) => onValueChange(e.target.value)}
+                    onBlur={onStopEditing}
+                    onKeyDown={handleKeyDown}
+                    autoFocus
+                />
+            )}
+
             <span className="option-semicolon">;</span>
         </div>
     );
@@ -177,12 +219,11 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null); 
 
-    // YENİ EKLENEN ÖZELLİK: Options ekranı açılır açılmaz arama kutusuna odaklan
     useEffect(() => {
         if (addOptionInputRef.current) {
             addOptionInputRef.current.focus();
         }
-    }, []); // Boş dizi sayesinde sadece ilk render olduğunda çalışır
+    }, []); 
 
     const handleValueChange = (newValue) => {
         const updatedOptions = [...ruleOptions];
@@ -238,6 +279,7 @@ const HeaderEditor = () => {
   const inputRefs = useRef([]); 
   const labels = Object.keys(headerData);
   const isInitialMount = useRef(true);
+  const hasBeenInOptionMode = useRef(false);
 
   const handleFocus = (label) => setActiveInput(label);
   const handleChange = (label, value) => setHeaderData(prev => ({ ...prev, [label]: value }));
@@ -260,6 +302,7 @@ const HeaderEditor = () => {
               inputRefs.current[nextIndex].focus();
           } else {
               setIsHeaderComplete(true);
+              hasBeenInOptionMode.current = true;
           }
       }
       if (e.key === 'Backspace' && e.target.value === '') {
@@ -281,14 +324,17 @@ const HeaderEditor = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // HATA DÜZELTMESİ: İlk odaklanma için setTimeout eklendi
   useEffect(() => {
       if (isInitialMount.current) {
           isInitialMount.current = false;
-          const firstInput = inputRefs.current[0];
-          if (firstInput) {
-              firstInput.focus();
-          }
-      } else if (!isHeaderComplete && inputRefs.current.length > 0) {
+          setTimeout(() => {
+            const firstInput = inputRefs.current[0];
+            if (firstInput) {
+                firstInput.focus();
+            }
+          }, 0);
+      } else if (!isHeaderComplete && hasBeenInOptionMode.current) {
           setTimeout(() => {
               const lastInput = inputRefs.current[labels.length - 1];
               if (lastInput) {

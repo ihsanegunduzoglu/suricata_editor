@@ -229,3 +229,33 @@ body {
     cursor: pointer;
     transition: background-color .2s ease;
 }
+
+.tags-input-container {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tag-item {
+  background-color: var(--border-color);
+  color: var(--label-color);
+  border: 1px solid transparent;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.tag-item:hover {
+  border-color: var(--accent-color);
+}
+
+.tag-item.selected {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}

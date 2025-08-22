@@ -1,6 +1,6 @@
 // BU KOD BLOĞUNUN TAMAMINI src/App.js DOSYASINA YAPIŞTİR
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
 // --- VERİLER ---
@@ -28,19 +28,20 @@ const optionsDictionary = {
     description: 'Kural ID', 
     inputType: 'number', 
     defaultValue: '', 
-    format: (val) => val 
+    format: (val) => val ,
+    allowMultiple: false
   },
   'rev': { 
     description: 'Revizyon numarası', 
     inputType: 'number', 
-    defaultValue: '1', 
+    defaultValue: '', 
     format: (val) => val 
   },
   'flow': { 
     description: 'Bağlantı durumu', 
-    inputType: 'tags', 
-    availableTags: ['established', 'to_client', 'from_server', 'not_established'], 
-    defaultValue: 'established', 
+    inputType: 'autocomplete', 
+    suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'],
+    defaultValue: '', 
     format: (val) => val 
   },
   'content': { 
@@ -53,7 +54,9 @@ const optionsDictionary = {
     description: 'Büyük/küçük harf duyarsız arama', 
     inputType: 'flag', 
     defaultValue: '', 
-    format: () => '' 
+    format: () => '' ,
+    allowMultiple : false,
+    dependsOn : 'content'
   },
 };
 
@@ -88,36 +91,66 @@ const RuleInputBox = React.forwardRef(({ label, value, onChange, onFocus, onKeyD
   );
 });
 
-// YENİ BİLEŞEN: 'flow' gibi seçenekler için tıklanabilir etiketler
-const TagsInput = ({ availableTags, value, onChange }) => {
-    const selectedTags = new Set(value.split(',').map(t => t.trim()).filter(Boolean));
+const AutocompleteInput = ({ value, onChange, onStopEditing, suggestions }) => {
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const containerRef = useRef(null);
 
-    const handleTagClick = (tag) => {
-        const newSelectedTags = new Set(selectedTags);
-        if (newSelectedTags.has(tag)) {
-            newSelectedTags.delete(tag);
-        } else {
-            newSelectedTags.add(tag);
-        }
-        onChange(Array.from(newSelectedTags).join(','));
+    const filteredSuggestions = suggestions.filter(s => 
+        s.toLowerCase().includes(value.toLowerCase())
+    );
+
+    const handleSelect = (suggestion) => {
+        onChange(suggestion);
+        setShowSuggestions(false);
+        onStopEditing();
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            if(filteredSuggestions.length > 0) {
+                handleSelect(filteredSuggestions[0]);
+            } else {
+                onStopEditing();
+            }
+        }
+    };
+
+    // Dışarı tıklandığında menüyü kapatmak için
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+                onStopEditing();
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onStopEditing]);
+
+
     return (
-        <div className="tags-input-container">
-            {availableTags.map(tag => (
-                <button
-                    key={tag}
-                    type="button"
-                    className={`tag-item ${selectedTags.has(tag) ? 'selected' : ''}`}
-                    onClick={() => handleTagClick(tag)}
-                >
-                    {tag}
-                </button>
-            ))}
+        <div className="autocomplete-container" ref={containerRef}>
+            <input
+                type="text"
+                className="option-value-input"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={handleKeyDown}
+                autoFocus
+            />
+            {showSuggestions && (
+                <ul className="suggestions-list">
+                    {filteredSuggestions.map((suggestion, index) => (
+                        <li key={index} onMouseDown={() => handleSelect(suggestion)}>
+                            {suggestion}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
-
 
 const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
   const optionInfo = optionsDictionary[option.keyword];
@@ -128,17 +161,18 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
     }
   };
 
-  if (isEditing) {
+  if (isEditing && optionInfo.inputType !== 'flag') {
     return (
-       <div className="option-row">
+      <div className="option-row">
             <span className="option-keyword">{option.keyword}:</span>
-            
-            {/* DEĞİŞİKLİK: 'inputType'a göre doğru bileşeni gösterme */}
-            {optionInfo.inputType === 'tags' ? (
-                <TagsInput
-                    availableTags={optionInfo.availableTags}
+
+            {/* YENİ KOŞULLU MANTIK BURADA */}
+            {optionInfo.inputType === 'autocomplete' ? (
+                <AutocompleteInput
+                    suggestions={optionInfo.suggestions}
                     value={option.value}
                     onChange={onValueChange}
+                    onStopEditing={onStopEditing}
                 />
             ) : (
                 <input
@@ -158,17 +192,41 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
   }
 
   return (
-    <div className="option-row" onClick={onStartEditing}>
-      <span className="option-keyword">{option.keyword}:</span>
-      <span className="option-value">{optionInfo.format(option.value)}</span>
-      <span className="option-semicolon">;</span>
+    <div className="option-row" onClick={optionInfo.inputType !== 'flag' ? onStartEditing : undefined}>
+      {optionInfo.inputType === 'flag' ? (
+            <span className="option-keyword">{option.keyword}</span>
+        ) : (
+            <>
+                <span className="option-keyword">{option.keyword}:</span>
+                <span className="option-value">{optionInfo.format(option.value)}</span>
+            </>
+        )}
+        <span className="option-semicolon">;</span>
     </div>
   );
 };
 
-const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack }, ref) => {
+const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack, ruleOptions }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const availableOptions = Object.keys(optionsDictionary);
+    const availableOptions = useMemo(() => {
+        const addedKeywords = new Set(ruleOptions.map(o => o.keyword));
+
+        return Object.keys(optionsDictionary).filter(keyword => {
+            const optionInfo = optionsDictionary[keyword];
+
+            // Kural 1: Eğer çoklu kullanıma izin verilmiyorsa ve zaten eklenmişse, gösterme.
+            if (optionInfo.allowMultiple === false && addedKeywords.has(keyword)) {
+                return false;
+            }
+
+            // Kural 2: Eğer bir şeye bağımlıysa ve o şey eklenmemişse, gösterme.
+            if (optionInfo.dependsOn && !addedKeywords.has(optionInfo.dependsOn)) {
+                return false;
+            }
+
+            return true;
+        });
+    }, [ruleOptions]);
 
     const filteredOptions = searchTerm
         ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -264,7 +322,7 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
                     />
                 ))}
             </div>
-            <AddOption ref={addOptionInputRef} onOptionAdd={handleAddOption} onNavigateBack={onNavigateBack} />
+            <AddOption ref={addOptionInputRef} onOptionAdd={handleAddOption} onNavigateBack={onNavigateBack} ruleOptions={ruleOptions} />
         </div>
     );
 };

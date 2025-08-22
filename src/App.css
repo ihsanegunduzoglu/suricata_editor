@@ -96,7 +96,7 @@ body {
 
 .final-header-text {
   font-size: 1.2rem;
-  color: #569cd6;
+  color: #ffffff;
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
@@ -230,32 +230,21 @@ body {
     transition: background-color .2s ease;
 }
 
-.tags-input-container {
-  flex-grow: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.tag-item {
-  background-color: var(--border-color);
-  color: var(--label-color);
-  border: 1px solid transparent;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
 .tag-item:hover {
   border-color: var(--accent-color);
 }
 
-.tag-item.selected {
-  background-color: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
+.autocomplete-container {
+  position: relative;
+  flex-grow: 1;
 }
+
+/* Bu kural, .autocomplete-container içindeki öneri listesinin
+   doğru konumda (input'un altında) görünmesini sağlar */
+.autocomplete-container .suggestions-list {
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 2px;
+}
+

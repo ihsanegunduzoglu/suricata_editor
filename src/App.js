@@ -31,7 +31,7 @@ const optionsDictionary = {
   'msg': { description: 'Kural mesajı', inputType: 'text', defaultValue: '', format: (val) => `"${val}"` },
   'sid': { description: 'Kural ID', inputType: 'number', defaultValue: '', format: (val) => val, allowMultiple: false },
   'rev': { description: 'Revizyon numarası', inputType: 'number', defaultValue: '1', format: (val) => val, allowMultiple: false },
-  'flow': { description: 'Bağlantı durumu', inputType: 'autocomplete', suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], defaultValue: 'established', format: (val) => val },
+  'flow': { description: 'Bağlantı durumu', inputType: 'autocomplete', suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], defaultValue: '', format: (val) => val },
   'content': { description: 'Aranacak içerik', inputType: 'text', defaultValue: '', format: (val, mods) => `"${val}"${formatModifiersForDisplay(mods)}` },
   // Değiştiriciler (Modifiers)
   'nocase': { description: 'Büyük/küçük harf duyarsız arama', inputType: 'flag', defaultValue: false, isModifier: true, dependsOn: 'content' },
@@ -147,9 +147,11 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         }
     }, [isValueConfirmed]);
     
+    // YENİ EKLENEN FONKSİYON
     const handleModifierInputKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
+            e.stopPropagation();
             commandInputRef.current?.focus();
         }
     };
@@ -188,7 +190,7 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                     className="option-value-input"
                     value={option.value}
                     onChange={handleMainValueChange}
-                    onKeyDown={handleMainValueKeyDown}  
+                    onKeyDown={handleMainValueKeyDown}
                     placeholder=""
                     autoFocus
                 />
@@ -205,15 +207,15 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                         <div className="modifier-item">
                             <label htmlFor={`depth-${option.value}`}>depth:</label>
                             <input type="number" id={`depth-${option.value}`} ref={modifierInputs.depth} value={option.modifiers?.depth || ''}
-                                  onChange={(e) => handleModifierChange('depth', e.target.value)}
-                                  onKeyDown={handleModifierInputKeyDown} // <-- BU SATIRI EKLE
+                                   onChange={(e) => handleModifierChange('depth', e.target.value)}
+                                   onKeyDown={handleModifierInputKeyDown}
                             />
                         </div>
                         <div className="modifier-item">
                             <label htmlFor={`offset-${option.value}`}>offset:</label>
                             <input type="number" id={`offset-${option.value}`} ref={modifierInputs.offset} value={option.modifiers?.offset || ''}
-                                  onChange={(e) => handleModifierChange('offset', e.target.value)}
-                                  onKeyDown={handleModifierInputKeyDown} // <-- BU SATIRI EKLE
+                                   onChange={(e) => handleModifierChange('offset', e.target.value)}
+                                   onKeyDown={handleModifierInputKeyDown}
                             />
                         </div>
                     </div>

@@ -1,10 +1,10 @@
 /* BU KOD BLOĞUNUN TAMAMINI src/App.css DOSYASINA YAPIŞTIR */
 
-/* Genel Stiller */
+/* Genel Stiller ve YENİ RENK PALETİ */
 :root {
-  --text-color: #d4d4d4;
-  --border-color: #3c3c3c;
-  --input-background: #3c3c3c;
+  --text-color: #ffffff; /* Yazı rengi: Beyaz */
+  --border-color: #333333; /* Kenarlık rengi: Koyu Gri */
+  --input-background: #000000; /* Kutu arka planı: Siyah */
   --label-color: #aaaaaa;
   --accent-color: #007acc;
   --suggestion-hover-bg: #2a2d2e;
@@ -26,6 +26,8 @@ body {
   box-sizing: border-box;
 }
 
+/* --- Header Yazma Modu Stilleri --- */
+
 .editor-row {
   display: flex;
   align-items: flex-end;
@@ -34,13 +36,11 @@ body {
   max-width: 1400px;
 }
 
-/* Giriş Kutusu Grubu (Etiket + Input) */
 .input-group {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 100px;
-  /* ÖNERİ LİSTESİNİ KONUMLANDIRMAK İÇİN BU GEREKLİ */
   position: relative;
 }
 
@@ -67,47 +67,70 @@ body {
   border-color: var(--accent-color);
 }
 
-/* --- YENİ EKLENEN CSS KODLARI --- */
-
-/* Öneri Listesinin Konteyneri */
 .suggestions-list {
-  /* Konumlandırma */
   position: absolute;
-  top: 100%; /* Input grubunun hemen altında başla */
-  left: 0;   /* Sol kenara hizala */
-  right: 0;  /* Sağ kenara kadar uzanmasını sağla */
-  z-index: 10; /* Diğer elemanların üzerinde görünsün */
-
-  /* Stil */
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
-  border-top: none; /* Üstteki kutuyla birleşik görünsün */
+  border-top: none;
   border-radius: 0 0 4px 4px;
-  list-style: none; /* Madde işaretlerini kaldır */
+  list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 200px; /* Çok uzarsa scroll çıksın */
+  max-height: 200px;
   overflow-y: auto;
 }
 
-/* Tek bir öneri elemanı */
 .suggestion-item {
-  /* İstenen Stiller */
-  font-size: 1.1rem;  /* Yazıyı biraz büyüt */
-  color: white;       /* Yazı rengini beyaz yap */
-  border: none;       /* Çerçeveyi kaldır */
-  background-color: transparent; /* Arka planı şeffaf yap */
-  
-  /* Kullanışlılık */
+  font-size: 1.1rem;
+  color: var(--text-color);
+  border: none;
+  background-color: transparent;
   padding: 0.75rem;
-  text-align: left; /* Yazıyı sola hizala */
-  cursor: pointer;  /* Üzerine gelince el işareti çıksın */
-  
-  /* Geçiş efekti */
+  text-align: left;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
-/* Önerinin üzerine gelince */
 .suggestion-item:hover {
   background-color: var(--suggestion-hover-bg);
+}
+
+/* --- Options Yazma Modu Stilleri --- */
+
+.options-view-container {
+  width: 100%;
+  max-width: 1400px;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.final-header-text {
+  font-size: 1.2rem;
+  color: #569cd6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+.options-textarea {
+  width: 100%;
+  height: 300px;
+  background-color: #1e1e1e; /* Bunu da siyah yapabiliriz ama kontrast için hafif gri daha iyi durabilir */
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 1rem;
+  margin: 0;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.options-textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
 }

@@ -309,3 +309,14 @@ body {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.rule-text-display {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--text-color);
+}
+.rule-text-display .option-keyword { color: var(--keyword-color); }
+.rule-text-display .option-value { color: var(--value-color); }

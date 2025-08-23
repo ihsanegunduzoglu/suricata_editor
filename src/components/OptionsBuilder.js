@@ -1,11 +1,19 @@
+// src/components/OptionsBuilder.js
+
 import React, { useState, useEffect, useRef } from 'react';
+import { useRule } from '../context/RuleContext';
 import OptionRow from './OptionRow';
 import AddOption from './AddOption';
 import OptionGroupRow from './OptionGroupRow';
 
-const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack, protocol }) => {
+const OptionsBuilder = () => {
+    const { ruleOptions, setRuleOptions, setIsHeaderComplete } = useRule();
+    
+    // editingIndex, bu bileşenin kendi içindeki bir durum olduğu için burada kalıyor.
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
+
+    const onNavigateBack = () => setIsHeaderComplete(false);
     
     useEffect(() => {
         if (editingIndex === null) {
@@ -26,7 +34,7 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack, protocol 
         return () => {
             document.removeEventListener('keydown', handleGlobalKeyDown);
         };
-    }, [onNavigateBack]);
+    }, []); // onNavigateBack artık context'ten geldiği için bağımlılığa gerek yok
     
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...ruleOptions];
@@ -63,52 +71,21 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack, protocol 
         <div className="options-builder">
             <div className="added-options-list">
                 {ruleOptions.map((option, index) => {
-                    // Eğer bu seçenek düzenleniyorsa, her zamanki gibi OptionRow'u kullan.
-                    // OptionRow, ContentEditor'ı açma mantığını zaten biliyor.
                     if (index === editingIndex) {
-                        return (
-                            <OptionRow 
-                                key={index} 
-                                option={option} 
-                                isEditing={true} 
-                                onStartEditing={() => setEditingIndex(index)} 
-                                onStopEditing={handleStopEditing} 
-                                onValueChange={(newValue) => handleValueChange(index, newValue)} 
-                            />
-                        );
+                        return <OptionRow key={index} option={option} isEditing={true} onStartEditing={() => setEditingIndex(index)} onStopEditing={handleStopEditing} onValueChange={(newValue) => handleValueChange(index, newValue)} />;
                     }
-
-                    // EĞER DÜZENLENMİYORSA:
-                    // Seçenek 'content' ise, yeni grup bileşenimizi kullan.
                     if (option.keyword === 'content') {
-                        return (
-                            <OptionGroupRow 
-                                key={index}
-                                option={option}
-                                onStartEditing={() => setEditingIndex(index)}
-                            />
-                        );
+                        return <OptionGroupRow key={index} option={option} onStartEditing={() => setEditingIndex(index)} />;
                     } else {
-                    // Diğer tüm seçenekler için standart OptionRow'u kullanmaya devam et.
-                        return (
-                            <OptionRow 
-                                key={index} 
-                                option={option} 
-                                isEditing={false} 
-                                onStartEditing={() => setEditingIndex(index)} 
-                                onStopEditing={handleStopEditing} 
-                                onValueChange={(newValue) => handleValueChange(index, newValue)} 
-                            />
-                        );
+                        return <OptionRow key={index} option={option} isEditing={false} onStartEditing={() => setEditingIndex(index)} onStopEditing={handleStopEditing} onValueChange={(newValue) => handleValueChange(index, newValue)} />;
                     }
                 })}
             </div>
+            {/* Bu handler'lar bu bileşende tanımlandığı için prop olarak geçmeye devam ediyor */}
             <AddOption 
                 ref={addOptionInputRef} 
                 onOptionAdd={handleAddOption} 
                 onDeleteLastOption={handleDeleteLastOption} 
-                ruleOptions={ruleOptions} 
-                protocol={protocol}
             />
         </div>
     );

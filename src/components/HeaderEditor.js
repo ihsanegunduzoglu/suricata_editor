@@ -1,13 +1,18 @@
+// src/components/HeaderEditor.js
+
 import React, { useState, useEffect, useRef } from 'react';
+import { useRule } from '../context/RuleContext';
 import suggestionsData from '../data/suggestionsData';
 import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
 
 const HeaderEditor = () => {
-    const [headerData, setHeaderData] = useState({ 'Action': '', 'Protocol': '', 'Source IP': '', 'Source Port': '', 'Direction': '', 'Destination IP': '', 'Destination Port': '' });
+    // State'ler artık merkezi panodan (context) geliyor
+    const { headerData, setHeaderData, isHeaderComplete, setIsHeaderComplete } = useRule();
+    
+    // activeInput bu bileşene özel bir UI state'i olduğu için burada kalabilir
     const [activeInput, setActiveInput] = useState(null);
-    const [isHeaderComplete, setIsHeaderComplete] = useState(false);
-    const [ruleOptions, setRuleOptions] = useState([]);
+
     const editorRef = useRef(null);
     const inputRefs = useRef([]);
     const labels = Object.keys(headerData);
@@ -82,12 +87,8 @@ const HeaderEditor = () => {
         return (
             <div className="options-view-container">
                 <pre className="final-header-text">{finalHeaderString} (</pre>
-                <OptionsBuilder 
-                    ruleOptions={ruleOptions} 
-                    setRuleOptions={setRuleOptions} 
-                    onNavigateBack={() => setIsHeaderComplete(false)} 
-                    protocol={headerData.Protocol}
-                />
+                {/* OptionsBuilder'a artık prop aktarmamıza gerek yok! */}
+                <OptionsBuilder />
                 <div className="final-header-text">)</div>
             </div>
         );

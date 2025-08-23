@@ -3,12 +3,15 @@
 import React from 'react';
 import './App.css';
 import HeaderEditor from './components/HeaderEditor';
+import { RuleProvider } from './context/RuleContext'; // Provider'ı import et
 
 function App() { 
     return (
-        <div className="app-container">
-            <HeaderEditor />
-        </div>
+        <RuleProvider>
+            <div className="app-container">
+                <HeaderEditor />
+            </div>
+        </RuleProvider>
     ); 
 }
 

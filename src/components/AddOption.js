@@ -1,8 +1,15 @@
+// src/components/AddOption.js
+
 import React, { useState, useMemo } from 'react';
+import { useRule } from '../context/RuleContext';
 import { optionsDictionary } from '../data/optionsDictionary';
 
-const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, ruleOptions, protocol }, ref) => {
+const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption }, ref) => {
+    const { ruleOptions, headerData } = useRule();
+    const protocol = headerData.Protocol;
+
     const [searchTerm, setSearchTerm] = useState('');
+    
     const availableOptions = useMemo(() => {
         const addedKeywords = new Set(ruleOptions.map(o => o.keyword));
         return Object.keys(optionsDictionary).filter(keyword => {
@@ -10,15 +17,12 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, ruleOptio
             if (optionInfo.isModifier) return false;
             if (optionInfo.allowMultiple === false && addedKeywords.has(keyword)) return false;
             if (optionInfo.dependsOn && !addedKeywords.has(optionInfo.dependsOn)) return false;
-            
             if (optionInfo.dependsOnProtocol && optionInfo.dependsOnProtocol !== protocol?.toLowerCase()) {
                 return false;
             }
             return true;
         });
     }, [ruleOptions, protocol]);
-    
-    const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
     
     const handleAdd = (keyword) => {
         const newOption = { keyword: keyword, value: optionsDictionary[keyword].defaultValue };
@@ -40,6 +44,8 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, ruleOptio
         }
     };
     
+    const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
+
     return (
         <div className="add-option-container">
             <input 

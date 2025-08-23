@@ -3,7 +3,7 @@ import OptionRow from './OptionRow';
 import AddOption from './AddOption';
 import OptionGroupRow from './OptionGroupRow';
 
-const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
+const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack, protocol }) => {
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
     
@@ -108,6 +108,7 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
                 onOptionAdd={handleAddOption} 
                 onDeleteLastOption={handleDeleteLastOption} 
                 ruleOptions={ruleOptions} 
+                protocol={protocol}
             />
         </div>
     );

@@ -86,6 +86,7 @@ const HeaderEditor = () => {
                     ruleOptions={ruleOptions} 
                     setRuleOptions={setRuleOptions} 
                     onNavigateBack={() => setIsHeaderComplete(false)} 
+                    protocol={headerData.Protocol}
                 />
                 <div className="final-header-text">)</div>
             </div>

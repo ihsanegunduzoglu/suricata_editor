@@ -1,9 +1,9 @@
-// BU KOD BLOĞUNUN TAMAMINI src/App.js DOSYASINA YAPIŞTİR
+// BU KOD BLOGUNUN TAMAMINI src/App.js DOSYASINA YAPIŞTIR
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
-// --- VERİLER ---
+// --- VERILER ---
 
 const suggestionsData = {
   Action: ['alert', 'pass', 'drop', 'reject'],
@@ -15,28 +15,26 @@ const suggestionsData = {
   'Destination IP': ['$HOME_NET', '$EXTERNAL_NET', 'any'],
 };
 
-// --- YARDIMCI FONKSİYONLAR ---
+// --- YARDIMCI FONKSIYONLAR ---
 const formatModifiersForDisplay = (modifiers) => {
     if (!modifiers) return '';
     let str = '';
-    // Not: Gerçek kuralda bu değiştiriciler content'in bir parçası değildir, 
-    // ayrı anahtar kelimelerdir. Bu formatlama sadece görsel özet içindir.
-    if (modifiers.nocase) str += ' [nocase]';
-    if (modifiers.depth && modifiers.depth !== '') str += ` [depth:${modifiers.depth}]`;
-    if (modifiers.offset && modifiers.offset !== '') str += ` [offset:${modifiers.offset}]`;
+    if (modifiers.nocase) str += ' nocase';
+    if (modifiers.depth && modifiers.depth !== '') str += ` depth:${modifiers.depth}`;
+    if (modifiers.offset && modifiers.offset !== '') str += ` offset:${modifiers.offset}`;
     return str;
 };
 
 const optionsDictionary = {
-  'msg': { description: 'Kural mesajı', inputType: 'text', defaultValue: '', format: (val) => `"${val}"` },
+  'msg': { description: 'Kural mesaji', inputType: 'text', defaultValue: '', format: (val) => `"${val}"` },
   'sid': { description: 'Kural ID', inputType: 'number', defaultValue: '', format: (val) => val, allowMultiple: false },
-  'rev': { description: 'Revizyon numarası', inputType: 'number', defaultValue: '1', format: (val) => val, allowMultiple: false },
-  'flow': { description: 'Bağlantı durumu', inputType: 'autocomplete', suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], defaultValue: '', format: (val) => val },
-  'content': { description: 'Aranacak içerik', inputType: 'text', defaultValue: '', format: (val, mods) => `"${val}"${formatModifiersForDisplay(mods)}` },
-  // Değiştiriciler (Modifiers)
-  'nocase': { description: 'Büyük/küçük harf duyarsız arama', inputType: 'flag', defaultValue: false, isModifier: true, dependsOn: 'content' },
-  'depth': { description: 'Aramanın başlayacağı byte sayısı', inputType: 'number', defaultValue: '', isModifier: true, dependsOn: 'content' },
-  'offset': { description: 'Paket başından itibaren aramanın başlayacağı ofset', inputType: 'number', defaultValue: '', isModifier: true, dependsOn: 'content' },
+  'rev': { description: 'Revizyon numarasi', inputType: 'number', defaultValue: '1', format: (val) => val, allowMultiple: false },
+  'flow': { description: 'Baglanti durumu', inputType: 'autocomplete', suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], defaultValue: '', format: (val) => val },
+  'content': { description: 'Aranacak icerik', inputType: 'text', defaultValue: '', format: (val, mods) => `"${val}"${formatModifiersForDisplay(mods)}` },
+  // Degistiriciler (Modifiers)
+  'nocase': { description: 'Buyuk/kucuk harf duyarsiz arama', inputType: 'flag', defaultValue: false, isModifier: true, dependsOn: 'content' },
+  'depth': { description: 'Aramanin baslayacagi byte sayisi', inputType: 'number', defaultValue: '', isModifier: true, dependsOn: 'content' },
+  'offset': { description: 'Paket basindan itibaren aramanin baslayacagi ofset', inputType: 'number', defaultValue: '', isModifier: true, dependsOn: 'content' },
 };
 
 // --- BİLEŞENLER ---
@@ -147,7 +145,6 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         }
     }, [isValueConfirmed]);
     
-    // YENİ EKLENEN FONKSİYON
     const handleModifierInputKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -283,7 +280,7 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
     );
 };
 
-const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack, ruleOptions }, ref) => {
+const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, ruleOptions }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const availableOptions = useMemo(() => {
         const addedKeywords = new Set(ruleOptions.map(o => o.keyword));
@@ -307,15 +304,21 @@ const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack, ruleOptions }
     };
     
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && filteredOptions.length > 0) { e.preventDefault(); handleAdd(filteredOptions[0]); }
-        if (e.key === 'Backspace' && e.target.value === '') { e.preventDefault(); onNavigateBack(); }
+        if (e.key === 'Enter' && filteredOptions.length > 0) {
+            e.preventDefault();
+            handleAdd(filteredOptions[0]);
+        }
+        if (e.key === 'Backspace' && e.target.value === '') {
+            e.preventDefault();
+            onDeleteLastOption();
+        }
     };
     
     return (
         <div className="add-option-container">
             <input 
                 ref={ref} type="text" className="add-option-search" 
-                placeholder="+ Seçenek ekle veya ara... (Boşken Backspace ile geri dön)" 
+                placeholder="+ Seçenek ekle veya ara... (Boşken Backspace ile sil, Esc ile geri dön)" 
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} 
             />
             {searchTerm && (
@@ -334,12 +337,36 @@ const AddOption = React.forwardRef(({ onOptionAdd, onNavigateBack, ruleOptions }
 const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
-
-    useEffect(() => { 
-        if (addOptionInputRef.current) { 
-            addOptionInputRef.current.focus(); 
-        } 
-    }, []);
+    
+    // DEĞİŞİKLİK 1: Odaklanma yönetimi basitleştirildi.
+    // Bu useEffect artık sadece `editingIndex` durumunu izliyor.
+    useEffect(() => {
+        // Eğer hiçbir seçenek düzenlenmiyorsa, alttaki ana input'a odaklan.
+        if (editingIndex === null) {
+            // setTimeout, diğer DOM olayları bittikten sonra focus işleminin
+            // güvenilir bir şekilde yapılmasını sağlar.
+            setTimeout(() => {
+                addOptionInputRef.current?.focus();
+            }, 0);
+        }
+        // `editingIndex` null değilse, bir seçenek düzenleniyor demektir.
+        // Bu durumda ilgili OptionRow içindeki input'un `autoFocus` özelliği
+        // odaklanmayı kendisi halledecektir. Buradan müdahale etmiyoruz.
+    }, [editingIndex]);
+    
+    // Escape tuşuyla geri dönme işlevi ayrı bir useEffect'e taşındı.
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                onNavigateBack();
+            }
+        };
+        document.addEventListener('keydown', handleGlobalKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleGlobalKeyDown);
+        };
+    }, [onNavigateBack]);
     
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...ruleOptions];
@@ -353,18 +380,27 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
             setRuleOptions(updatedOptions);
         }
     };
+
+    const handleDeleteLastOption = () => {
+        if (ruleOptions.length > 0) {
+            setRuleOptions(prev => prev.slice(0, -1));
+        }
+    };
     
+    // DEĞİŞİKLİK 2: handleAddOption fonksiyonu eski, basit ve atomik haline geri döndürüldü.
     const handleAddOption = (newOption) => { 
-        setRuleOptions(prev => { 
-            const newOpts = [...prev, newOption]; 
-            setEditingIndex(newOpts.length - 1); 
-            return newOpts; 
+        setRuleOptions(prev => {
+            const newOpts = [...prev, newOption];
+            // Yeni seçeneği ekle ve hemen ardından düzenleme indeksini ayarla.
+            setEditingIndex(newOpts.length - 1);
+            return newOpts;
         }); 
     };
     
+    // DEĞİŞİKLİK 3: handleStopEditing basitleştirildi. Sadece indeksi null yapıyor.
+    // Odaklanma işini yukarıdaki useEffect hallediyor.
     const handleStopEditing = () => { 
         setEditingIndex(null); 
-        setTimeout(() => { if (addOptionInputRef.current) addOptionInputRef.current.focus(); }, 0); 
     };
     
     return (
@@ -384,7 +420,7 @@ const OptionsBuilder = ({ ruleOptions, setRuleOptions, onNavigateBack }) => {
             <AddOption 
                 ref={addOptionInputRef} 
                 onOptionAdd={handleAddOption} 
-                onNavigateBack={onNavigateBack} 
+                onDeleteLastOption={handleDeleteLastOption} 
                 ruleOptions={ruleOptions} 
             />
         </div>

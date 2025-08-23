@@ -341,3 +341,25 @@ body {
   display: flex;
   align-items: center;
 }
+
+.option-group-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem; /* Dikey ve yatay boşluk */
+  padding: 0.25rem 0.5rem;
+  font-size: 1.1rem;
+  cursor: text;
+  border-radius: 3px;
+  margin: 2px 0;
+}
+
+.option-group-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Grup içindeki her bir eleman için stil */
+.option-group-item {
+  display: flex;
+  align-items: center;
+}

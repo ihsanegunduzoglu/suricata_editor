@@ -1,52 +1,36 @@
 // src/components/FinalizedRule.js
 
-import React, { useState } from 'react';
+import React from 'react'; // useState kaldırıldı
 import { useRule } from '../context/RuleContext';
+import { toast } from 'react-toastify'; // YENİ: toast import'u
 
 const FinalizedRule = ({ session }) => {
     const { deleteRule, duplicateRule, startEditingRule, editingSessionId } = useRule();
-    const [copyStatus, setCopyStatus] = useState('Kopyala');
+    
+    // DEĞİŞİKLİK: Lokal 'copyStatus' state'ine artık ihtiyacımız yok.
+    // const [copyStatus, setCopyStatus] = useState('Kopyala');
 
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(session.ruleString);
-        setCopyStatus('Kopyalandı!');
-        setTimeout(() => setCopyStatus('Kopyala'), 2000);
+        // DEĞİŞİKLİK: setCopyStatus yerine toast.success() kullanıyoruz.
+        toast.success('Kural panoya kopyalandı!');
     };
     
-    // YENİ: Bu kuralın şu an düzenlenip düzenlenmediğini kontrol et
     const isCurrentlyEditing = editingSessionId === session.id;
 
     return (
-        // YENİ: Eğer düzenleniyorsa özel bir sınıf ekliyoruz
         <div className={`finalized-rule-container ${isCurrentlyEditing ? 'is-editing' : ''}`}>
             <div className="rule-actions">
-                 {/* YENİ: Düzenle butonu */}
-                <button 
-                    className="rule-action-btn" 
-                    title="Düzenle"
-                    onClick={() => startEditingRule(session.id)}
-                >
+                <button className="rule-action-btn" title="Düzenle" onClick={() => startEditingRule(session.id)}>
                     ✏️
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Sil"
-                    onClick={() => deleteRule(session.id)}
-                >
+                <button className="rule-action-btn" title="Sil" onClick={() => deleteRule(session.id)}>
                     ✖
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title={copyStatus}
-                    onClick={handleCopyToClipboard}
-                >
+                <button className="rule-action-btn" title="Panoya Kopyala" onClick={handleCopyToClipboard}>
                     📋
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Çoğalt"
-                    onClick={() => duplicateRule(session)}
-                >
+                <button className="rule-action-btn" title="Çoğalt" onClick={() => duplicateRule(session)}>
                     ➕
                 </button>
             </div>

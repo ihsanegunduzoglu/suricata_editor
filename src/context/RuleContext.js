@@ -1,8 +1,9 @@
 // src/context/RuleContext.js
 
-import React, { createContext, useContext, useState, useEffect } from 'react'; // useEffect import et
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { generateRuleString } from '../utils/ruleGenerator';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'react-toastify';
 
 const createNewSession = () => ({
     id: uuidv4(),
@@ -16,13 +17,11 @@ const RuleContext = createContext();
 export const useRule = () => useContext(RuleContext);
 
 export const RuleProvider = ({ children }) => {
-    // YENİ: State'i başlatırken, önce localStorage'ı kontrol eden bir fonksiyon kullanıyoruz.
     const [ruleSessions, setRuleSessions] = useState(() => {
         try {
             const savedSessions = localStorage.getItem('suricataRuleSessions');
             if (savedSessions) {
                 const parsed = JSON.parse(savedSessions);
-                // Hafızadaki verinin geçerli bir dizi olduğundan emin olalım.
                 if (Array.isArray(parsed) && parsed.length > 0) {
                     return parsed;
                 }
@@ -30,17 +29,14 @@ export const RuleProvider = ({ children }) => {
         } catch (error) {
             console.error("Kaydedilmiş kurallar okunurken bir hata oluştu:", error);
         }
-        // Eğer kayıtlı bir şey yoksa veya hata oluşursa, yeni bir oturumla başla.
         return [createNewSession()];
     });
     
     const [editingSessionId, setEditingSessionId] = useState(null);
 
-    // YENİ: ruleSessions her değiştiğinde, yeni halini localStorage'a kaydeden useEffect.
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
-
 
     const updateHeaderData = (sessionId, newHeaderData) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, headerData: newHeaderData } : s));
@@ -75,7 +71,7 @@ export const RuleProvider = ({ children }) => {
     const finalizeCurrentRule = () => {
         const currentSession = ruleSessions[ruleSessions.length - 1];
         if (!currentSession.ruleOptions.some(o => o.keyword === 'msg') || !currentSession.ruleOptions.some(o => o.keyword === 'sid')) {
-            alert('Lütfen kurala en azından "msg" ve "sid" seçeneklerini ekleyin.');
+            toast.error('Lütfen kurala en azından "msg" ve "sid" seçeneklerini ekleyin.');
             return;
         }
         const finalRuleString = generateRuleString(currentSession.headerData, currentSession.ruleOptions);
@@ -97,12 +93,14 @@ export const RuleProvider = ({ children }) => {
                 ];
             });
             setEditingSessionId(null);
+            toast.success('Kural başarıyla güncellendi!');
         } else {
             setRuleSessions(prev => [
                 ...prev.slice(0, -1),
                 { ...currentSession, status: 'finalized', ruleString: finalRuleString },
                 createNewSession()
             ]);
+            toast.success('Kural başarıyla kaydedildi!');
         }
     };
 
@@ -112,6 +110,7 @@ export const RuleProvider = ({ children }) => {
         } else {
             setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
         }
+        toast.info('Kural silindi.');
     };
     
     const duplicateRule = (sessionToDuplicate) => {
@@ -124,6 +123,7 @@ export const RuleProvider = ({ children }) => {
                 ruleString: '',
             }
         ]);
+        toast.info('Kural çoğaltıldı ve editöre yüklendi.');
     };
 
     const value = {

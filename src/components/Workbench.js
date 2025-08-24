@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
+import { toast } from 'react-toastify'; // YENİ: toast import'u
 
 const Workbench = () => {
     const { ruleSessions } = useRule();
@@ -20,7 +21,8 @@ const Workbench = () => {
             .join('\n\n');
 
         if (!finalizedRules) {
-            alert('Dışa aktarılacak tamamlanmış bir kural bulunmuyor.');
+            // DEĞİŞİKLİK: alert() yerine toast.warn() kullanıyoruz.
+            toast.warn('Dışa aktarılacak tamamlanmış bir kural bulunmuyor.');
             return;
         }
 
@@ -37,9 +39,7 @@ const Workbench = () => {
 
     return (
         <div className="workbench-console-container">
-            {/* DEĞİŞİKLİK: Toolbar'dan başlık kaldırıldı */}
             <div className="workbench-toolbar">
-                {/* DEĞİŞİKLİK: Buton daha küçük ve ikonlu olacak şekilde değiştirildi */}
                 <button onClick={handleExport} className="toolbar-button" title="Kuralları .rules dosyası olarak indir">
                     ⇩
                 </button>
@@ -51,7 +51,6 @@ const Workbench = () => {
                         <FinalizedRule session={session} />
                     ) : (
                         <div className="active-editor-wrapper">
-                            {/* DÜZELTME: Yanlışlıkla silinen aktif editörü gösteren bu satır geri eklendi */}
                             <HeaderEditor session={session} />
                         </div>
                     )}

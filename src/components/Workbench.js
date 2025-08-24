@@ -13,7 +13,7 @@ const Workbench = () => {
     useEffect(() => {
         endOfPageRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [ruleSessions.length]);
-
+ 
     return (
         <div className="workbench-console-container">
             {ruleSessions.map(session => (

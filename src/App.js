@@ -2,15 +2,13 @@
 
 import React from 'react';
 import './App.css';
-import HeaderEditor from './components/HeaderEditor';
-import { RuleProvider } from './context/RuleContext'; // Provider'ı import et
+import { RuleProvider } from './context/RuleContext';
+import Workbench from './components/Workbench';
 
 function App() { 
     return (
         <RuleProvider>
-            <div className="app-container">
-                <HeaderEditor />
-            </div>
+            <Workbench />
         </RuleProvider>
     ); 
 }

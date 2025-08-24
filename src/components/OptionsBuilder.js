@@ -6,14 +6,11 @@ import OptionRow from './OptionRow';
 import AddOption from './AddOption';
 import OptionGroupRow from './OptionGroupRow';
 
-const OptionsBuilder = () => {
-    const { ruleOptions, setRuleOptions, setIsHeaderComplete } = useRule();
+const OptionsBuilder = ({ session, onNavigateBack }) => {
+    const { updateRuleOptions } = useRule();
     
-    // editingIndex, bu bileşenin kendi içindeki bir durum olduğu için burada kalıyor.
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
-
-    const onNavigateBack = () => setIsHeaderComplete(false);
     
     useEffect(() => {
         if (editingIndex === null) {
@@ -23,21 +20,8 @@ const OptionsBuilder = () => {
         }
     }, [editingIndex]);
     
-    useEffect(() => {
-        const handleGlobalKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                onNavigateBack();
-            }
-        };
-        document.addEventListener('keydown', handleGlobalKeyDown);
-        return () => {
-            document.removeEventListener('keydown', handleGlobalKeyDown);
-        };
-    }, []); // onNavigateBack artık context'ten geldiği için bağımlılığa gerek yok
-    
     const handleValueChange = (index, newValue) => {
-        const updatedOptions = [...ruleOptions];
+        const updatedOptions = [...session.ruleOptions];
         if (updatedOptions[index]) {
             if (typeof newValue === 'object' && newValue !== null) {
                 updatedOptions[index].value = newValue.value;
@@ -45,22 +29,21 @@ const OptionsBuilder = () => {
             } else {
                 updatedOptions[index].value = newValue;
             }
-            setRuleOptions(updatedOptions);
+            updateRuleOptions(session.id, updatedOptions);
         }
     };
 
     const handleDeleteLastOption = () => {
-        if (ruleOptions.length > 0) {
-            setRuleOptions(prev => prev.slice(0, -1));
+        if (session.ruleOptions.length > 0) {
+            const newRuleOptions = session.ruleOptions.slice(0, -1);
+            updateRuleOptions(session.id, newRuleOptions);
         }
     };
     
     const handleAddOption = (newOption) => { 
-        setRuleOptions(prev => {
-            const newOpts = [...prev, newOption];
-            setEditingIndex(newOpts.length - 1);
-            return newOpts;
-        }); 
+        const newRuleOptions = [...session.ruleOptions, newOption];
+        updateRuleOptions(session.id, newRuleOptions);
+        setEditingIndex(newRuleOptions.length - 1);
     };
     
     const handleStopEditing = () => { 
@@ -70,7 +53,7 @@ const OptionsBuilder = () => {
     return (
         <div className="options-builder">
             <div className="added-options-list">
-                {ruleOptions.map((option, index) => {
+                {session.ruleOptions.map((option, index) => {
                     if (index === editingIndex) {
                         return <OptionRow key={index} option={option} isEditing={true} onStartEditing={() => setEditingIndex(index)} onStopEditing={handleStopEditing} onValueChange={(newValue) => handleValueChange(index, newValue)} />;
                     }
@@ -81,11 +64,11 @@ const OptionsBuilder = () => {
                     }
                 })}
             </div>
-            {/* Bu handler'lar bu bileşende tanımlandığı için prop olarak geçmeye devam ediyor */}
             <AddOption 
                 ref={addOptionInputRef} 
                 onOptionAdd={handleAddOption} 
                 onDeleteLastOption={handleDeleteLastOption} 
+                session={session}
             />
         </div>
     );

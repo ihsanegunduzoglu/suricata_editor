@@ -4,9 +4,10 @@ import React, { useState, useMemo } from 'react';
 import { useRule } from '../context/RuleContext';
 import { optionsDictionary } from '../data/optionsDictionary';
 
-const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption }, ref) => {
-    const { ruleOptions, headerData } = useRule();
-    const protocol = headerData.Protocol;
+const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
+    const { finalizeCurrentRule } = useRule();
+    const protocol = session.headerData.Protocol;
+    const ruleOptions = session.ruleOptions;
 
     const [searchTerm, setSearchTerm] = useState('');
     
@@ -34,10 +35,17 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption }, ref) =>
     };
     
     const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && e.target.value === '') {
+            e.preventDefault();
+            finalizeCurrentRule();
+            return;
+        }
+
         if (e.key === 'Enter' && filteredOptions.length > 0) {
             e.preventDefault();
             handleAdd(filteredOptions[0]);
         }
+        
         if (e.key === 'Backspace' && e.target.value === '') {
             e.preventDefault();
             onDeleteLastOption();
@@ -50,7 +58,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption }, ref) =>
         <div className="add-option-container">
             <input 
                 ref={ref} type="text" className="add-option-search" 
-                placeholder="+ Seçenek ekle veya ara... (Boşken Backspace ile sil, Esc ile geri dön)" 
+                placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet)" 
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} 
             />
             {searchTerm && (

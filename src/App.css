@@ -12,6 +12,11 @@
   --value-color: #ce9178; /* Turuncumsu renk */
 }
 
+html {
+  scroll-padding-bottom: 20vh; /* Ekran yüksekliğinin %20'si kadar alttan sanal boşluk bırak */
+  scroll-behavior: smooth; /* Kaydırma animasyonunu yumuşatır */
+}
+
 body {
   background-color: #000000;
   color: var(--text-color);
@@ -19,22 +24,54 @@ body {
   margin: 0;
 }
 
-.app-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+/* --- YENİ KONSOL YERLEŞİMİ --- */
+.workbench-console-container {
+  width: 100%;
+  max-width: 1400px; /* Çok genişlemesini önle */
+  margin: 0 auto; /* Ortala */
   padding: 2rem;
   box-sizing: border-box;
 }
 
-/* --- Header Yazma Modu Stilleri --- */
+/* YENİ KURAL: Aktif editörün zıplamasını önleyen sarmalayıcı */
+.active-editor-wrapper {
+  min-height: 450px; /* Bu değeri kendi zevkinize göre ayarlayabilirsiniz */
+}
+
+/* --- TAMAMLANMIŞ KURAL GÖSTERİMİ --- */
+.finalized-rule-container {
+  background-color: #0a0a0a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem; /* Kurallar arası boşluk */
+}
+
+.finalized-rule-text {
+  margin: 0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* --- AKTİF EDİTÖR GENEL STİLLERİ --- */
+.options-view-container {
+  width: 100%;
+  max-width: 1400px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  border: 1px solid var(--accent-color); /* Aktif editör olduğunu belli eder */
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+/* --- HEADER EDİTÖRÜ STİLLERİ --- */
 .editor-row {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
   width: 100%;
-  max-width: 1400px;
 }
 
 .input-group {
@@ -68,42 +105,16 @@ body {
   border-color: var(--accent-color);
 }
 
-.suggestions-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.suggestion-item:hover, .add-option-list li:hover {
-  background-color: var(--suggestion-hover-bg);
-}
-
-/* --- Options Yazma Modu Stilleri --- */
-.options-view-container {
-  width: 100%;
-  max-width: 1400px;
-  font-family: 'Consolas', 'Courier New', monospace;
-}
-
 .final-header-text {
   font-size: 1.2rem;
   color: #569cd6;
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
+  padding: 0 0.5rem;
 }
 
+/* --- OPTIONS EDİTÖRÜ STİLLERİ --- */
 .options-builder {
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
@@ -149,101 +160,29 @@ body {
   margin-left: 0.25rem;
 }
 
-.add-option-container {
-  position: relative;
+.option-group-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem; /* Dikey ve yatay boşluk */
+  padding: 0.25rem 0.5rem;
+  font-size: 1.1rem;
+  cursor: text;
+  border-radius: 3px;
+  margin: 2px 0;
 }
 
-.add-option-search {
-  width: 100%;
-  background-color: transparent;
-  border: none;
-  border-top: 1px dashed var(--border-color);
-  color: var(--text-color);
-  padding: 0.75rem 0.5rem;
-  margin-top: 0.5rem;
-  font-size: 1rem;
-  font-family: inherit;
-  box-sizing: border-box;
+.option-group-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-.add-option-search:focus {
-  outline: none;
-  border-top-style: solid;
-  border-top-color: var(--accent-color);
+.option-group-item {
+  display: flex;
+  align-items: center;
 }
 
-.add-option-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  list-style: none;
-  margin: 5px 0 0 0;
-  padding: 0;
-  max-height: 250px;
-  overflow-y: auto;
-  z-index: 20;
-}
 
-.add-option-list li {
-  padding: 0.75rem;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.add-option-list li:last-child {
-  border-bottom: none;
-}
-
-.option-description {
-  color: var(--label-color);
-  font-size: 0.9rem;
-  margin-left: 1rem;
-}
-
-.option-value-input {
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  color: var(--value-color);
-  font-family: inherit;
-  font-size: inherit;
-  padding: 0;
-  margin: 0;
-  border-bottom: 1px solid var(--accent-color);
-}
-
-.option-value-input:focus {
-  outline: none;
-}
-
-.suggestions-list li, .add-option-list li {
-    font-size: 1.1rem;
-    color: var(--text-color);
-    border: none;
-    background-color: transparent;
-    padding: .75rem;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color .2s ease;
-}
-
-.autocomplete-container {
-  position: relative;
-  flex-grow: 1;
-}
-
-.autocomplete-container .suggestions-list {
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 2px;
-}
-
-/* YENİ ContentEditor Stilleri */
+/* --- CONTENT EDİTÖRÜ (ÖZEL) --- */
 .option-row-editing-card {
   width: 100%;
   background-color: var(--input-background);
@@ -284,7 +223,6 @@ body {
   cursor: pointer;
 }
 
-/* YUKARIDAKİ KURALI AŞAĞIDAKİ İLE DEĞİŞTİR (yeni satırı ekle): */
 .modifier-item input[type="number"] {
   background-color: transparent;
   color: var(--value-color);
@@ -295,13 +233,12 @@ body {
   width: 80px;
   text-align: center;
   transition: border-color 0.2s ease;
-  -moz-appearance: textfield; /* <-- BU SATIRI EKLE (Firefox için) */
+  -moz-appearance: textfield;
 }
 
-/* BU YENİ KURALLARI DA EKLE (Odaklanma efekti ve okları gizlemek için) */
 .modifier-item input[type="number"]:focus {
-    outline: none;
-    border-bottom-color: var(--accent-color);
+  outline: none;
+  border-bottom-color: var(--accent-color);
 }
 
 .modifier-item input[type="number"]::-webkit-outer-spin-button,
@@ -310,111 +247,87 @@ body {
   margin: 0;
 }
 
-.rule-text-display {
-    margin: 0;
-    font-family: inherit;
-    font-size: inherit;
-    white-space: pre-wrap;
-    word-break: break-all;
-    color: var(--text-color);
-}
-.rule-text-display .option-keyword { color: var(--keyword-color); }
-.rule-text-display .option-value { color: var(--value-color); }
 
-.option-group-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.75rem; /* Dikey ve yatay boşluk */
-  padding: 0.25rem 0.5rem;
-  cursor: text;
-  border-radius: 3px;
-  margin: 2px 0;
-}
-
-.option-group-row:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Grup içindeki her bir eleman için stil */
-.option-group-item {
-  display: flex;
-  align-items: center;
-}
-
-.option-group-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.75rem; /* Dikey ve yatay boşluk */
-  padding: 0.25rem 0.5rem;
-  font-size: 1.1rem;
-  cursor: text;
-  border-radius: 3px;
-  margin: 2px 0;
-}
-
-.option-group-row:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Grup içindeki her bir eleman için stil */
-.option-group-item {
-  display: flex;
-  align-items: center;
-}
-
-/* src/App.css dosyasının en altına ekle */
-
-.workbench-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  gap: 1rem;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-.rule-list-panel {
-  flex: 0 0 400px; /* Panel genişliği 400px olsun, büyümesin/küçülmesin */
-  background-color: #0a0a0a;
+/* --- PAYLAŞILAN / YARDIMCI STİLLER --- */
+.suggestions-list, .add-option-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background-color: var(--input-background);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 1rem;
-  overflow-y: auto; /* Kurallar sığmazsa kaydırma çubuğu çıksın */
-}
-
-.rule-list-panel h3 {
-  margin-top: 0;
-  color: var(--label-color);
-  text-transform: uppercase;
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.75rem;
-}
-
-.rule-list-panel ul {
+  border-radius: 0 0 4px 4px;
   list-style: none;
+  margin: 5px 0 0 0;
   padding: 0;
-  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.rule-list-panel li {
-  padding: 0.75rem 0.5rem;
-  border-radius: 3px;
-  font-family: 'Consolas', 'Courier New', monospace;
-  white-space: pre-wrap; /* Uzun kuralların düzgün görünmesi için */
-  word-break: break-all;
+.suggestions-list li, .add-option-list li {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  padding: .75rem;
   cursor: pointer;
+  transition: background-color .2s ease;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.rule-list-panel li:hover {
+.suggestions-list li:last-child, .add-option-list li:last-child {
+  border-bottom: none;
+}
+
+.suggestions-list li:hover, .add-option-list li:hover {
   background-color: var(--suggestion-hover-bg);
 }
 
-.main-editor-area {
-  flex-grow: 1; /* Kalan tüm alanı kaplasın */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.add-option-container {
+  position: relative;
+}
+
+.add-option-search {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  border-top: 1px dashed var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.add-option-search:focus {
+  outline: none;
+  border-top-style: solid;
+  border-top-color: var(--accent-color);
+}
+
+.option-description {
+  color: var(--label-color);
+  font-size: 0.9rem;
+  margin-left: 1rem;
+}
+
+.option-value-input {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  color: var(--value-color);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.option-value-input:focus {
+  outline: none;
+}
+
+.autocomplete-container {
+  position: relative;
+  flex-grow: 1;
 }

@@ -3,9 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { useRule } from '../context/RuleContext';
 import { optionsDictionary } from '../data/optionsDictionary';
+import { v4 as uuidv4 } from 'uuid';
 
 const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
-    const { finalizeCurrentRule } = useRule();
+    const { finalizeRule } = useRule(); // finalizeCurrentRule yerine
     const protocol = session.headerData.Protocol;
     const ruleOptions = session.ruleOptions;
 
@@ -26,7 +27,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     }, [ruleOptions, protocol]);
     
     const handleAdd = (keyword) => {
-        const newOption = { keyword: keyword, value: optionsDictionary[keyword].defaultValue };
+        const newOption = { id: uuidv4(), keyword: keyword, value: optionsDictionary[keyword].defaultValue };
         if (keyword === 'content') { 
             newOption.modifiers = { nocase: false, depth: '', offset: '' }; 
         }
@@ -37,7 +38,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && e.target.value === '') {
             e.preventDefault();
-            finalizeCurrentRule();
+            finalizeRule(session.id); // Artık session.id ile çağırıyoruz
             return;
         }
 
@@ -58,7 +59,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
         <div className="add-option-container">
             <input 
                 ref={ref} type="text" className="add-option-search" 
-                placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet)" 
+                placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} 
             />
             {searchTerm && (

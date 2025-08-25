@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
-import { toast } from 'react-toastify'; // YENİ: toast import'u
+import { toast } from 'react-toastify';
 
 const Workbench = () => {
     const { ruleSessions } = useRule();
@@ -21,7 +21,6 @@ const Workbench = () => {
             .join('\n\n');
 
         if (!finalizedRules) {
-            // DEĞİŞİKLİK: alert() yerine toast.warn() kullanıyoruz.
             toast.warn('Dışa aktarılacak tamamlanmış bir kural bulunmuyor.');
             return;
         }
@@ -46,7 +45,7 @@ const Workbench = () => {
             </div>
 
             {ruleSessions.map(session => (
-                <div key={session.id}>
+                <div key={session.id} className="session-wrapper">
                     {session.status === 'finalized' ? (
                         <FinalizedRule session={session} />
                     ) : (

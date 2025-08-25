@@ -32,8 +32,6 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
-    const [editingSessionId, setEditingSessionId] = useState(null);
-
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
@@ -46,66 +44,49 @@ export const RuleProvider = ({ children }) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, ruleOptions: newRuleOptions } : s));
     };
     
+    // TAMAMEN YENİLENMİŞ startEditingRule FONKSİYONU
     const startEditingRule = (sessionId) => {
-        const sessionToEdit = ruleSessions.find(s => s.id === sessionId);
-        if (!sessionToEdit) return;
-
-        setEditingSessionId(sessionId);
-        setRuleSessions(prev => [
-            ...prev.filter(s => s.status === 'finalized'),
-            {
-                ...sessionToEdit,
-                status: 'editing'
-            }
-        ]);
-    };
-    
-    const cancelEditing = () => {
-        setEditingSessionId(null);
-        setRuleSessions(prev => [
-            ...prev.filter(s => s.status === 'finalized'),
-            createNewSession()
-        ]);
+        setRuleSessions(prev =>
+            // Sadece map kullanarak, tüm listeyi tek seferde dönüştür.
+            prev
+                // Önce, tamamen boş ve anlamsız bir "yeni kural" satırı varsa onu temizleyelim.
+                .filter(s => {
+                    const isNewAndEmpty = s.status === 'editing' && s.ruleOptions.length === 0 && s.headerData.Action === '';
+                    return !isNewAndEmpty;
+                })
+                .map(s => ({
+                    ...s, // Oturumun diğer tüm verilerini koru
+                    // Durumu ayarla: ID eşleşiyorsa 'editing', değilse 'finalized' yap.
+                    // Bu, o an düzenlenmekte olan diğer kuralı da otomatik olarak 'finalized' yapar.
+                    status: s.id === sessionId ? 'editing' : 'finalized'
+                }))
+        );
     };
 
-    const finalizeCurrentRule = () => {
-        const currentSession = ruleSessions[ruleSessions.length - 1];
-        if (!currentSession.ruleOptions.some(o => o.keyword === 'msg') || !currentSession.ruleOptions.some(o => o.keyword === 'sid')) {
+    const finalizeRule = (sessionId) => {
+        const sessionToFinalize = ruleSessions.find(s => s.id === sessionId);
+        if (!sessionToFinalize) return;
+
+        if (!sessionToFinalize.ruleOptions.some(o => o.keyword === 'msg') || !sessionToFinalize.ruleOptions.some(o => o.keyword === 'sid')) {
             toast.error('Lütfen kurala en azından "msg" ve "sid" seçeneklerini ekleyin.');
             return;
         }
-        const finalRuleString = generateRuleString(currentSession.headerData, currentSession.ruleOptions);
+        
+        const finalRuleString = generateRuleString(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
 
-        if (editingSessionId) {
-            setRuleSessions(prev => {
-                const updatedRule = {
-                    ...currentSession,
-                    id: editingSessionId,
-                    status: 'finalized',
-                    ruleString: finalRuleString
-                };
-                const sessionsWithUpdate = prev
-                    .slice(0, -1)
-                    .map(s => s.id === editingSessionId ? updatedRule : s);
-                return [
-                    ...sessionsWithUpdate,
-                    createNewSession()
-                ];
-            });
-            setEditingSessionId(null);
-            toast.success('Kural başarıyla güncellendi!');
-        } else {
-            setRuleSessions(prev => [
-                ...prev.slice(0, -1),
-                { ...currentSession, status: 'finalized', ruleString: finalRuleString },
-                createNewSession()
-            ]);
-            toast.success('Kural başarıyla kaydedildi!');
-        }
+        setRuleSessions(prev => [
+            ...prev.map(s => 
+                s.id === sessionId 
+                    ? { ...s, status: 'finalized', ruleString: finalRuleString } 
+                    : s
+            ),
+            createNewSession()
+        ]);
+        toast.success('Kural başarıyla kaydedildi/güncellendi!');
     };
 
     const deleteRule = (sessionId) => {
-        if (ruleSessions.length === 1 && ruleSessions[0].id === sessionId) {
+        if (ruleSessions.length <= 1) {
             setRuleSessions([createNewSession()]);
         } else {
             setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
@@ -115,7 +96,7 @@ export const RuleProvider = ({ children }) => {
     
     const duplicateRule = (sessionToDuplicate) => {
         setRuleSessions(prev => [
-            ...prev.filter(s => s.status === 'finalized'),
+            ...prev.map(s => ({...s, status: 'finalized'})),
             {
                 ...sessionToDuplicate,
                 id: uuidv4(),
@@ -123,19 +104,17 @@ export const RuleProvider = ({ children }) => {
                 ruleString: '',
             }
         ]);
-        toast.info('Kural çoğaltıldı ve editöre yüklendi.');
+        toast.info('Kural çoğaltıldı ve yeni editöre yüklendi.');
     };
 
     const value = {
         ruleSessions,
-        editingSessionId,
         updateHeaderData,
         updateRuleOptions,
-        finalizeCurrentRule,
+        finalizeRule,
         deleteRule,
         duplicateRule,
         startEditingRule,
-        cancelEditing,
     };
 
     return (

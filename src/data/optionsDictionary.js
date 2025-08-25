@@ -1,24 +1,32 @@
 // src/data/optionsDictionary.js
 
+// DEĞİŞTİRİLDİ: Bu fonksiyon artık her bir değiştiriciden sonra noktalı virgül ekliyor.
 const formatModifiersForDisplay = (modifiers) => {
     if (!modifiers) return '';
-    let str = '';
-    if (modifiers.nocase) str += ' nocase';
-    if (modifiers.depth && modifiers.depth !== '') str += ` depth:${modifiers.depth}`;
-    if (modifiers.offset && modifiers.offset !== '') str += ` offset:${modifiers.offset}`;
-    return str;
+    
+    const parts = [];
+    if (modifiers.nocase) {
+        parts.push('nocase');
+    }
+    if (modifiers.depth && modifiers.depth !== '') {
+        parts.push(`depth:${modifiers.depth}`);
+    }
+    if (modifiers.offset && modifiers.offset !== '') {
+        parts.push(`offset:${modifiers.offset}`);
+    }
+
+    // Eğer eklenecek parça varsa, başlarına ve aralarına '; ' koyarak birleştir.
+    return parts.length > 0 ? '; ' + parts.join('; ') : '';
 };
 
-// --- YENİ KATEGORİ SİSTEMİ İLE GÜNCELLENMİŞ SÖZLÜK ---
 const optionsDictionary = {
-  // Kategori: Tekil ve Gerekli
   'msg': { 
     description: 'Kural mesaji', 
     inputType: 'text', 
     defaultValue: '', 
     format: (val) => `"${val}"`,
-    category: 'singular_required', // YENİ: Davranışsal kategori
-    allowMultiple : false,
+    category: 'singular_required',
+    allowMultiple: false,
   },
   'sid': { 
     description: 'Kural ID', 
@@ -26,50 +34,39 @@ const optionsDictionary = {
     defaultValue: '', 
     format: (val) => val, 
     allowMultiple: false,
-    category: 'singular_required' // YENİ: Davranışsal kategori
+    category: 'singular_required'
   },
-
-  // Kategori: Basit Değer Alan
   'rev': { 
     description: 'Revizyon numarasi', 
     inputType: 'number', 
     defaultValue: '1', 
     format: (val) => val, 
     allowMultiple: false,
-    category: 'simple_value' // YENİ: Davranışsal kategori
+    category: 'simple_value'
   },
-  
-  // Kategori: Sabit Seçenekli (Autocomplete)
   'flow': { 
     description: 'Baglanti durumu', 
     inputType: 'autocomplete', 
     suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], 
     defaultValue: '', 
     format: (val) => val,
-    category: 'fixed_option' // YENİ: Davranışsal kategori
+    category: 'fixed_option'
   },
-  
-  // Kategori: Değiştirici Alan (Özel Arayüz Gerektiren)
   'content': { 
     description: 'Aranacak icerik', 
     inputType: 'text', 
     defaultValue: '', 
     format: (val, mods) => `"${val}"${formatModifiersForDisplay(mods)}`,
-    category: 'modifier_host' // YENİ: Davranışsal kategori
+    category: 'modifier_host'
   },
-
-  // YENİ: Flag kategorisi için bir temsilci ekliyoruz
-  // Kategori: Değersiz (Flag)
   'http_uri': {
     description: 'HTTP URI icerisinde ara',
-    inputType: 'flag', // YENİ: inputType'ı flag olarak belirledik
+    inputType: 'flag',
     defaultValue: true,
-    format: () => '', // Değeri olmadığı için formatı boş
-    category: 'flag', // YENİ: Davranışsal kategori
-    dependsOnProtocol: 'http' // YENİ: Sadece http protokolünde geçerli olduğunu belirtiyoruz
+    format: () => '', 
+    category: 'flag',
+    dependsOnProtocol: 'http'
   },
-
-  // --- Değiştiriciler (Bunlar anahtar kelime değil, 'content'e bağlı) ---
   'nocase': { 
     description: 'Buyuk/kucuk harf duyarsiz arama', 
     inputType: 'flag', 

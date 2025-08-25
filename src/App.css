@@ -72,20 +72,10 @@ body {
   background-color: #0a0a0a;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  padding: 1rem;
+  padding: 0; 
   margin-bottom: 1.5rem;
   position: relative;
-  padding-top: 2rem;
   transition: all 0.2s ease-in-out;
-}
-
-.finalized-rule-text {
-  margin: 0;
-  font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 1.1rem;
-  color: var(--text-color);
-  white-space: pre-wrap;
-  word-break: break-all;
 }
 
 .rule-actions {
@@ -121,8 +111,6 @@ body {
 .finalized-rule-container.is-editing {
   border-color: var(--accent-color);
   box-shadow: 0 0 10px rgba(204, 204, 204, 0.2);
-  padding-left: 0;
-  padding-right: 0;
 }
 
 
@@ -153,8 +141,6 @@ body {
   align-items: flex-end;
   gap: 1rem;
   width: 100%;
-  padding: 0 1rem;
-  box-sizing: border-box;
 }
 
 .input-group {
@@ -176,9 +162,10 @@ body {
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  padding: 0.75rem;
+  /* DEĞİŞİKLİK: Dikey padding azaltıldı, yatay padding korundu */
+  padding: 0.5rem 0.75rem; 
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-family: 'Consolas', 'Courier New', monospace;
   text-align: center;
 }
@@ -208,8 +195,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-
-/* KALDIRILAN .options-toolbar ve .back-to-header-btn stilleri buradan silindi. */
 
 .added-options-list {
   flex-grow: 1;
@@ -266,8 +251,8 @@ body {
   align-items: center;
 }
 
-/* --- CONTENT EDİTÖRÜ (ÖZEL) --- */
-.content-editor-container {
+/* --- CONTENT EDİTÖRÜ (STABİL VERSİYON) --- */
+.option-row-editing-card {
   width: 100%;
   background-color: #1e1e1e;
   border: 1px solid var(--border-color);
@@ -277,129 +262,59 @@ body {
   box-sizing: border-box;
 }
 
-.content-main-input-row {
+.content-value-row {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.modifier-tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+.modifiers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  margin-bottom: 0.5rem;
 }
 
-.modifier-tag {
+.modifier-item {
   display: flex;
   align-items: center;
-  background-color: #2a2d2e;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.9rem;
+  gap: 0.5rem;
 }
 
-.modifier-tag-label {
+.modifier-item label {
   color: var(--label-color);
-  margin-right: 0.5rem;
 }
 
-.modifier-tag-input {
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--label-color);
+.modifier-item input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.modifier-item input[type="number"] {
+  background-color: transparent;
   color: var(--value-color);
-  width: 50px;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: 0.25rem;
+  width: 80px;
   text-align: center;
-  padding: 0.1rem;
+  transition: border-color 0.2s ease;
+  -moz-appearance: textfield;
 }
 
-.modifier-tag-input:focus {
+.modifier-item input[type="number"]:focus {
   outline: none;
   border-bottom-color: var(--accent-color);
 }
 
-.remove-modifier-btn {
-  background: none;
-  border: none;
-  color: var(--label-color);
-  cursor: pointer;
-  margin-left: 0.5rem;
-  font-size: 1.2rem;
-  padding: 0 0.25rem;
-}
-.remove-modifier-btn:hover {
-  color: #f44336;
-}
-
-.add-modifier-container {
-  position: relative;
-}
-
-.add-modifier-btn {
-  background-color: transparent;
-  border: 1px dashed var(--label-color);
-  color: var(--label-color);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.add-modifier-btn:hover {
-  background-color: #2a2d2e;
-  border-style: solid;
-  color: var(--text-color);
-}
-
-.modifier-menu {
-  position: absolute;
-  top: 120%;
-  left: 0;
-  background-color: #2a2d2e;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  list-style: none;
-  padding: 0.25rem;
+.modifier-item input[type="number"]::-webkit-outer-spin-button,
+.modifier-item input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
   margin: 0;
-  z-index: 30;
 }
 
-.modifier-menu li {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-radius: 3px;
-}
-.modifier-menu li:hover {
-  background-color: var(--suggestion-hover-bg);
-  color: var(--text-color);
-}
-
-.done-editing-btn {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--label-color);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    display: block;
-    margin-left: auto;
-    margin-right: 0;
-}
-
-.done-editing-btn:hover {
-    background-color: #2a2d2e;
-    border-color: var(--accent-color);
-    color: var(--text-color);
-}
 
 /* --- PAYLAŞILAN / YARDIMCI STİLLER --- */
 .suggestions-list, .add-option-list {
@@ -483,69 +398,4 @@ body {
 .autocomplete-container {
   position: relative;
   flex-grow: 1;
-}
-
-/* --- ESKİ CONTENT EDITOR İÇİN EKSİK STİLLER --- */
-
-.option-row-editing-card {
-  width: 100%;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 1rem;
-  margin: 0.5rem 0;
-  box-sizing: border-box;
-}
-
-.content-value-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.modifiers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid var(--border-color);
-  margin-bottom: 0.5rem;
-}
-
-.modifier-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.modifier-item label {
-  color: var(--label-color);
-}
-
-.modifier-item input[type="checkbox"] {
-  cursor: pointer;
-}
-
-.modifier-item input[type="number"] {
-  background-color: transparent;
-  color: var(--value-color);
-  border: none;
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
-  padding: 0.25rem;
-  width: 80px;
-  text-align: center;
-  transition: border-color 0.2s ease;
-  -moz-appearance: textfield;
-}
-
-.modifier-item input[type="number"]:focus {
-  outline: none;
-  border-bottom-color: var(--accent-color);
-}
-
-.modifier-item input[type="number"]::-webkit-outer-spin-button,
-.modifier-item input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }

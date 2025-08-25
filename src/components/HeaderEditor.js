@@ -9,7 +9,8 @@ import OptionsBuilder from './OptionsBuilder';
 const HeaderEditor = ({ session }) => {
     const { updateHeaderData } = useRule();
     
-    const [isHeaderComplete, setIsHeaderComplete] = useState(session.ruleOptions.length > 0);
+    // DEĞİŞİKLİK: Artık her zaman header'dan başlamak için başlangıç değeri 'false' olarak ayarlandı.
+    const [isHeaderComplete, setIsHeaderComplete] = useState(false);
     const [activeInput, setActiveInput] = useState(null);
 
     const editorRef = useRef(null);
@@ -31,7 +32,6 @@ const HeaderEditor = ({ session }) => {
     
     const handleFocus = (label) => setActiveInput(label);
 
-    // YENİ YARDIMCI FONKSİYONLAR (Kodu temiz tutmak için)
     const applySuggestion = (suggestion) => {
         if (activeInput) {
             handleChange(activeInput, suggestion);
@@ -47,7 +47,13 @@ const HeaderEditor = ({ session }) => {
         }
     };
 
-    // Fare ile tıklama artık bu iki yardımcı fonksiyonu kullanıyor
+    const moveToPrevField = (currentIndex) => {
+        const prevIndex = currentIndex - 1;
+        if (prevIndex >= 0) {
+            inputRefs.current[prevIndex]?.focus();
+        }
+    };
+
     const handleSuggestionClick = (suggestion) => { 
         if (activeInput) {
             const currentIndex = labels.indexOf(activeInput);
@@ -56,29 +62,35 @@ const HeaderEditor = ({ session }) => {
         }
     };
     
-    // TAMAMEN YENİLENEN handleKeyDown FONKSİYONU
     const handleKeyDown = (e, currentIndex) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             const currentValue = e.target.value?.toLowerCase();
             const firstSuggestion = filteredSuggestions[0]?.toLowerCase();
 
-            // Durum 1: Öneri var ve input'taki metin öneriyle tam eşleşmiyor -> OTOMATİK TAMAMLA
             if (filteredSuggestions.length > 0 && currentValue !== firstSuggestion) {
                 applySuggestion(filteredSuggestions[0]);
             } 
-            // Durum 2: Öneri yok veya metin zaten tamamlanmış -> SONRAKİ ALANA GEÇ
             else {
                 moveToNextField(currentIndex);
             }
         }
         
+        if (e.key === ' ') {
+            if (e.target.value.trim() !== '') {
+                e.preventDefault();
+                moveToNextField(currentIndex);
+            }
+        }
+        
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            moveToPrevField(currentIndex);
+        }
+
         if (e.key === 'Backspace' && e.target.value === '') { 
             e.preventDefault(); 
-            const prevIndex = currentIndex - 1; 
-            if (prevIndex >= 0) { 
-                inputRefs.current[prevIndex]?.focus(); 
-            } 
+            moveToPrevField(currentIndex);
         }
     };
     
@@ -93,8 +105,8 @@ const HeaderEditor = ({ session }) => {
     }, []);
     
     useEffect(() => {
-        if (!isHeaderComplete && !session.ruleString) {
-            const isNewRule = !session.ruleString;
+        const isNewRule = !session.ruleString;
+        if (!isHeaderComplete) {
             if (isNewRule) {
                 inputRefs.current[0]?.focus();
             } else {

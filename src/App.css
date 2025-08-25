@@ -63,7 +63,13 @@ body {
 }
 
 .active-editor-wrapper {
-  min-height: 450px;
+  min-height: 350px;
+  margin-bottom : 1.5rem;
+  border: 1px solid var(--accent-color);
+  border-radius: 4px;
+  padding: 1rem;
+  box-sizing: border-box;
+
 }
 
 
@@ -118,9 +124,6 @@ body {
 .options-view-container {
   width: 100%;
   font-family: 'Consolas', 'Courier New', monospace;
-  border: 1px solid var(--accent-color);
-  border-radius: 4px;
-  padding: 0.5rem;
   box-sizing: border-box;
 }
 

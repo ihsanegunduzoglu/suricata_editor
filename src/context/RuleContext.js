@@ -32,6 +32,8 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
+    const [editingSessionId, setEditingSessionId] = useState(null);
+
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
@@ -44,25 +46,20 @@ export const RuleProvider = ({ children }) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, ruleOptions: newRuleOptions } : s));
     };
     
-    // TAMAMEN YENİLENMİŞ startEditingRule FONKSİYONU
     const startEditingRule = (sessionId) => {
         setRuleSessions(prev =>
-            // Sadece map kullanarak, tüm listeyi tek seferde dönüştür.
             prev
-                // Önce, tamamen boş ve anlamsız bir "yeni kural" satırı varsa onu temizleyelim.
                 .filter(s => {
                     const isNewAndEmpty = s.status === 'editing' && s.ruleOptions.length === 0 && s.headerData.Action === '';
                     return !isNewAndEmpty;
                 })
                 .map(s => ({
-                    ...s, // Oturumun diğer tüm verilerini koru
-                    // Durumu ayarla: ID eşleşiyorsa 'editing', değilse 'finalized' yap.
-                    // Bu, o an düzenlenmekte olan diğer kuralı da otomatik olarak 'finalized' yapar.
+                    ...s,
                     status: s.id === sessionId ? 'editing' : 'finalized'
                 }))
         );
     };
-
+    
     const finalizeRule = (sessionId) => {
         const sessionToFinalize = ruleSessions.find(s => s.id === sessionId);
         if (!sessionToFinalize) return;
@@ -94,9 +91,12 @@ export const RuleProvider = ({ children }) => {
         toast.info('Kural silindi.');
     };
     
+    // TAMAMEN YENİLENMİŞ duplicateRule FONKSİYONU
     const duplicateRule = (sessionToDuplicate) => {
         setRuleSessions(prev => [
-            ...prev.map(s => ({...s, status: 'finalized'})),
+            // 1. Mevcut listeden, o anki boş editörü ('editing' durumunda olanı) çıkar.
+            ...prev.filter(s => s.status === 'finalized'),
+            // 2. En sona, kopyalanan kuralın verileriyle yeni bir 'editing' oturumu ekle.
             {
                 ...sessionToDuplicate,
                 id: uuidv4(),

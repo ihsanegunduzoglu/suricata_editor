@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import OptionRow from './OptionRow';
 import AddOption from './AddOption';
-import OptionGroupRow from './OptionGroupRow';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
     const { updateRuleOptions } = useRule();
@@ -20,14 +19,30 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         }
     }, [editingIndex]);
     
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onNavigateBack();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onNavigateBack]);
+
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
-        if (updatedOptions[index]) {
+        const targetOption = updatedOptions[index];
+
+        if (targetOption) {
             if (typeof newValue === 'object' && newValue !== null) {
-                updatedOptions[index].value = newValue.value;
-                updatedOptions[index].modifiers = newValue.modifiers;
+                targetOption.value = newValue.value;
+                targetOption.modifiers = newValue.modifiers;
             } else {
-                updatedOptions[index].value = newValue;
+                targetOption.value = newValue;
             }
             updateRuleOptions(session.id, updatedOptions);
         }
@@ -52,17 +67,18 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     
     return (
         <div className="options-builder">
+            {/* Header'a Geri Dön Butonu ve toolbar'ı buradan kaldırıldı */}
             <div className="added-options-list">
-                {session.ruleOptions.map((option, index) => {
-                    if (index === editingIndex) {
-                        return <OptionRow key={index} option={option} isEditing={true} onStartEditing={() => setEditingIndex(index)} onStopEditing={handleStopEditing} onValueChange={(newValue) => handleValueChange(index, newValue)} />;
-                    }
-                    if (option.keyword === 'content') {
-                        return <OptionGroupRow key={index} option={option} onStartEditing={() => setEditingIndex(index)} />;
-                    } else {
-                        return <OptionRow key={index} option={option} isEditing={false} onStartEditing={() => setEditingIndex(index)} onStopEditing={handleStopEditing} onValueChange={(newValue) => handleValueChange(index, newValue)} />;
-                    }
-                })}
+                {session.ruleOptions.map((option, index) => (
+                    <OptionRow 
+                        key={option.id}
+                        option={option} 
+                        isEditing={index === editingIndex} 
+                        onStartEditing={() => setEditingIndex(index)} 
+                        onStopEditing={handleStopEditing} 
+                        onValueChange={(newValue) => handleValueChange(index, newValue)} 
+                    />
+                ))}
             </div>
             <AddOption 
                 ref={addOptionInputRef} 

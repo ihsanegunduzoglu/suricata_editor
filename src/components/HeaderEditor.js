@@ -1,6 +1,6 @@
 // src/components/HeaderEditor.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRule } from '../context/RuleContext';
 import suggestionsData from '../data/suggestionsData';
 import RuleInputBox from './RuleInputBox';
@@ -9,14 +9,21 @@ import OptionsBuilder from './OptionsBuilder';
 const HeaderEditor = ({ session }) => {
     const { updateHeaderData } = useRule();
     
-    const [isHeaderComplete, setIsHeaderComplete] = useState(false);
+    const [isHeaderComplete, setIsHeaderComplete] = useState(session.ruleOptions.length > 0);
     const [activeInput, setActiveInput] = useState(null);
 
     const editorRef = useRef(null);
     const inputRefs = useRef([]);
     const labels = Object.keys(session.headerData);
     
-    // Değişiklikleri merkezi state'e bildiren güncellenmiş fonksiyon
+    const filteredSuggestions = useMemo(() => {
+        if (!activeInput || !suggestionsData[activeInput]) return [];
+        const value = session.headerData[activeInput] || '';
+        const allSuggestions = suggestionsData[activeInput];
+        if (!value) return allSuggestions;
+        return allSuggestions.filter(s => s.toLowerCase().startsWith(value.toLowerCase()));
+    }, [activeInput, session.headerData]);
+
     const handleChange = (label, value) => {
         const newHeaderData = { ...session.headerData, [label]: value };
         updateHeaderData(session.id, newHeaderData);
@@ -24,27 +31,48 @@ const HeaderEditor = ({ session }) => {
     
     const handleFocus = (label) => setActiveInput(label);
 
+    // YENİ YARDIMCI FONKSİYONLAR (Kodu temiz tutmak için)
+    const applySuggestion = (suggestion) => {
+        if (activeInput) {
+            handleChange(activeInput, suggestion);
+        }
+    };
+
+    const moveToNextField = (currentIndex) => {
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < labels.length) {
+            setTimeout(() => inputRefs.current[nextIndex]?.focus(), 0);
+        } else {
+            setIsHeaderComplete(true);
+        }
+    };
+
+    // Fare ile tıklama artık bu iki yardımcı fonksiyonu kullanıyor
     const handleSuggestionClick = (suggestion) => { 
-        if (activeInput) { 
-            handleChange(activeInput, suggestion); 
-            const currentIndex = labels.indexOf(activeInput); 
-            const nextIndex = currentIndex + 1; 
-            if (nextIndex < labels.length) { 
-                inputRefs.current[nextIndex]?.focus(); 
-            } 
-        } 
+        if (activeInput) {
+            const currentIndex = labels.indexOf(activeInput);
+            applySuggestion(suggestion);
+            moveToNextField(currentIndex);
+        }
     };
     
+    // TAMAMEN YENİLENEN handleKeyDown FONKSİYONU
     const handleKeyDown = (e, currentIndex) => {
-        if (e.key === ' ' && e.target.value.trim() !== '') { 
-            e.preventDefault(); 
-            const nextIndex = currentIndex + 1; 
-            if (nextIndex < labels.length) { 
-                inputRefs.current[nextIndex]?.focus(); 
-            } else { 
-                setIsHeaderComplete(true); 
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const currentValue = e.target.value?.toLowerCase();
+            const firstSuggestion = filteredSuggestions[0]?.toLowerCase();
+
+            // Durum 1: Öneri var ve input'taki metin öneriyle tam eşleşmiyor -> OTOMATİK TAMAMLA
+            if (filteredSuggestions.length > 0 && currentValue !== firstSuggestion) {
+                applySuggestion(filteredSuggestions[0]);
             } 
+            // Durum 2: Öneri yok veya metin zaten tamamlanmış -> SONRAKİ ALANA GEÇ
+            else {
+                moveToNextField(currentIndex);
+            }
         }
+        
         if (e.key === 'Backspace' && e.target.value === '') { 
             e.preventDefault(); 
             const prevIndex = currentIndex - 1; 
@@ -65,9 +93,18 @@ const HeaderEditor = ({ session }) => {
     }, []);
     
     useEffect(() => {
-        // İlk render'da ilk input'a odaklan
-        inputRefs.current[0]?.focus();
-    }, []);
+        if (!isHeaderComplete && !session.ruleString) {
+            const isNewRule = !session.ruleString;
+            if (isNewRule) {
+                inputRefs.current[0]?.focus();
+            } else {
+                const focusTimeout = setTimeout(() => {
+                    inputRefs.current[0]?.focus();
+                }, 500);
+                return () => clearTimeout(focusTimeout);
+            }
+        }
+    }, [isHeaderComplete, session.id, session.ruleString]);
     
     if (isHeaderComplete) {
         const finalHeaderString = labels.map(label => session.headerData[label]).join(' ');
@@ -87,7 +124,7 @@ const HeaderEditor = ({ session }) => {
         <div className="editor-row" ref={editorRef}>
             {labels.map((label, index) => (
                 <RuleInputBox 
-                    key={session.id + label} // Key'i daha benzersiz yapalım
+                    key={session.id + label}
                     ref={el => inputRefs.current[index] = el} 
                     label={label} 
                     value={session.headerData[label]}
@@ -95,7 +132,7 @@ const HeaderEditor = ({ session }) => {
                     onFocus={() => handleFocus(label)} 
                     onKeyDown={e => handleKeyDown(e, index)} 
                     isActive={activeInput === label} 
-                    suggestions={suggestionsData[label]} 
+                    suggestions={filteredSuggestions}
                     onSuggestionClick={handleSuggestionClick} 
                 />
             ))}

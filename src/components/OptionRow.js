@@ -1,3 +1,5 @@
+// src/components/OptionRow.js
+
 import React from 'react';
 import { optionsDictionary } from '../data/optionsDictionary';
 import ContentEditor from './ContentEditor';
@@ -8,6 +10,7 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
     const handleKeyDown = (e) => { if (e.key === 'Enter') onStopEditing(); };
 
     if (isEditing && optionInfo.inputType !== 'flag') {
+        // ContentEditor özel durumu: Gelen (value, modifiers) ikilisini tek bir nesneye çevirip yukarı gönderir.
         if (option.keyword === 'content') {
             return <ContentEditor 
                 option={option} 
@@ -15,6 +18,7 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
                 onStopEditing={onStopEditing} 
             />;
         }
+        // Diğer input'lar (autocomplete dahil) doğrudan tek bir değer gönderir.
         return (
             <div className="option-row">
                 <span className="option-keyword">{option.keyword}:</span>
@@ -41,8 +45,9 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
         );
     }
 
+    // GÖRÜNÜM MODU: Değiştiricileri göstermek için option.modifiers'ı format fonksiyonuna gönderir.
     return (
-        <div className="option-row" onClick={optionInfo.inputType !== 'flag' ? onStartEditing : undefined}>
+        <div className="option-row" onClick={optionInfo.inputType !== 'flag' ? () => onStartEditing(option.keyword) : undefined}>
             {optionInfo.inputType === 'flag' ? (
                 <span className="option-keyword">{option.keyword}</span>
             ) : (

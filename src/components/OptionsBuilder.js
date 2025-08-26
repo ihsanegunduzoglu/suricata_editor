@@ -6,18 +6,19 @@ import OptionRow from './OptionRow';
 import AddOption from './AddOption';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
-    const { updateRuleOptions } = useRule();
+    const { updateRuleOptions, updateActiveTopic } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
     
     useEffect(() => {
         if (editingIndex === null) {
+            updateActiveTopic(null);
             setTimeout(() => {
                 addOptionInputRef.current?.focus();
             }, 0);
         }
-    }, [editingIndex]);
+    }, [editingIndex, updateActiveTopic]);
     
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -27,25 +28,31 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         };
 
         document.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
+        return () => document.removeEventListener('keydown', handleKeyDown);
     }, [onNavigateBack]);
 
+    // BU FONKSİYON ÇOK ÖNEMLİ
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
         const targetOption = updatedOptions[index];
 
         if (targetOption) {
-            if (typeof newValue === 'object' && newValue !== null) {
+            // ContentEditor'dan gelen veri bir nesnedir ({ value, modifiers })
+            // Diğer inputlardan gelen veri ise bir string'dir.
+            // Bu kontrol, iki durumu da doğru şekilde yönetmemizi sağlar.
+            if (typeof newValue === 'object' && newValue !== null && newValue.hasOwnProperty('modifiers')) {
                 targetOption.value = newValue.value;
-                targetOption.modifiers = newValue.modifiers;
+                targetOption.modifiers = newValue.modifiers; // Modifiers'ı burada güncelliyoruz
             } else {
-                targetOption.value = newValue;
+                targetOption.value = newValue; // Diğer seçeneklerin sadece değerini güncelliyoruz
             }
             updateRuleOptions(session.id, updatedOptions);
         }
+    };
+    
+    const handleStartEditing = (keyword, index) => {
+        setEditingIndex(index);
+        updateActiveTopic(keyword);
     };
 
     const handleDeleteLastOption = () => {
@@ -58,7 +65,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
-        setEditingIndex(newRuleOptions.length - 1);
+        handleStartEditing(newOption.keyword, newRuleOptions.length - 1);
     };
     
     const handleStopEditing = () => { 
@@ -67,14 +74,13 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     
     return (
         <div className="options-builder">
-            {/* Header'a Geri Dön Butonu ve toolbar'ı buradan kaldırıldı */}
             <div className="added-options-list">
                 {session.ruleOptions.map((option, index) => (
                     <OptionRow 
                         key={option.id}
                         option={option} 
                         isEditing={index === editingIndex} 
-                        onStartEditing={() => setEditingIndex(index)} 
+                        onStartEditing={(keyword) => handleStartEditing(keyword, index)}
                         onStopEditing={handleStopEditing} 
                         onValueChange={(newValue) => handleValueChange(index, newValue)} 
                     />

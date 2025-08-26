@@ -34,7 +34,9 @@ export const RuleProvider = ({ children }) => {
     });
     
     const [editingSourceId, setEditingSourceId] = useState(null);
-    const [activeTopic, setActiveTopic] = useState(null); // YENİ STATE
+    const [activeTopic, setActiveTopic] = useState(null);
+    const [optionsViewActive, setOptionsViewActive] = useState(false);
+    const [modifierInfoActive, setModifierInfoActive] = useState(false); // YENİ STATE
 
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
@@ -108,6 +110,7 @@ export const RuleProvider = ({ children }) => {
             toast.success('Kural başarıyla kaydedildi!');
         }
         setEditingSourceId(null);
+        updateOptionsViewActive(false);
     };
 
     const deleteRule = (sessionId) => {
@@ -127,16 +130,27 @@ export const RuleProvider = ({ children }) => {
         toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
     };
 
-    // YENİ FONKSİYON
     const updateActiveTopic = (topic) => {
         setActiveTopic(topic);
+    };
+
+    const updateOptionsViewActive = (isActive) => {
+        setOptionsViewActive(isActive);
+    };
+
+    const updateModifierInfoActive = (isActive) => {
+        setModifierInfoActive(isActive);
     };
 
     const value = {
         ruleSessions,
         editingSourceId,
-        activeTopic, // YENİ
-        updateActiveTopic, // YENİ
+        activeTopic,
+        optionsViewActive,
+        modifierInfoActive, // YENİ
+        updateActiveTopic,
+        updateOptionsViewActive,
+        updateModifierInfoActive, // YENİ
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,

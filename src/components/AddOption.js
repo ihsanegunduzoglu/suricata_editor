@@ -6,7 +6,7 @@ import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
 const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
-    const { finalizeRule } = useRule(); // finalizeCurrentRule yerine
+    const { finalizeRule, updateActiveTopic } = useRule(); // updateActiveTopic'i al
     const protocol = session.headerData.Protocol;
     const ruleOptions = session.ruleOptions;
 
@@ -38,7 +38,7 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && e.target.value === '') {
             e.preventDefault();
-            finalizeRule(session.id); // Artık session.id ile çağırıyoruz
+            finalizeRule(session.id);
             return;
         }
 
@@ -56,16 +56,23 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
 
     return (
-        <div className="add-option-container">
+        <div className="add-option-container" onMouseLeave={() => updateActiveTopic(null)}> {/* Kapsayıcıdan çıkınca temizle */}
             <input 
                 ref={ref} type="text" className="add-option-search" 
                 placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
-                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                onKeyDown={handleKeyDown} 
+                onFocus={() => updateActiveTopic(null)} // Arama kutusuna odaklanınca temizle
             />
             {searchTerm && (
                 <ul className="add-option-list">
                     {filteredOptions.map(keyword => (
-                        <li key={keyword} onClick={() => handleAdd(keyword)}>
+                        <li 
+                            key={keyword} 
+                            onClick={() => handleAdd(keyword)}
+                            onMouseEnter={() => updateActiveTopic(keyword)} // Fare üzerine gelince konuyu güncelle
+                        >
                             {keyword}<span className='option-description'> - {optionsDictionary[keyword].description}</span>
                         </li>
                     ))}

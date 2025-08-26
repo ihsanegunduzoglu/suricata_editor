@@ -1,12 +1,18 @@
+// src/components/AutocompleteInput.js
+
 import React, { useState, useEffect, useRef } from 'react';
+import { useRule } from '../context/RuleContext';
 
 const AutocompleteInput = ({ value, onChange, onStopEditing, suggestions }) => {
+    const { updateActiveTopic } = useRule();
     const [showSuggestions, setShowSuggestions] = useState(false);
     const containerRef = useRef(null);
-    const filteredSuggestions = suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()));
+
+    // DEĞİŞİKLİK: Artık nesne dizisi üzerinde filtreleme yapıyoruz
+    const filteredSuggestions = suggestions.filter(s => s.name.toLowerCase().includes(value.toLowerCase()));
 
     const handleSelect = (suggestion) => {
-        onChange(suggestion);
+        onChange(suggestion.name); // Sadece 'name' alanını geri gönderiyoruz
         setShowSuggestions(false);
         onStopEditing();
     };
@@ -33,15 +39,21 @@ const AutocompleteInput = ({ value, onChange, onStopEditing, suggestions }) => {
     }, [onStopEditing]);
 
     return (
-        <div className="autocomplete-container" ref={containerRef}>
+        <div className="autocomplete-container" ref={containerRef} onMouseLeave={() => updateActiveTopic(null)}>
             <input type="text" className="option-value-input" value={value}
                 onChange={(e) => onChange(e.target.value)} onFocus={() => setShowSuggestions(true)}
                 onKeyDown={handleKeyDown} autoFocus />
             {showSuggestions && (
                 <ul className="suggestions-list">
                     {filteredSuggestions.map((suggestion, index) => (
-                        <li key={index} onMouseDown={() => handleSelect(suggestion)}>
-                            {suggestion}
+                        <li 
+                            key={index} 
+                            onMouseDown={() => handleSelect(suggestion)}
+                            onMouseEnter={() => updateActiveTopic('flow')} // Ana konuyu (flow) göster
+                        >
+                            {/* DEĞİŞİKLİK: Açıklamalı görünüm */}
+                            <span className="option-keyword">{suggestion.name}</span>
+                            <span className='option-description'> - {suggestion.description}</span>
                         </li>
                     ))}
                 </ul>

@@ -47,7 +47,15 @@ const optionsDictionary = {
   'flow': { 
     description: 'Baglanti durumu', 
     inputType: 'autocomplete', 
-    suggestions: ['established', 'to_client', 'from_server', 'not_established', 'only_stream', 'no_stream'], 
+    // DEĞİŞİKLİK BURADA: Basit string dizisi yerine nesne dizisi kullanıyoruz
+    suggestions: [
+        { name: 'established', description: 'Kurulmuş TCP bağlantıları' },
+        { name: 'to_client', description: 'Sunucudan istemciye giden trafik' },
+        { name: 'from_server', description: 'Sunucudan istemciye giden trafik (aynı)' },
+        { name: 'not_established', description: 'Henüz kurulmamış TCP bağlantıları' },
+        { name: 'only_stream', description: 'Stream reassembly sonrası trafik' },
+        { name: 'no_stream', description: 'Stream reassembly yapılmayan trafik' }
+    ], 
     defaultValue: '', 
     format: (val) => val,
     category: 'fixed_option'

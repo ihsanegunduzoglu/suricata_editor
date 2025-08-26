@@ -497,3 +497,153 @@ body {
 }
 
 
+/* ==========================================================================
+   BİLGİ PANELİ STİLLERİ (Geliştirilmiş Görünüm)
+   ========================================================================== */
+
+.info-panel-content {
+  padding: 1.5rem;
+  background-color: var(--background-color-dark); /* Hafif koyu bir arka plan */
+  border-radius: 8px; /* Köşeleri yuvarla */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Hafif bir gölge */
+  color: var(--text-color); /* Genel metin rengi */
+}
+
+.info-panel-content h3 {
+  margin-top: 0;
+  color: var(--accent-color);
+  font-size: 1.5rem; /* Başlığı büyütelim */
+  border-bottom: 2px solid var(--border-color); /* Kalın bir alt çizgi */
+  padding-bottom: 0.75rem; /* Çizgi ile başlık arası boşluk */
+  margin-bottom: 1.5rem; /* Başlık ile paragraf arası boşluk */
+}
+
+.info-panel-content p {
+  line-height: 1.6;
+  color: var(--label-color);
+  margin-bottom: 1.5rem; /* Paragraf ile liste arası boşluk */
+  font-size: 0.95rem; /* Paragraf metnini hafif büyüt */
+}
+
+.info-options-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  /* border-top: 1px dashed var(--border-color); */ /* İstersen buraya kesik çizgi ekleyebilirsin */
+  padding-top: 0.5rem;
+}
+
+.info-options-list li {
+  background-color: rgba(255, 255, 255, 0.05); /* Her bir seçeneğe hafif bir arka plan */
+  padding: 0.75rem 1rem; /* İç boşluk */
+  margin-bottom: 0.75rem; /* Elemanlar arası boşluk */
+  border-radius: 6px; /* Köşeleri yuvarla */
+  display: flex;
+  flex-direction: column; /* Başlık ve detayı alt alta al */
+  border-left: 4px solid var(--accent-color); /* Sol tarafta renkli bir çizgi */
+  transition: background-color 0.2s ease; /* Hover efekti için geçiş */
+}
+
+.info-options-list li:hover {
+  background-color: rgba(255, 255, 255, 0.08); /* Üzerine gelince biraz daha parlak olsun */
+}
+
+.info-options-list li strong {
+  color: var(--value-color); /* Seçenek adı rengi */
+  font-size: 1.1rem; /* Adı biraz büyüt */
+  margin-bottom: 0.25rem; /* Ad ile detay arasına boşluk */
+}
+
+/* Detay metnini biraz daha açık renkte ve küçük yapabiliriz */
+.info-options-list li span {
+  color: var(--label-color); 
+  font-size: 0.85rem;
+}
+
+/* Eğer span ile sarmalamadıysak, li içinde strong'dan sonraki metni hedef alabiliriz */
+.info-options-list li strong + * { /* strong'dan hemen sonra gelen herhangi bir element */
+  color: var(--label-color); 
+  font-size: 0.85rem;
+}
+
+/* Placeholer stilini de geliştirelim */
+.panel-placeholder {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--label-color);
+    background-color: var(--background-color-dark);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.panel-placeholder h3 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+/* Tüm Seçenekler Listesi Stilleri */
+
+.all-options-info {
+  padding: 1.5rem;
+  background-color: var(--background-color-dark);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: var(--text-color);
+}
+
+.all-options-info h3 {
+  margin-top: 0;
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.all-options-info p {
+  line-height: 1.6;
+  color: var(--label-color);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* Detaylı Bilgi Paneli Stilleri */
+
+.info-summary {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+}
+
+.info-block {
+  margin-bottom: 1.5rem;
+}
+
+.info-block h4 {
+  color: var(--label-color);
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.info-code {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.info-code code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.95rem;
+  color: var(--value-color);
+}
+
+/* Öneri listelerindeki açıklama metni için stil */
+.option-description {
+  color: var(--label-color);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}

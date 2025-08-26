@@ -7,9 +7,8 @@ import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
 
 const HeaderEditor = ({ session }) => {
-    const { updateHeaderData, updateActiveTopic } = useRule(); // updateActiveTopic'i context'ten al
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive } = useRule();
     
-    const [isHeaderComplete, setIsHeaderComplete] = useState(false);
     const [activeInput, setActiveInput] = useState(null);
 
     const editorRef = useRef(null);
@@ -31,7 +30,7 @@ const HeaderEditor = ({ session }) => {
     
     const handleFocus = (label) => {
         setActiveInput(label);
-        updateActiveTopic(label); // YENİ: Aktif konuyu merkezi state'e bildir
+        updateActiveTopic(label);
     };
 
     const applySuggestion = (suggestion) => {
@@ -45,7 +44,7 @@ const HeaderEditor = ({ session }) => {
         if (nextIndex < labels.length) {
             setTimeout(() => inputRefs.current[nextIndex]?.focus(), 0);
         } else {
-            setIsHeaderComplete(true);
+            updateOptionsViewActive(true);
         }
     };
 
@@ -100,16 +99,16 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
-                updateActiveTopic(null); // YENİ: Dışarı tıklanınca konuyu temizle
+                updateActiveTopic(null);
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [updateActiveTopic]); // Bağımlılıklara ekle
+    }, [updateActiveTopic]);
     
     useEffect(() => {
         const isNewRule = !session.ruleString;
-        if (!isHeaderComplete) {
+        if (!optionsViewActive) {
             if (isNewRule) {
                 inputRefs.current[0]?.focus();
             } else {
@@ -119,16 +118,16 @@ const HeaderEditor = ({ session }) => {
                 return () => clearTimeout(focusTimeout);
             }
         }
-    }, [isHeaderComplete, session.id, session.ruleString]);
+    }, [optionsViewActive, session.id, session.ruleString]);
     
-    if (isHeaderComplete) {
+    if (optionsViewActive) {
         const finalHeaderString = labels.map(label => session.headerData[label]).join(' ');
         return (
             <div className="options-view-container">
                 <pre className="final-header-text">{finalHeaderString} (</pre>
                 <OptionsBuilder 
                     session={session}
-                    onNavigateBack={() => setIsHeaderComplete(false)}
+                    onNavigateBack={() => updateOptionsViewActive(false)}
                 />
                 <div className="final-header-text closing-paren">)</div>
             </div>

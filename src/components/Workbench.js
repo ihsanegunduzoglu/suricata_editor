@@ -5,6 +5,7 @@ import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
+import InfoPanel from './InfoPanel'; // YENİ: InfoPanel'i içeri aktar
 
 const Workbench = () => {
     const { ruleSessions, editingSourceId } = useRule();
@@ -37,8 +38,6 @@ const Workbench = () => {
         <div className="app-layout">
             <div className="main-content-area">
                 <div className="active-editor-container">
-                    {/* İndirme butonu daha önce buradaydı, şimdi finalized-rules-list içinde */}
-                    
                     {activeSession ? (
                         <div className="active-editor-wrapper">
                             <HeaderEditor key={activeSession.id} session={activeSession} />
@@ -49,7 +48,6 @@ const Workbench = () => {
                 </div>
 
                 <div className="finalized-rules-list">
-                    {/* DÜZENLEME: İndirme butonu, listenin sağ üst köşesine konumlandırılabilmesi için bu div'in içine taşındı. */}
                     <button 
                         onClick={handleExport} 
                         className="toolbar-button export-button"
@@ -57,7 +55,7 @@ const Workbench = () => {
                     >
                         ⇩
                     </button>
-                    <div className='rules-scroll-wrapper'>
+                    <div className="rules-scroll-wrapper"> 
                         {finalizedSessions.reverse().map(session => (
                             <FinalizedRule 
                                 key={session.id} 
@@ -66,15 +64,11 @@ const Workbench = () => {
                             />
                         ))}
                     </div>
-                    
                 </div>
             </div>
 
             <div className="right-info-panel">
-                <div className="panel-placeholder">
-                    <h3>Bilgi Paneli</h3>
-                    <p>Seçili kuralla ilgili detaylar veya diğer yardımcı bilgiler ileride burada gösterilecektir.</p>
-                </div>
+                <InfoPanel /> {/* Placeholder yerine yeni bileşenimizi koyuyoruz */}
             </div>
         </div>
     );

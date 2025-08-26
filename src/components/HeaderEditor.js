@@ -7,9 +7,8 @@ import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
 
 const HeaderEditor = ({ session }) => {
-    const { updateHeaderData } = useRule();
+    const { updateHeaderData, updateActiveTopic } = useRule(); // updateActiveTopic'i context'ten al
     
-    // DEĞİŞİKLİK: Artık her zaman header'dan başlamak için başlangıç değeri 'false' olarak ayarlandı.
     const [isHeaderComplete, setIsHeaderComplete] = useState(false);
     const [activeInput, setActiveInput] = useState(null);
 
@@ -30,7 +29,10 @@ const HeaderEditor = ({ session }) => {
         updateHeaderData(session.id, newHeaderData);
     };
     
-    const handleFocus = (label) => setActiveInput(label);
+    const handleFocus = (label) => {
+        setActiveInput(label);
+        updateActiveTopic(label); // YENİ: Aktif konuyu merkezi state'e bildir
+    };
 
     const applySuggestion = (suggestion) => {
         if (activeInput) {
@@ -98,11 +100,12 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
+                updateActiveTopic(null); // YENİ: Dışarı tıklanınca konuyu temizle
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [updateActiveTopic]); // Bağımlılıklara ekle
     
     useEffect(() => {
         const isNewRule = !session.ruleString;
@@ -127,7 +130,7 @@ const HeaderEditor = ({ session }) => {
                     session={session}
                     onNavigateBack={() => setIsHeaderComplete(false)}
                 />
-                <div className="final-header-text">)</div>
+                <div className="final-header-text closing-paren">)</div>
             </div>
         );
     }

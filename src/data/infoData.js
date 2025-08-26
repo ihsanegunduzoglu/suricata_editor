@@ -61,7 +61,7 @@ export const infoData = {
     },
 
     // ======================================================
-    // Kural Seçenekleri (Options) Bilgileri - DETAYLANDIRILMIŞ
+    // Kural Seçenekleri (Options) Bilgileri
     // ======================================================
     'msg': { 
         title: 'msg (Message)', 
@@ -84,26 +84,61 @@ export const infoData = {
         syntax: 'rev:<versiyon numarası>;',
         example: 'rev:1;'
     },
+    'classtype': {
+        title: 'classtype (Sınıf Tipi)',
+        summary: 'Uyarının türünü sınıflandırır.',
+        details: 'Bu seçenek, alarmların ciddiyetini ve türünü belirlemek için kullanılır. `classification.config` dosyasında tanımlanan tiplerden biri olmalıdır. Olay yönetimi ve raporlama için kritik öneme sahiptir.',
+        syntax: 'classtype:<sınıf-adı>;',
+        example: 'classtype:trojan-activity;'
+    },
+    'reference': {
+        title: 'reference (Referans)',
+        summary: 'Kuralı dış bir bilgi kaynağına bağlar.',
+        details: 'Bu seçenek, kuralın ilgili olduğu bir zafiyet (CVE), makale (URL) veya saldırı veritabanı (Metasploit) gibi dış kaynaklara referans vermek için kullanılır. Bir kuralda birden çok referans olabilir.',
+        syntax: 'reference:cve,2022-12345;',
+        example: 'reference:url,www.virustotal.com/gui/file/...;'
+    },
+    'metadata': {
+        title: 'metadata (Meta Veri)',
+        summary: 'Kurala serbest formatta anahtar-değer çiftleri ekler.',
+        details: 'Kurala özel notlar, yazar bilgisi, oluşturulma tarihi gibi yapısal olmayan verileri eklemek için kullanılır.',
+        syntax: 'metadata:key value, key2 value2;',
+        example: 'metadata:author emre, created_at 2025_08_26;'
+    },
+    'priority': {
+        title: 'priority (Öncelik)',
+        summary: 'Uyarının öncelik seviyesini belirler.',
+        details: '1 (en yüksek) ile 255 (en düşük) arasında bir değer alır. Olayların önem sırasına göre işlenmesine yardımcı olur. Genellikle 1-4 arası kullanılır.',
+        syntax: 'priority:<1-255>;',
+        example: 'priority:2;'
+    },
     'flow': { 
         title: 'flow (Akış Durumu)', 
-        summary: 'Kuralın sadece belirli TCP bağlantı durumlarındaki trafik için geçerli olmasını sağlar.',
-        details: '`flow`, bir TCP oturumunun durumunu kontrol ederek kuralın ne zaman çalışacağını belirler. Bu, gereksiz kontrolleri önleyerek performansı önemli ölçüde artırır.',
-        syntax: 'flow:to_client | to_server | established | not_established | ... ;',
-        example: 'flow:established,to_server;',
-        // YENİ: Sağ panelde de detaylı gösterebilmek için options ekliyoruz
-        options: [
-            { name: 'established', detail: 'Üçlü el sıkışması tamamlanmış, aktif TCP bağlantıları.' },
-            { name: 'to_client', detail: 'Trafiğin sunucudan istemciye doğru aktığı yönü belirtir.' },
-            { name: 'from_server', detail: '`to_client` ile aynı anlama gelir.' },
-            { name: 'not_established', detail: 'Henüz üçlü el sıkışması tamamlanmamış bağlantılar (örn: sadece SYN paketi).' },
-        ]
+        summary: 'Kuralın belirli TCP bağlantı durumlarında çalışmasını sağlar.',
+        details: '`flow`, bir TCP oturumunun durumunu kontrol ederek gereksiz kontrolleri önler ve performansı artırır.',
+        syntax: 'flow:to_client | to_server | established | ... ;',
+        example: 'flow:established,to_server;'
     },
     'content': { 
         title: 'content (İçerik)', 
-        summary: 'Paket içeriğinde (payload) aranacak olan metni veya hexadecimal veriyi belirtir.',
-        details: '`content`, bir kuralın en güçlü parçalarından biridir. Belirtilen metni veya byte dizisini paket içeriğinde arar. Daha verimli hale getirmek için `depth`, `offset`, `distance` gibi diğer anahtar kelimelerle birlikte kullanılır.',
+        summary: 'Paket içeriğinde aranacak metni veya veriyi belirtir.',
+        details: 'Bir kuralın en güçlü parçalarından biridir. Belirtilen metni veya byte dizisini paket içeriğinde arar.',
         syntax: 'content:"<aranacak metin>";',
         example: 'content:"|00 01 86 a5|";'
+    },
+    'pcre': {
+        title: 'pcre (Perl Compatible Regular Expression)',
+        summary: 'Karmaşık desenleri aramak için Regex kullanır.',
+        details: '`content`\'in yetersiz kaldığı durumlarda, daha esnek ve karmaşık metin desenlerini aramak için kullanılır. Performans açısından `content`\'e göre daha maliyetlidir.',
+        syntax: 'pcre:"/<regex deseni>/i";',
+        example: 'pcre:"/USER-AGENT|3a 20[a-z]{5,10}/i";'
+    },
+    'http.method': {
+        title: 'http.method',
+        summary: 'HTTP isteğinin metodunu (GET, POST vb.) kontrol eder.',
+        details: 'Bu anahtar kelime, sadece belirli bir HTTP metodu ile yapılan istekleri yakalamak için kullanılır.',
+        syntax: 'http.method; content:"POST";',
+        example: 'alert http any any -> any any (msg:"POST isteği"; http.method; content:"POST"; sid:1000002; rev:1;)'
     },
     'http_uri': {
         title: 'http_uri',

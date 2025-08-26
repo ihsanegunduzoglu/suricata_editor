@@ -1,26 +1,25 @@
 // src/components/Workbench.js
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
 
 const Workbench = () => {
-    const { ruleSessions } = useRule();
-    const endOfPageRef = useRef(null);
+    // DEĞİŞİKLİK: editingSourceId'yi context'ten alıyoruz
+    const { ruleSessions, editingSourceId } = useRule();
 
-    useEffect(() => {
-        endOfPageRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [ruleSessions.length]);
-    
+    const activeSession = ruleSessions.find(session => session.status === 'editing');
+    // DEĞİŞİKLİK: Artık tüm kurallar (boş editör hariç) finalized olarak kabul ediliyor
+    const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
+
     const handleExport = () => {
-        const finalizedRules = ruleSessions
-            .filter(session => session.status === 'finalized')
+        const finalizedRules = finalizedSessions
             .map(session => session.ruleString)
             .join('\n\n');
 
-        if (!finalizedRules) {
+        if (!finalizedRules || finalizedRules.length === 0) {
             toast.warn('Dışa aktarılacak tamamlanmış bir kural bulunmuyor.');
             return;
         }
@@ -35,27 +34,44 @@ const Workbench = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
-
+    
     return (
-        <div className="workbench-console-container">
-            <div className="workbench-toolbar">
-                <button onClick={handleExport} className="toolbar-button" title="Kuralları .rules dosyası olarak indir">
-                    ⇩
-                </button>
-            </div>
-
-            {ruleSessions.map(session => (
-                <div key={session.id} className="session-wrapper">
-                    {session.status === 'finalized' ? (
-                        <FinalizedRule session={session} />
-                    ) : (
+        <div className="app-layout">
+            <div className="main-content-area">
+                <div className="active-editor-container">
+                    <div className="workbench-toolbar">
+                        <button onClick={handleExport} className="toolbar-button" title="Kuralları .rules dosyası olarak indir">
+                            ⇩
+                        </button>
+                    </div>
+                    
+                    {activeSession ? (
                         <div className="active-editor-wrapper">
-                            <HeaderEditor session={session} />
+                            <HeaderEditor key={activeSession.id} session={activeSession} />
                         </div>
+                    ) : (
+                        <p>Yeni kural oluşturuluyor...</p>
                     )}
                 </div>
-            ))}
-            <div ref={endOfPageRef} />
+
+                <div className="finalized-rules-list">
+                    {finalizedSessions.reverse().map(session => (
+                        <FinalizedRule 
+                            key={session.id} 
+                            session={session} 
+                            // DEĞİŞİKLİK: Bu kuralın düzenlenip düzenlenmediği bilgisini prop olarak geçiyoruz
+                            isBeingEdited={session.id === editingSourceId}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <div className="right-info-panel">
+                <div className="panel-placeholder">
+                    <h3>Bilgi Paneli</h3>
+                    <p>Seçili kuralla ilgili detaylar veya diğer yardımcı bilgiler ileride burada gösterilecektir.</p>
+                </div>
+            </div>
         </div>
     );
 };

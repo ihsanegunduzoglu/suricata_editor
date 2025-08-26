@@ -1,6 +1,8 @@
-/* BU KOD BLOĞUNUN TAMAMINI src/App.css DOSYASINA YAPIŞTİR */
+/* ==========================================================================
+   Suricata Kural Editörü - Ana Stil Dosyası (Temizlenmiş Sürüm)
+   ========================================================================== */
 
-/* Genel Stiller ve Renk Paleti */
+/* --- Genel Değişkenler ve Temel Stiller --- */
 :root {
   --text-color: #ffffff;
   --border-color: #333333;
@@ -24,121 +26,62 @@ body {
   margin: 0;
 }
 
-/* --- KONSOL YERLEŞİMİ VE TOOLBAR --- */
-.workbench-console-container {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+/* ==========================================================================
+   ANA SAYFA YERLEŞİMİ (GRID)
+   ========================================================================== */
+.app-layout {
+  display: grid;
+  /* Grid yapısını daha stabil hale getiriyoruz, 'itme' sorununu çözer. */
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); 
+  gap: 2rem;
   padding: 2rem;
+  height: 100vh;
   box-sizing: border-box;
 }
 
-.workbench-toolbar {
+/* --- Sol Sütun Alanı --- */
+.main-content-area {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 2rem;
-  height: 30px;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Öneri menülerinin kesilmemesi için 'visible' yapıyoruz. */
+  overflow: visible; 
 }
 
-.toolbar-button {
-  background-color: #2a2d2e;
-  color: var(--label-color);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.toolbar-button:hover {
-  background-color: #3c3c3c;
-  color: var(--text-color);
-  border-color: var(--accent-color);
-}
-
-.active-editor-wrapper {
-  min-height: 350px;
-  margin-bottom : 1.5rem;
-  border: 1px solid var(--accent-color);
-  border-radius: 4px;
-  padding: 1rem;
-  box-sizing: border-box;
-
-}
-
-
-/* --- TAMAMLANMIŞ KURAL GÖSTERİMİ --- */
-.finalized-rule-container {
+/* --- Sağ Sütun Alanı --- */
+.right-info-panel {
   background-color: #0a0a0a;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  padding: 0; 
-  margin-bottom: 1.5rem;
-  position: relative;
-  transition: all 0.2s ease-in-out;
 }
-
-.rule-actions {
-  position: absolute;
-  top: -10px;
-  left: 15px;
-  display: flex;
-  gap: 0.5rem;
-  z-index: 20;
-}
-
-.rule-action-btn {
-  background-color: #2a2d2e;
+.panel-placeholder {
+  padding: 1.5rem;
   color: var(--label-color);
+  text-align: center;
+}
+.panel-placeholder h3 {
+  color: var(--text-color);
+  margin-top: 0;
+}
+
+
+/* ==========================================================================
+   AKTİF KURAL EDİTÖRÜ
+   ========================================================================== */
+
+/* Aktif editör ana çerçevesi */
+.active-editor-wrapper {
+  background-color: #0a0a0a;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  /* 'Zıplama' sorununu çözmek için sabit minimum yükseklik */
+  min-height: 350px; 
+  /* İçeriğin dikeyde esnemesi için flex ayarları */
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  flex-direction: column;
 }
 
-.rule-action-btn:hover {
-  background-color: #3c3c3c;
-  color: var(--text-color);
-  border-color: var(--accent-color);
-}
-
-.finalized-rule-container.is-editing {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(204, 204, 204, 0.2);
-}
-
-
-/* --- AKTİF EDİTÖR --- */
-.options-view-container {
-  width: 100%;
-  font-family: 'Consolas', 'Courier New', monospace;
-  box-sizing: border-box;
-}
-
-/* Akordiyon Animasyonu */
-.editor-expander {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.5s ease-in-out;
-}
-
-.editor-expander.expanded {
-  max-height: 1000px; 
-}
-
-/* --- HEADER EDİTÖRÜ --- */
+/* Header (Action, Protocol vb.) girişlerinin olduğu satır */
 .editor-row {
   display: flex;
   align-items: flex-end;
@@ -151,7 +94,8 @@ body {
   flex-direction: column;
   flex: 1;
   min-width: 100px;
-  position: relative;
+  /* Öneri menülerinin doğru konumlanması için */
+  position: relative; 
 }
 
 .input-group label {
@@ -165,7 +109,6 @@ body {
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  /* DEĞİŞİKLİK: Dikey padding azaltıldı, yatay padding korundu */
   padding: 0.5rem 0.75rem; 
   border-radius: 4px;
   font-size: 1.1rem;
@@ -187,16 +130,29 @@ body {
   padding: 0 0.5rem;
 }
 
-/* --- OPTIONS EDİTÖRÜ --- */
+
+/* ==========================================================================
+   OPTIONS BÖLÜMÜ
+   ========================================================================== */
+
+/* Options bölümünün ana konteyneri (Header yazısı ve OptionsBuilder'ı içerir) */
+.options-view-container {
+  display: flex;
+  flex-direction: column;
+  /* Boşluğu doldurmak için dikeyde esneme */
+  flex-grow: 1; 
+}
+
 .options-builder {
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
-  margin: 5px 0;
   min-height: 200px;
   display: flex;
   flex-direction: column;
+  /* Boşluğu doldurmak için dikeyde esneme */
+  flex-grow: 1; 
 }
 
 .added-options-list {
@@ -212,65 +168,62 @@ body {
   border-radius: 3px;
   margin: 2px 0;
 }
-
 .option-row:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
-
 .option-keyword {
   color: var(--keyword-color);
   margin-right: 0.5rem;
 }
-
 .option-value {
   color: var(--value-color);
   white-space: pre-wrap;
   word-break: break-all;
 }
-
 .option-semicolon {
   color: var(--text-color);
   margin-left: 0.25rem;
 }
-
-.option-group-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.75rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 1.1rem;
-  cursor: text;
-  border-radius: 3px;
-  margin: 2px 0;
+.option-value-input {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  color: var(--value-color);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid var(--accent-color);
+}
+.option-value-input:focus {
+  outline: none;
+}
+.autocomplete-container {
+  position: relative;
+  flex-grow: 1;
 }
 
-.option-group-row:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
 
-.option-group-item {
-  display: flex;
-  align-items: center;
-}
+/* ==========================================================================
+   CONTENT EDİTÖRÜ (İSTEK ÜZERİNE ORİJİNAL HALİ)
+   ========================================================================== */
 
-/* --- CONTENT EDİTÖRÜ (STABİL VERSİYON) --- */
 .option-row-editing-card {
   width: 100%;
-  background-color: #1e1e1e;
+  /* Orijinal, daha açık arka plan */
+  background-color: #1e1e1e; 
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
   margin: 0.5rem 0;
   box-sizing: border-box;
 }
-
 .content-value-row {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  /* Orijinal boşluk */
+  margin-bottom: 1rem; 
 }
-
 .modifiers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -280,83 +233,14 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.modifier-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
-.modifier-item label {
-  color: var(--label-color);
-}
-
-.modifier-item input[type="checkbox"] {
-  cursor: pointer;
-}
-
-.modifier-item input[type="number"] {
-  background-color: transparent;
-  color: var(--value-color);
-  border: none;
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
-  padding: 0.25rem;
-  width: 80px;
-  text-align: center;
-  transition: border-color 0.2s ease;
-  -moz-appearance: textfield;
-}
-
-.modifier-item input[type="number"]:focus {
-  outline: none;
-  border-bottom-color: var(--accent-color);
-}
-
-.modifier-item input[type="number"]::-webkit-outer-spin-button,
-.modifier-item input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-
-/* --- PAYLAŞILAN / YARDIMCI STİLLER --- */
-.suggestions-list, .add-option-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-radius: 0 0 4px 4px;
-  list-style: none;
-  margin: 5px 0 0 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.suggestions-list li, .add-option-list li {
-  font-size: 1.1rem;
-  color: var(--text-color);
-  padding: .75rem;
-  cursor: pointer;
-  transition: background-color .2s ease;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.suggestions-list li:last-child, .add-option-list li:last-child {
-  border-bottom: none;
-}
-
-.suggestions-list li:hover, .add-option-list li:hover {
-  background-color: var(--suggestion-hover-bg);
-}
+/* ==========================================================================
+   ÖNERİ PENCERELERİ (TÜMÜ İÇİN ORTAK)
+   ========================================================================== */
 
 .add-option-container {
   position: relative;
 }
-
 .add-option-search {
   width: 100%;
   background-color: transparent;
@@ -369,36 +253,144 @@ body {
   font-family: inherit;
   box-sizing: border-box;
 }
-
 .add-option-search:focus {
   outline: none;
   border-top-style: solid;
   border-top-color: var(--accent-color);
 }
 
-.option-description {
-  color: var(--label-color);
-  font-size: 0.9rem;
-  margin-left: 1rem;
-}
-
-.option-value-input {
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  color: var(--value-color);
-  font-family: inherit;
-  font-size: inherit;
+.suggestions-list,
+.add-option-list {
+  /* Sayfa akışından çıkarıp kaydırmayı engelleme */
+  position: absolute;   
+  top: 100%;
+  left: 0;
+  right: 0;
+  /* Her şeyin üzerinde görünmesini sağlama */
+  z-index: 200;         
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 4px 4px;
+  list-style: none;
+  margin: 2px 0 0 0;
   padding: 0;
-  margin: 0;
-  border-bottom: 1px solid var(--accent-color);
+  max-height: 250px;
+  overflow-y: auto;
+}
+.suggestions-list li, 
+.add-option-list li {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  padding: .75rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+.suggestions-list li:last-child, 
+.add-option-list li:last-child {
+  border-bottom: none;
+}
+.suggestions-list li:hover, 
+.add-option-list li:hover {
+  background-color: var(--suggestion-hover-bg);
 }
 
-.option-value-input:focus {
-  outline: none;
+/* ==========================================================================
+   TAMAMLANMIŞ KURALLAR LİSTESİ
+   ========================================================================== */
+
+.finalized-rules-list {
+  flex-grow: 1; 
+  overflow-y: auto;
+  padding-right: 10px;
+}
+.finalized-rule-container {
+  margin-bottom: 1.5rem;
+}
+.finalized-rules-list::-webkit-scrollbar {
+  width: 8px;
+}
+.finalized-rules-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.finalized-rules-list::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 10px;
+  border: 2px solid #000;
 }
 
-.autocomplete-container {
+/* ==========================================================================
+   FİNALİZE EDİLMİŞ KURAL STİLLERİ (YENİ İSTEKLER)
+   ========================================================================== */
+
+/* Tamamlanmış her kurala, aktif editör gibi bir çerçeve veriyoruz */
+.finalized-rule-container {
+  background-color: #0a0a0a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0; 
   position: relative;
-  flex-grow: 1;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 1.5rem; /* Bu kural zaten vardı ama burada toplu dursun */
+}
+
+/* Kuralın üzerine gelindiğinde hafif bir vurgu */
+.finalized-rule-container:hover {
+  border-color: #555;
+}
+
+/* DÜZENLENEN KURALI AYDINLATMA */
+.finalized-rule-container.is-being-edited {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(204, 204, 204, 0.2);
+}
+
+/* Kural aksiyon butonlarının stilleri (zaten vardı, buraya taşıdık) */
+.rule-actions {
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 20;
+}
+.rule-action-btn {
+  background-color: #2a2d2e;
+  color: var(--label-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.rule-action-btn:hover:not(:disabled) {
+  background-color: #3c3c3c;
+  color: var(--text-color);
+  border-color: var(--accent-color);
+}
+.rule-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   KAYDIRMA VE BUTON GÖRÜNÜMÜ DÜZELTMELERİ
+   ========================================================================== */
+
+/* 1. Kural listesinin sayfa yerine kendi içinde kaymasını sağlayan düzeltme */
+.main-content-area {
+  /* Bu kural, flexbox'ın yükseklik hesaplamasını düzelterek
+     içindeki scroll edilebilir alanın doğru çalışmasını sağlar. */
+  min-height: 0;
+}
+
+/* 2. Listedeki ilk kuralın üstteki butonlarının kesilmesini engelleyen düzeltme */
+.finalized-rules-list {
+  /* Üst boşluk ekleyerek, ilk kuralın negatif konumlu butonlarına
+     görünecekleri bir alan açıyoruz. */
+  padding-top: 15px;
 }

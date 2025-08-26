@@ -3,44 +3,44 @@
 import React from 'react';
 import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
-
-// YENİ: Renklendirme kütüphanesini ve karanlık tema stilini import ediyoruz
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-
-const FinalizedRule = ({ session }) => {
-    const { deleteRule, duplicateRule, startEditingRule, cancelEditing, editingSessionId } = useRule();
+// DEĞİŞİKLİK: isBeingEdited prop'unu alıyoruz
+const FinalizedRule = ({ session, isBeingEdited }) => {
+    // DEĞİŞİKLİK: cancelEditing fonksiyonunu da context'ten alıyoruz
+    const { deleteRule, duplicateRule, startEditingRule, cancelEditing } = useRule();
     
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(session.ruleString);
         toast.success('Kural panoya kopyalandı!');
     };
-    
-    const isCurrentlyEditing = editingSessionId === session.id;
 
+    // DEĞİŞİKLİK: Düzenleme butonu artık iki işlevli: başlatma ve iptal etme
     const handleEditToggle = () => {
-        if (isCurrentlyEditing) {
-            cancelEditing();
+        if (isBeingEdited) {
+            cancelEditing(); // Eğer bu kural zaten düzenleniyorsa, düzenlemeyi iptal et
         } else {
-            startEditingRule(session.id);
+            startEditingRule(session.id); // Değilse, düzenlemeyi başlat
         }
     };
 
+    // DEĞİŞİKLİK: Ana konteyner'a isBeingEdited durumuna göre dinamik sınıf ekliyoruz
     return (
-        <div className={`finalized-rule-container ${isCurrentlyEditing ? 'is-editing' : ''}`}>
+        <div className={`finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''}`}>
             <div className="rule-actions">
                 <button 
                     className="rule-action-btn" 
-                    title={isCurrentlyEditing ? "Düzenlemeyi Kapat" : "Düzenle"}
+                    title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"}
                     onClick={handleEditToggle}
                 >
-                    ✏️
+                    {isBeingEdited ? '↩️' : '✏️'}
                 </button>
                 <button 
                     className="rule-action-btn" 
                     title="Sil"
                     onClick={() => deleteRule(session.id)}
+                    disabled={isBeingEdited} // Düzenleme sırasında silmeyi engelle
                 >
                     ✖
                 </button>
@@ -48,6 +48,7 @@ const FinalizedRule = ({ session }) => {
                     className="rule-action-btn" 
                     title="Panoya Kopyala"
                     onClick={handleCopyToClipboard}
+                    disabled={isBeingEdited}
                 >
                     📋
                 </button>
@@ -55,25 +56,16 @@ const FinalizedRule = ({ session }) => {
                     className="rule-action-btn" 
                     title="Çoğalt"
                     onClick={() => duplicateRule(session)}
+                    disabled={isBeingEdited}
                 >
                     ➕
                 </button>
             </div>
-            {/* DEĞİŞİKLİK: Eski <pre> etiketi yerine SyntaxHighlighter bileşenini kullanıyoruz */}
             <SyntaxHighlighter 
                 language="bash" 
                 style={vscDarkPlus}
-                customStyle={{
-                    margin: 0,
-                    padding: '1.5em',
-                    backgroundColor: 'transparent',
-                }}
-                codeTagProps={{
-                    style: {
-                        fontSize: '1rem', // Yazı tipini buradan büyütüyoruz
-                        fontFamily: "'Consolas', 'Courier New', monospace" // Font ailesini de garantileyelim
-                    }
-                }}
+                customStyle={{ margin: 0, padding: '1.5em', backgroundColor: 'transparent' }}
+                codeTagProps={{ style: { fontSize: '1rem', fontFamily: "'Consolas', 'Courier New', monospace" } }}
                 wrapLines={true}
                 wrapLongLines={true}
             >

@@ -79,6 +79,7 @@ body {
   /* İçeriğin dikeyde esnemesi için flex ayarları */
   display: flex;
   flex-direction: column;
+  padding: 2rem;
 }
 
 /* Header (Action, Protocol vb.) girişlerinin olduğu satır */
@@ -101,7 +102,7 @@ body {
 .input-group label {
   color: var(--label-color);
   font-size: 0.8rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   text-transform: uppercase;
 }
 
@@ -123,11 +124,12 @@ body {
 
 .final-header-text {
   font-size: 1.2rem;
-  color: #569cd6;
+  color:#ffffff;
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
-  padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
+
 }
 
 
@@ -299,9 +301,13 @@ body {
    ========================================================================== */
 
 .finalized-rules-list {
-  flex-grow: 1; 
-  overflow-y: auto;
   padding-right: 10px;
+  position: relative;
+  
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .finalized-rule-container {
   margin-bottom: 1.5rem;
@@ -394,3 +400,41 @@ body {
      görünecekleri bir alan açıyoruz. */
   padding-top: 15px;
 }
+/* App.css dosyasının sonuna ekleyebilirsiniz */
+
+.export-button {
+  position: absolute; /* Sayfadaki diğer elemanlardan bağımsız, sabit konum */
+  top: 1rem;       /* Ekranın üstünden boşluk */
+  right: 1.50rem;      /* Ekranın solundan boşluk */
+  z-index: 1000;   /* Diğer tüm elemanların üzerinde görünmesi için */
+  float: right; 
+  /* Boyut ve görünüm ayarları */
+  font-size: 1.5rem; /* İkonu büyütelim */
+  width: 50px;       /* Genişlik */
+  height: 50px;      /* Yükseklik */
+  
+  /* Mevcut toolbar-button stilini bozmamak için bazı eklemeler */
+  background-color: #2a2d2e;
+  border: 1px solid var(--border-color);
+  color: var(--label-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-button:hover {
+  background-color: #3c3c3c;
+  color: var(--text-color);
+  border-color: var(--accent-color);
+}
+
+.rules-scroll-wrapper {
+  overflow-y: auto; /* Kaydırma çubuğu artık burada */
+  flex-grow: 1;     /* Mevcut alanı doldurur */
+  padding-right: 10px; /* Kaydırma çubuğu için boşluk */
+
+  padding-top: 20px;
+}
+

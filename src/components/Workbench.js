@@ -7,11 +7,9 @@ import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
 
 const Workbench = () => {
-    // DEĞİŞİKLİK: editingSourceId'yi context'ten alıyoruz
     const { ruleSessions, editingSourceId } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
-    // DEĞİŞİKLİK: Artık tüm kurallar (boş editör hariç) finalized olarak kabul ediliyor
     const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
 
     const handleExport = () => {
@@ -39,11 +37,7 @@ const Workbench = () => {
         <div className="app-layout">
             <div className="main-content-area">
                 <div className="active-editor-container">
-                    <div className="workbench-toolbar">
-                        <button onClick={handleExport} className="toolbar-button" title="Kuralları .rules dosyası olarak indir">
-                            ⇩
-                        </button>
-                    </div>
+                    {/* İndirme butonu daha önce buradaydı, şimdi finalized-rules-list içinde */}
                     
                     {activeSession ? (
                         <div className="active-editor-wrapper">
@@ -55,14 +49,24 @@ const Workbench = () => {
                 </div>
 
                 <div className="finalized-rules-list">
-                    {finalizedSessions.reverse().map(session => (
-                        <FinalizedRule 
-                            key={session.id} 
-                            session={session} 
-                            // DEĞİŞİKLİK: Bu kuralın düzenlenip düzenlenmediği bilgisini prop olarak geçiyoruz
-                            isBeingEdited={session.id === editingSourceId}
-                        />
-                    ))}
+                    {/* DÜZENLEME: İndirme butonu, listenin sağ üst köşesine konumlandırılabilmesi için bu div'in içine taşındı. */}
+                    <button 
+                        onClick={handleExport} 
+                        className="toolbar-button export-button"
+                        title="Kuralları .rules dosyası olarak indir"
+                    >
+                        ⇩
+                    </button>
+                    <div className='rules-scroll-wrapper'>
+                        {finalizedSessions.reverse().map(session => (
+                            <FinalizedRule 
+                                key={session.id} 
+                                session={session} 
+                                isBeingEdited={session.id === editingSourceId}
+                            />
+                        ))}
+                    </div>
+                    
                 </div>
             </div>
 

@@ -5,11 +5,11 @@ import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
-import InfoPanel from './InfoPanel'; // YENİ: InfoPanel'i içeri aktar
+import InfoPanel from './InfoPanel';
+import TopMenuBar from './TopMenuBar';
 
 const Workbench = () => {
-    const { ruleSessions, editingSourceId } = useRule();
-
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible } = useRule();
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
 
@@ -34,41 +34,50 @@ const Workbench = () => {
         URL.revokeObjectURL(url);
     };
     
+    const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
+
     return (
-        <div className="app-layout">
-            <div className="main-content-area">
-                <div className="active-editor-container">
-                    {activeSession ? (
-                        <div className="active-editor-wrapper">
-                            <HeaderEditor key={activeSession.id} session={activeSession} />
+        <div className="app-container">
+            <TopMenuBar />
+            <div className={layoutClassName}>
+                <div className="main-content-area">
+                    <div className="active-editor-container">
+                        {activeSession ? (
+                            <div className="active-editor-wrapper">
+                                <HeaderEditor key={activeSession.id} session={activeSession} />
+                            </div>
+                        ) : (
+                            <p>Yeni kural oluşturuluyor...</p>
+                        )}
+                    </div>
+
+                    {isRulesListVisible && (
+                        <div className="finalized-rules-list">
+                            <button 
+                                onClick={handleExport} 
+                                className="toolbar-button export-button"
+                                title="Kuralları .rules dosyası olarak indir"
+                            >
+                                ⇩
+                            </button>
+                            <div className="rules-scroll-wrapper"> 
+                                {finalizedSessions.reverse().map(session => (
+                                    <FinalizedRule 
+                                        key={session.id} 
+                                        session={session} 
+                                        isBeingEdited={session.id === editingSourceId}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    ) : (
-                        <p>Yeni kural oluşturuluyor...</p>
                     )}
                 </div>
 
-                <div className="finalized-rules-list">
-                    <button 
-                        onClick={handleExport} 
-                        className="toolbar-button export-button"
-                        title="Kuralları .rules dosyası olarak indir"
-                    >
-                        ⇩
-                    </button>
-                    <div className="rules-scroll-wrapper"> 
-                        {finalizedSessions.reverse().map(session => (
-                            <FinalizedRule 
-                                key={session.id} 
-                                session={session} 
-                                isBeingEdited={session.id === editingSourceId}
-                            />
-                        ))}
+                {isInfoPanelVisible && (
+                    <div className="right-info-panel">
+                        <InfoPanel />
                     </div>
-                </div>
-            </div>
-
-            <div className="right-info-panel">
-                <InfoPanel /> {/* Placeholder yerine yeni bileşenimizi koyuyoruz */}
+                )}
             </div>
         </div>
     );

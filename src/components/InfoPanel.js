@@ -1,11 +1,8 @@
-// src/components/InfoPanel.js
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 
-// Taktik listesini gösteren alt bileşen
 const MitreTacticList = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -21,7 +18,6 @@ const MitreTacticList = () => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
             const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -32,9 +28,8 @@ const MitreTacticList = () => {
             <h3>MITRE ATT&CK Taktikleri</h3>
             <p>Bir taktik seçerek ilişkili teknikleri listeleyebilirsiniz.</p>
             {isLoading ? <p>Yükleniyor...</p> : (
-                <ul className="info-options-list" ref={listRef}>
+                <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {tactics.map(tactic => (
-                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
                         <li key={tactic.id} id={`info-item-${tactic.id.replace(/\./g, '-')}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
                             <strong>{tactic.name} ({tactic.id})</strong>
                             <span>{tactic.description}</span>
@@ -46,7 +41,6 @@ const MitreTacticList = () => {
     );
 };
 
-// Teknik listesini gösteren alt bileşen
 const MitreTechniqueList = ({ tacticId }) => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -65,7 +59,6 @@ const MitreTechniqueList = ({ tacticId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
             const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -76,9 +69,8 @@ const MitreTechniqueList = ({ tacticId }) => {
             <h3>Teknikler ({tacticId})</h3>
             <p>Aşağıda seçtiğiniz taktik ile ilişkili teknikler listelenmiştir.</p>
             {isLoading ? <p>Yükleniyor...</p> : (
-                <ul className="info-options-list" ref={listRef}>
+                <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {techniques.map(tech => (
-                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
                         <li key={tech.id} id={`info-item-${tech.id.replace(/\./g, '-')}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
                             <strong>{tech.name} ({tech.id})</strong>
                             <span>{tech.description}</span>
@@ -90,7 +82,6 @@ const MitreTechniqueList = ({ tacticId }) => {
     );
 };
 
-// Sub-teknik listesini gösteren alt bileşen
 const MitreSubtechniqueList = ({ techniqueId }) => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -109,7 +100,6 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
             const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -120,9 +110,8 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
             <h3>Alt-Teknikler ({techniqueId})</h3>
             <p>Aşağıda seçtiğiniz teknik ile ilişkili alt-teknikler listelenmiştir.</p>
             {isLoading ? <p>Yükleniyor...</p> : (
-                <ul className="info-options-list" ref={listRef}>
+                <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {subtechniques.map(sub => (
-                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
                         <li key={sub.id} id={`info-item-${sub.id.replace(/\./g, '-')}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
                             <strong>{sub.name} ({sub.id})</strong>
                             <span>{sub.description}</span>
@@ -134,7 +123,6 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
     );
 };
 
-// Tüm kural seçeneklerini listeleyen alt bileşen
 const AllOptionsInfo = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -153,7 +141,7 @@ const AllOptionsInfo = () => {
         <div className="all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
             <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
-            <ul className="info-options-list" ref={listRef}>
+            <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                 {optionKeywords.map(keyword => (
                     <li key={keyword} id={`info-item-${keyword}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
                         <strong>{keyword}</strong>
@@ -165,7 +153,6 @@ const AllOptionsInfo = () => {
     );
 };
 
-// "content" değiştiricilerini listeleyen alt bileşen
 const AllModifiersInfo = () => {
     const modifierKeywords = Object.keys(optionsDictionary).filter(k => optionsDictionary[k].isModifier);
     return (
@@ -184,7 +171,6 @@ const AllModifiersInfo = () => {
     );
 };
 
-// Ana Bilgi Paneli Bileşeni
 const InfoPanel = () => {
     const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
     const currentInfo = activeTopic ? infoData[activeTopic] : null;

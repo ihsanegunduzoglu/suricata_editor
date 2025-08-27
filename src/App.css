@@ -778,3 +778,96 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-color: var(--text-accent);
   color: #ffffff;
 }
+/* ==========================================================================
+   Özel Seçim Menüsü (Custom Select) Stilleri
+   ========================================================================== */
+
+.custom-select-container {
+  position: relative;
+  width: 33%;
+  flex-grow: 1;
+}
+
+.custom-select-container.disabled {
+  opacity: 0.5;
+}
+
+.custom-select-display {
+  width: 100%;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s ease;
+}
+
+.custom-select-container:not(.disabled) .custom-select-display:hover {
+  border-color: var(--border-accent);
+}
+
+.custom-select-arrow {
+  font-size: 0.7rem;
+  transform: translateY(1px);
+}
+
+.custom-select-options {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 8px 16px var(--shadow-color);
+}
+
+.custom-select-options li {
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.custom-select-options li:hover {
+  background-color: var(--bg-suggestion-hover);
+}
+
+/* ==========================================================================
+   Bilgi Paneli Vurgu Stili (Gelişmiş)
+   ========================================================================== */
+
+/* Efektlerin yumuşak olması için tüm liste elemanlarına geçiş efekti ekle */
+.info-options-list li {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Listede bir vurgu aktif olduğunda, vurgulanmamış olanları geri plana çek */
+.info-options-list.has-highlight li:not(.is-highlighted) {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+/* Yeni "parlama" efekti */
+.info-options-list li.is-highlighted {
+  background-color: var(--bg-hover);
+  border-left-color: var(--text-accent);
+  border-left-width: 4px;
+  transform: scale(1.03); /* Vurgulanınca hafifçe büyüsün */
+  opacity: 1; /* Tamamen görünür olsun */
+  /* Kenar parlaması için box-shadow kullanıyoruz */
+  box-shadow: 0 0 15px -3px var(--text-accent); 
+}

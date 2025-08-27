@@ -6,7 +6,7 @@ const formatModifiersForDisplay = (modifiers) => {
     if (modifiers.nocase) parts.push('nocase');
     if (modifiers.depth && modifiers.depth !== '') parts.push(`depth:${modifiers.depth}`);
     if (modifiers.offset && modifiers.offset !== '') parts.push(`offset:${modifiers.offset}`);
-    return parts.length > 0 ? '; ' + parts.join('; ') : '';
+    return parts.length > 0 ? ' ' + parts.join('; ') : '';
 };
 
 const optionsDictionary = {

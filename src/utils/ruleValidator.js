@@ -18,10 +18,22 @@ export const validateHeaderField = (fieldName, value) => {
 };
 
 /**
- * Belirli bir kural seçeneğinin değerinin formatını kontrol eder (Anlık uyarılar için).
+ * Belirli bir kural seçeneğinin değerinin formatını kontrol eder.
+ * ARTIK BOŞ DEĞERLERİ DE KONTROL EDİYOR.
  */
 export const validateOptionField = (keyword, value) => {
-    if (!value) return null;
+    // Boş veya sadece boşluk içeren değerleri kontrol et
+    if (!value || String(value).trim() === '') {
+        // Bu anahtar kelimeler eklendiğinde boş bırakılamaz
+        const cannotBeEmpty = ['sid', 'rev', 'priority', 'classtype', 'content', 'pcre', 'http.method'];
+        if (cannotBeEmpty.includes(keyword)) {
+            return `"${keyword}" seçeneği için bir değer girilmelidir.`;
+        }
+        // Diğerleri (örn: reference, metadata) için boş değere izin verilebilir, bu yüzden null dönebiliriz.
+        return null; 
+    }
+
+    // Formata özel kontroller
     switch (keyword) {
         case 'sid':
         case 'rev':
@@ -37,30 +49,51 @@ export const validateOptionField = (keyword, value) => {
             }
             break;
         default:
-            return null;
+            return null; // Formatı kontrol edilmeyen diğer tüm seçenekler için
     }
     return null;
 };
 
 /**
  * Kuralı kaydetmeden önce son ve kapsamlı bir kontrol yapar.
- * @returns {string|null} - İlk bulunan kritik hata mesajını veya null döndürür.
  */
 export const validateRuleForFinalization = (headerData, ruleOptions) => {
+    // 1. Başlık alanlarının dolu olup olmadığını kontrol et
     const isHeaderComplete = Object.values(headerData).every(val => val && val.trim() !== '');
     if (!isHeaderComplete) {
         return 'Kural kaydedilemedi! Lütfen önce tüm başlık alanlarını doldurun.';
     }
+
+    // 2. Başlık alanlarındaki değerlerin geçerli olup olmadığını kontrol et
+    for (const fieldName in headerData) {
+        const value = headerData[fieldName];
+        const fieldValidationError = validateHeaderField(fieldName, value);
+        if (fieldValidationError) {
+            return `Kural kaydedilemedi! ${fieldValidationError}`;
+        }
+    }
+
+    // YENİ EKLENEN ADIM:
+    // 3. Eklenmiş olan tüm seçeneklerin değerlerinin geçerli olup olmadığını kontrol et
+    for (const option of ruleOptions) {
+        const optionValidationError = validateOptionField(option.keyword, option.value);
+        if (optionValidationError) {
+            return `Kural kaydedilemedi! ${optionValidationError}`;
+        }
+    }
+
+    // 4. 'msg' seçeneğinin zorunluluğunu kontrol et
     const msgOption = ruleOptions.find(o => o.keyword === 'msg');
-    if (!msgOption || !msgOption.value || msgOption.value.trim() === '') {
-        return 'Kural kaydedilemedi! "msg" seçeneği zorunludur ve boş bırakılamaz.';
+    if (!msgOption) { // Değerinin boş olup olmadığını yukarıdaki döngü zaten kontrol etti.
+        return 'Kural kaydedilemedi! "msg" seçeneği zorunludur.';
     }
+
+    // 5. 'sid' seçeneğinin zorunluluğunu kontrol et
     const sidOption = ruleOptions.find(o => o.keyword === 'sid');
-    if (!sidOption || !sidOption.value) {
-        return 'Kural kaydedilemedi! "sid" seçeneği zorunludur ve boş bırakılamaz.';
+    if (!sidOption) { // Değerinin boş veya geçersiz olup olmadığını yukarıdaki döngü zaten kontrol etti.
+        return 'Kural kaydedilemedi! "sid" seçeneği zorunludur.';
     }
-    if (isNaN(parseInt(sidOption.value, 10))) {
-        return `Kural kaydedilemedi! "sid" değeri geçerli bir sayı olmalıdır.`;
-    }
+    
+    // Tüm kontrollerden geçerse null döndür (hata yok)
     return null;
 };

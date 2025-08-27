@@ -72,6 +72,7 @@ export const RuleProvider = ({ children }) => {
         if (!activeSession) return;
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? createNewSession() : s));
         setEditingSourceId(null);
+        updateOptionsViewActive(false);
     };
     
     const finalizeRule = (editorSessionId) => {

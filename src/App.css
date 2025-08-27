@@ -265,7 +265,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-family: inherit;
   font-size: inherit;
   padding: 0;
-  margin: 0;
+  margin-top: 0.20rem;
   border-bottom: 1px solid var(--text-accent);
 }
 .option-value-input:focus {
@@ -279,7 +279,6 @@ input:checked + .slider:before { transform: translateX(18px); }
 /* App.css */
 
 .option-row-editing-card {
-  /* position: absolute ve ilgili tüm konumlandırma kodlarını sildik */
   width: 100%;
   box-sizing: border-box;
   margin: 0.5rem 0;
@@ -288,7 +287,8 @@ input:checked + .slider:before { transform: translateX(18px); }
   background-color: var(--bg-panel);
   border: 1px solid var(--border-primary);
   border-radius: 6px;
-  padding: 1.5rem;
+  padding-left: 1.5rem;
+  padding-top: 0.5rem;
   box-shadow: 0 4px 12px var(--shadow-color);
 
   /* İsteğe bağlı: Yumuşak açılma animasyonu */
@@ -310,7 +310,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .content-value-row {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 .content-value-row .option-value-input {
   background-color: var(--bg-panel);
@@ -395,6 +395,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   overflow-y: auto;
   box-shadow: 0 8px 16px var(--shadow-color);
 }
+
 .suggestions-list li,
 .add-option-list li {
   font-size: 1.1rem;
@@ -403,6 +404,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   cursor: pointer;
   border-bottom: 1px solid var(--border-primary);
 }
+
 .suggestions-list li:last-child,
 .add-option-list li:last-child {
   border-bottom: none;
@@ -448,7 +450,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
   color: #dcdcdc;
   border: 1px solid #4a4a4a;
-  border-radius: 50%;
+  border-radius: 10%;
   box-shadow: 0 4px 8px var(--shadow-color);
   transition: all 0.2s ease-out;
   display: flex;

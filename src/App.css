@@ -871,3 +871,26 @@ input:checked + .slider:before { transform: translateX(18px); }
   /* Kenar parlaması için box-shadow kullanıyoruz */
   box-shadow: 0 0 15px -3px var(--text-accent); 
 }
+
+/* ==========================================================================
+   MITRE "Bitti" Butonu Stili
+   ========================================================================== */
+
+.mitre-done-btn {
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 0.75rem; /* Butonlar arasına boşluk koyar */
+  transition: all 0.2s ease;
+}
+
+.mitre-done-btn:hover {
+  background-color: var(--bg-suggestion-hover);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}

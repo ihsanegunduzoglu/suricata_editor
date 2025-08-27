@@ -1,3 +1,5 @@
+// src/components/OptionRow.js
+
 import React, { useRef, useEffect, useState } from 'react';
 import { optionsDictionary } from '../data/optionsDictionary';
 import ContentEditor from './ContentEditor';
@@ -5,8 +7,10 @@ import AutocompleteInput from './AutocompleteInput';
 import { toast } from 'react-toastify';
 import { validateOptionField } from '../utils/ruleValidator';
 import MitreEditor from './MitreEditor';
+import { useRule } from '../context/RuleContext';
 
 const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown }) => {
+    const { updateMitreInfo } = useRule();
     const [showMitre, setShowMitre] = useState(false);
     const editorRef = useRef(null);
 
@@ -37,30 +41,18 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
     useEffect(() => {
         if (selectedTacticId) {
             setIsLoading(true);
-            setTechniques([]);
-            setSubtechniques([]);
-            setSelectedTechnique(null);
-            setSelectedSubtechniqueId('');
+            setTechniques([]); setSubtechniques([]); setSelectedTechnique(null); setSelectedSubtechniqueId('');
             fetch(`http://127.0.0.1:5000/api/techniques/${selectedTacticId}`)
-                .then(res => res.json())
-                .then(data => {
-                    setTechniques(data);
-                    setIsLoading(false);
-                });
+                .then(res => res.json()).then(data => { setTechniques(data); setIsLoading(false); });
         }
     }, [selectedTacticId]);
 
     useEffect(() => {
         if (selectedTechnique && selectedTechnique.has_subtechniques) {
             setIsLoading(true);
-            setSubtechniques([]);
-            setSelectedSubtechniqueId('');
+            setSubtechniques([]); setSelectedSubtechniqueId('');
             fetch(`http://127.0.0.1:5000/api/subtechniques/${selectedTechnique.id}`)
-                .then(res => res.json())
-                .then(data => {
-                    setSubtechniques(data);
-                    setIsLoading(false);
-                });
+                .then(res => res.json()).then(data => { setSubtechniques(data); setIsLoading(false); });
         } else {
             setSubtechniques([]);
         }
@@ -69,26 +61,21 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
     const handleMappingAdd = (mappingString) => {
         const currentValue = option.value || '';
         if (currentValue.includes('attack_id')) {
-            toast.warn("Bir kurala sadece bir MITRE eşlemesi eklenebilir. Mevcut eşlemeyi silip yenisini ekleyebilirsiniz.");
+            toast.warn("Bir kurala sadece bir MITRE eşlemesi eklenebilir.");
             return;
         }
-
         const separator = currentValue.trim() === '' ? '' : ', ';
         onValueChange(currentValue + separator + mappingString);
+        
+        // DEĞİŞİKLİK: "Bitti" butonunun yaptığı işlev buraya eklendi
+        updateMitreInfo(null); // Bilgi panelini sıfırla
+
         onStopEditing();
     };
-    
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (editorRef.current && !editorRef.current.contains(event.target)) {
-                onStopEditing();
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [editorRef, onStopEditing]);
+    const handleDoneClick = () => {
+        updateMitreInfo(null); // Bilgi panelini sıfırla
+        onStopEditing();      // Editörü kapat
+    };
 
     return (
         <div className="option-row-editing-card" ref={editorRef}>
@@ -105,7 +92,6 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
                 />
                 <span className="option-semicolon">;</span>
             </div>
-            {/* DEĞİŞİKLİK: Inline stilleri kaldırıp className ekliyoruz */}
             <div className="metadata-toolbar">
                 <button onClick={() => setShowMitre(!showMitre)} className="mitre-toggle-btn">
                     {showMitre ? 'MITRE Editörünü Gizle' : 'MITRE ATT&CK Ekle'}
@@ -128,6 +114,8 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
     );
 };
 
+
+// OptionRow bileşeninin geri kalanı aynı kalacak
 const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
     const optionInfo = optionsDictionary[option.keyword];
     

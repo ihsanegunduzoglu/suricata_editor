@@ -83,11 +83,7 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         <div 
             className="option-row-editing-card" 
             onKeyDown={handleCommandKeyDown} 
-            onMouseLeave={() => {
-                if (document.activeElement !== commandInputRef.current) {
-                    updateActiveTopic(option.keyword);
-                }
-            }}
+            onMouseLeave={() => { /* Bilgi panelini sabit bırak */ }}
         >
             <div className="content-value-row">
                 <span className="option-keyword">{option.keyword}:</span>

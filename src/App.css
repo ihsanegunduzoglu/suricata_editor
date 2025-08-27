@@ -358,6 +358,12 @@ body {
 .finalized-rule-container {
   margin-bottom: 1.5rem;
 }
+.finalized-rule-container .rule-select {
+  position: absolute;
+  top: -12px;
+  right: 75px; /* export/import butonlarının altında kalmayacak şekilde */
+  z-index: 20;
+}
 .finalized-rules-list::-webkit-scrollbar {
   width: 8px;
 }
@@ -448,7 +454,7 @@ body {
 }
 /* App.css dosyasının sonuna ekleyebilirsiniz */
 
-.export-button {
+.export-button, .import-button, .select-all-button {
   position: absolute; /* Sayfadaki diğer elemanlardan bağımsız, sabit konum */
   top: 1rem;       /* Ekranın üstünden boşluk */
   right: 1.50rem;      /* Ekranın solundan boşluk */
@@ -473,10 +479,20 @@ body {
   transition: all 0.2s ease-out;
 }
 
-.export-button:hover {
+.export-button:hover, .import-button:hover, .select-all-button:hover {
   background-color: #3c3c3c;
   color: var(--text-color);
   border-color: var(--accent-color);
+}
+
+/* Import butonunu export'un soluna yerleştir */
+.import-button {
+  right: calc(1.50rem + 50px + 0.5rem);
+}
+
+/* Select all butonunu import'un soluna yerleştir */
+.select-all-button {
+  right: calc(1.50rem + 50px + 0.5rem + 50px + 0.5rem);
 }
 
 .rules-scroll-wrapper {

@@ -56,14 +56,14 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
 
     return (
-        <div className="add-option-container" onMouseLeave={() => updateActiveTopic(null)}> {/* Kapsayıcıdan çıkınca temizle */}
+        <div className="add-option-container"> {/* Bilgi panelini sabit tutmak için otomatik temizleme kaldırıldı */}
             <input 
                 ref={ref} type="text" className="add-option-search" 
                 placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
                 onKeyDown={handleKeyDown} 
-                onFocus={() => updateActiveTopic(null)} // Arama kutusuna odaklanınca temizle
+                onFocus={() => {}}
             />
             {searchTerm && (
                 <ul className="add-option-list">

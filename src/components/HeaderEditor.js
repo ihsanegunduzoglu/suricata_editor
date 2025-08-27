@@ -99,7 +99,6 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
-                updateActiveTopic(null);
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);

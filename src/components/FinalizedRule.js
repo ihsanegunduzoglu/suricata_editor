@@ -7,7 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // DEĞİŞİKLİK: isBeingEdited prop'unu alıyoruz
-const FinalizedRule = ({ session, isBeingEdited }) => {
+const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected }) => {
     // DEĞİŞİKLİK: cancelEditing fonksiyonunu da context'ten alıyoruz
     const { deleteRule, duplicateRule, startEditingRule, cancelEditing } = useRule();
     
@@ -29,6 +29,13 @@ const FinalizedRule = ({ session, isBeingEdited }) => {
     return (
         <div className={`finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''}`}>
             <div className="rule-actions">
+                <button 
+                    className="rule-action-btn" 
+                    title={isSelected ? "Seçimi kaldır" : "Seç"}
+                    onClick={onToggleSelected}
+                >
+                    {isSelected ? '✓' : ''}
+                </button>
                 <button 
                     className="rule-action-btn" 
                     title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"}

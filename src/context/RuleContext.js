@@ -37,6 +37,10 @@ export const RuleProvider = ({ children }) => {
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
     const [modifierInfoActive, setModifierInfoActive] = useState(false); // YENİ STATE
+    const [isRulesListVisible, setIsRulesListVisible] = useState(true);
+    const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
+    const [theme, setTheme] = useState('dark');
+    const [selectedRuleIds, setSelectedRuleIds] = useState([]);
 
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
@@ -131,6 +135,7 @@ export const RuleProvider = ({ children }) => {
     };
 
     const updateActiveTopic = (topic) => {
+        // Sadece açıkça verilen konuya ayarla; dış tıklamalar artık sıfırlamayacak
         setActiveTopic(topic);
     };
 
@@ -142,15 +147,70 @@ export const RuleProvider = ({ children }) => {
         setModifierInfoActive(isActive);
     };
 
+    const toggleRulesList = () => {
+        setIsRulesListVisible(prev => !prev);
+    };
+
+    const toggleInfoPanel = () => {
+        setIsInfoPanelVisible(prev => !prev);
+    };
+
+    const toggleTheme = () => {
+        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    };
+
+    const appendImportedRules = (specs) => {
+        if (!Array.isArray(specs) || specs.length === 0) return;
+        const newFinalized = specs.map(spec => {
+            const id = uuidv4();
+            const status = 'finalized';
+            const headerData = spec.headerData || { 'Action': '', 'Protocol': '', 'Source IP': '', 'Source Port': '', 'Direction': '', 'Destination IP': '', 'Destination Port': '' };
+            const ruleOptions = Array.isArray(spec.ruleOptions) ? spec.ruleOptions : [];
+            const ruleString = generateRuleString(headerData, ruleOptions);
+            return { id, status, headerData, ruleOptions, ruleString };
+        });
+        setRuleSessions(prev => {
+            const existingFinalized = prev.filter(s => s.status === 'finalized');
+            const existingEditing = prev.find(s => s.status === 'editing') || createNewSession();
+            return [...existingFinalized, ...newFinalized, existingEditing];
+        });
+        toast.success(`${specs.length} kural içe aktarıldı.`);
+    };
+
+    const toggleRuleSelected = (ruleId) => {
+        setSelectedRuleIds(prev => prev.includes(ruleId)
+            ? prev.filter(id => id !== ruleId)
+            : [...prev, ruleId]
+        );
+    };
+
+    const selectAllFinalized = () => {
+        const allFinalizedIds = ruleSessions.filter(s => s.status === 'finalized').map(s => s.id);
+        setSelectedRuleIds(allFinalizedIds);
+    };
+
+    const clearSelection = () => setSelectedRuleIds([]);
+
     const value = {
         ruleSessions,
         editingSourceId,
         activeTopic,
         optionsViewActive,
         modifierInfoActive, // YENİ
+        isRulesListVisible,
+        isInfoPanelVisible,
+        theme,
+        selectedRuleIds,
         updateActiveTopic,
         updateOptionsViewActive,
         updateModifierInfoActive, // YENİ
+        toggleRulesList,
+        toggleInfoPanel,
+        toggleTheme,
+        appendImportedRules,
+        toggleRuleSelected,
+        selectAllFinalized,
+        clearSelection,
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,

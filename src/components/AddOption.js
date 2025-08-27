@@ -6,7 +6,7 @@ import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
 const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
-    const { finalizeRule, updateActiveTopic } = useRule(); // updateActiveTopic'i al
+    const { finalizeRule, updateActiveTopic } = useRule();
     const protocol = session.headerData.Protocol;
     const ruleOptions = session.ruleOptions;
 
@@ -56,22 +56,22 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
 
     return (
-        <div className="add-option-container" onMouseLeave={() => updateActiveTopic(null)}> {/* Kapsayıcıdan çıkınca temizle */}
+        <div className="add-option-container">
             <input 
                 ref={ref} type="text" className="add-option-search" 
                 placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
                 onKeyDown={handleKeyDown} 
-                onFocus={() => updateActiveTopic(null)} // Arama kutusuna odaklanınca temizle
+                onFocus={() => updateActiveTopic(null)}
             />
             {searchTerm && (
-                <ul className="add-option-list">
+                <ul className="add-option-list" onMouseLeave={() => updateActiveTopic(null)}>
                     {filteredOptions.map(keyword => (
                         <li 
                             key={keyword} 
                             onClick={() => handleAdd(keyword)}
-                            onMouseEnter={() => updateActiveTopic(keyword)} // Fare üzerine gelince konuyu güncelle
+                            onMouseEnter={() => updateActiveTopic(keyword)}
                         >
                             {keyword}<span className='option-description'> - {optionsDictionary[keyword].description}</span>
                         </li>

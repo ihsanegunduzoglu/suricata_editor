@@ -1,119 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify'; // YENİ EKLENEN SATIR: Hata bu satırın eksikliğinden kaynaklanıyordu.
+// src/components/MitreEditor.js
 
-const MitreEditor = ({ onMappingAdd }) => {
-    // API'den gelen verileri tutacak state'ler
-    const [tactics, setTactics] = useState([]);
-    const [techniques, setTechniques] = useState([]);
-    const [subtechniques, setSubtechniques] = useState([]);
+import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { useRule } from '../context/RuleContext';
 
-    // Kullanıcının dropdown'lardan seçtiği değerleri tutacak state'ler
-    const [selectedTacticId, setSelectedTacticId] = useState('');
-    const [selectedTechniqueId, setSelectedTechniqueId] = useState('');
-    const [selectedSubtechniqueId, setSelectedSubtechniqueId] = useState('');
-    
-    // Veri çekilirken arayüzün kilitlenmesi için loading state'i
-    const [isLoading, setIsLoading] = useState(false);
+const MitreEditor = ({ 
+    onMappingAdd, 
+    tactics, 
+    techniques, 
+    subtechniques,
+    selectedTacticId, 
+    setSelectedTacticId,
+    selectedTechnique, 
+    setSelectedTechnique,
+    selectedSubtechniqueId, 
+    setSelectedSubtechniqueId,
+    isLoading
+}) => {
+    const { updateMitreInfo, updateActiveTopic } = useRule();
 
-    // 1. Bileşen ilk yüklendiğinde taktik listesini API'den bir kere çek
     useEffect(() => {
-        setIsLoading(true);
-        fetch('http://127.0.0.1:5000/api/tactics')
-            .then(res => res.json())
-            .then(data => {
-                setTactics(data);
-                setIsLoading(false);
-            })
-            .catch(error => {
-                console.error("HATA: Taktikler alınamadı. Python API sunucusunun çalıştığından emin olun.", error);
-                setIsLoading(false);
-            });
-    }, []);
+        updateMitreInfo({ type: 'tactic_list' });
+        return () => { 
+            updateMitreInfo(null); 
+        };
+    }, [updateMitreInfo]);
 
-    // 2. Kullanıcı bir taktik seçtiğinde, o taktiğe ait teknikleri çek
     useEffect(() => {
-        // `selectedTacticId` boş değilse bu bloğu çalıştır
         if (selectedTacticId) {
-            setIsLoading(true);
-            // Yeni bir taktik seçildiğinde alt seçimleri temizle
-            setTechniques([]);
-            setSubtechniques([]);
-            setSelectedTechniqueId('');
-            setSelectedSubtechniqueId('');
-
-            fetch(`http://127.0.0.1:5000/api/techniques/${selectedTacticId}`)
-                .then(res => res.json())
-                .then(data => {
-                    setTechniques(data);
-                    setIsLoading(false);
-                });
+            updateMitreInfo({ type: 'technique_list', tacticId: selectedTacticId });
+        } else {
+            updateMitreInfo({ type: 'tactic_list' });
         }
-    }, [selectedTacticId]);
+    }, [selectedTacticId, updateMitreInfo]);
 
-    // 3. Kullanıcı bir teknik seçtiğinde, o tekniğe ait alt-teknikleri çek
     useEffect(() => {
-        // `selectedTechniqueId` boş değilse bu bloğu çalıştır
-        if (selectedTechniqueId) {
-            setIsLoading(true);
-            setSubtechniques([]);
-            setSelectedSubtechniqueId('');
-
-            fetch(`http://127.0.0.1:5000/api/subtechniques/${selectedTechniqueId}`)
-                .then(res => res.json())
-                .then(data => {
-                    setSubtechniques(data);
-                    setIsLoading(false);
-                });
+        if (selectedTechnique && selectedTechnique.has_subtechniques) {
+            updateMitreInfo({ type: 'subtechnique_list', techniqueId: selectedTechnique.id });
+        } else if (selectedTechnique) {
+            updateMitreInfo({ type: 'technique_list', tacticId: selectedTacticId });
         }
-    }, [selectedTechniqueId]);
+    }, [selectedTechnique, selectedTacticId, updateMitreInfo]);
 
-    // "Eşlemeyi Ekle" butonuna tıklandığında çalışacak fonksiyon
+    const handleTechniqueChange = (e) => {
+        const techniqueId = e.target.value;
+        const techniqueObject = techniques.find(t => t.id === techniqueId) || null;
+        setSelectedTechnique(techniqueObject);
+    };
+
     const handleAddClick = () => {
-        if (!selectedTacticId || !selectedTechniqueId) {
+        if (!selectedTacticId || !selectedTechnique) {
             toast.warn('Lütfen en az bir Taktik ve Teknik seçin.');
             return;
         }
-
-        // Eğer alt-teknik seçilmişse onu, değilse ana tekniği kullan
-        const attackId = selectedSubtechniqueId || selectedTechniqueId;
-        // metadata için standart formattaki string'i oluştur
+        const attackId = selectedSubtechniqueId || selectedTechnique.id;
         const mappingString = `attack_id ${attackId}, tactic ${selectedTacticId}`;
         
-        // Bu string'i ana bileşene (MetadataEditor -> OptionRow) gönder
         onMappingAdd(mappingString);
-
-        // Kullanıcının aynı taktikten başka teknikler eklemesini kolaylaştırmak için
-        // sadece teknik ve alt-teknik seçimini sıfırla.
-        setSelectedTechniqueId('');
+        
+        // Eşleme eklenince seçimleri sıfırla ve vurguyu temizle
+        setSelectedTacticId(''); // Taktik seçimi de sıfırlandı
+        setSelectedTechnique(null);
         setSelectedSubtechniqueId('');
+        updateActiveTopic(null); 
+    };
+    
+    const getSubtechniquePlaceholder = () => {
+        if (!selectedTechnique) return "-- Önce Teknik Seçin --";
+        if (isLoading) return "-- Yükleniyor... --";
+        if (!selectedTechnique.has_subtechniques) return "-- Alt-Teknik Yok --";
+        return "-- (Opsiyonel) Alt-Teknik Seçin --";
     };
 
     return (
         <div className="mitre-editor-card">
             <h4>MITRE ATT&CK Eşlemesi Ekle {isLoading && <span className="loader">(Yükleniyor...)</span>}</h4>
-            <div className="mitre-selectors">
-                <select value={selectedTacticId} onChange={e => setSelectedTacticId(e.target.value)} disabled={isLoading || tactics.length === 0}>
-                    <option value="">-- Taktik Seçin --</option>
+            <div className="mitre-selectors" onMouseLeave={() => updateActiveTopic(null)}> {/* Toplu vurgu temizleme */}
+                <select 
+                    value={selectedTacticId} 
+                    onChange={e => setSelectedTacticId(e.target.value)} 
+                    disabled={isLoading || tactics.length === 0}
+                >
+                    <option value="" onMouseEnter={() => updateActiveTopic(null)}>-- Taktik Seçin --</option>
                     {tactics.map(tactic => (
-                        <option key={tactic.id} value={tactic.id}>{tactic.name} ({tactic.id})</option>
+                        <option 
+                            key={tactic.id} 
+                            value={tactic.id} 
+                            onMouseEnter={() => updateActiveTopic(tactic.id)} /* DEĞİŞİKLİK */
+                        >
+                            {tactic.name} ({tactic.id})
+                        </option>
                     ))}
                 </select>
-
-                <select value={selectedTechniqueId} onChange={e => setSelectedTechniqueId(e.target.value)} disabled={!selectedTacticId || isLoading}>
-                    <option value="">-- Teknik Seçin --</option>
+                <select 
+                    value={selectedTechnique?.id || ''} 
+                    onChange={handleTechniqueChange} 
+                    disabled={!selectedTacticId || isLoading}
+                >
+                    <option value="" onMouseEnter={() => updateActiveTopic(null)}>-- Teknik Seçin --</option>
                     {techniques.map(tech => (
-                        <option key={tech.id} value={tech.id}>{tech.name} ({tech.id})</option>
+                        <option 
+                            key={tech.id} 
+                            value={tech.id} 
+                            onMouseEnter={() => updateActiveTopic(tech.id)} /* DEĞİŞİKLİK */
+                        >
+                            {tech.name} ({tech.id})
+                        </option>
                     ))}
                 </select>
-                
-                <select value={selectedSubtechniqueId} onChange={e => setSelectedSubtechniqueId(e.target.value)} disabled={!selectedTechniqueId || subtechniques.length === 0 || isLoading}>
-                    <option value="">-- (Opsiyonel) Alt-Teknik Seçin --</option>
+                <select 
+                    value={selectedSubtechniqueId} 
+                    onChange={e => setSelectedSubtechniqueId(e.target.value)} 
+                    disabled={!selectedTechnique || !selectedTechnique.has_subtechniques || isLoading}
+                >
+                    <option value="" onMouseEnter={() => updateActiveTopic(null)}>{getSubtechniquePlaceholder()}</option>
                     {subtechniques.map(sub => (
-                        <option key={sub.id} value={sub.id}>{sub.name} ({sub.id})</option>
+                        <option 
+                            key={sub.id} 
+                            value={sub.id} 
+                            onMouseEnter={() => updateActiveTopic(sub.id)} /* DEĞİŞİKLİK */
+                        >
+                            {sub.name} ({sub.id})
+                        </option>
                     ))}
                 </select>
             </div>
-            <button onClick={handleAddClick} className="mitre-add-btn" disabled={!selectedTechniqueId || isLoading}>Eşlemeyi Ekle</button>
+            <button onClick={handleAddClick} className="mitre-add-btn" disabled={!selectedTechnique || isLoading}>Eşlemeyi Ekle</button>
         </div>
     );
 };

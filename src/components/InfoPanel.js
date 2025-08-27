@@ -1,20 +1,155 @@
 // src/components/InfoPanel.js
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 
-// Tüm Ana Seçenekleri Listeleyen Bileşen
+// Taktik listesini gösteren alt bileşen
+const MitreTacticList = () => {
+    const { activeTopic } = useRule();
+    const listRef = useRef(null);
+    const [tactics, setTactics] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/api/tactics')
+            .then(res => res.json())
+            .then(data => { setTactics(data); setIsLoading(false); })
+            .catch(() => setIsLoading(false));
+    }, []);
+
+    useEffect(() => {
+        if (activeTopic && listRef.current) {
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [activeTopic]);
+
+    return (
+        <div className="info-panel-content">
+            <h3>MITRE ATT&CK Taktikleri</h3>
+            <p>Bir taktik seçerek ilişkili teknikleri listeleyebilirsiniz.</p>
+            {isLoading ? <p>Yükleniyor...</p> : (
+                <ul className="info-options-list" ref={listRef}>
+                    {tactics.map(tactic => (
+                        <li key={tactic.id} id={`info-item-${tactic.id}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
+                            <strong>{tactic.name} ({tactic.id})</strong>
+                            <span>{tactic.description}</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
+// Teknik listesini gösteren alt bileşen
+const MitreTechniqueList = ({ tacticId }) => {
+    const { activeTopic } = useRule();
+    const listRef = useRef(null);
+    const [techniques, setTechniques] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (tacticId) {
+            setIsLoading(true);
+            fetch(`http://127.0.0.1:5000/api/techniques/${tacticId}`)
+                .then(res => res.json())
+                .then(data => { setTechniques(data); setIsLoading(false); })
+                .catch(() => setIsLoading(false));
+        }
+    }, [tacticId]);
+
+    useEffect(() => {
+        if (activeTopic && listRef.current) {
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [activeTopic]);
+
+    return (
+        <div className="info-panel-content">
+            <h3>Teknikler ({tacticId})</h3>
+            <p>Aşağıda seçtiğiniz taktik ile ilişkili teknikler listelenmiştir.</p>
+            {isLoading ? <p>Yükleniyor...</p> : (
+                <ul className="info-options-list" ref={listRef}>
+                    {techniques.map(tech => (
+                        <li key={tech.id} id={`info-item-${tech.id.replace('.', '-')}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
+                            <strong>{tech.name} ({tech.id})</strong>
+                            <span>{tech.description}</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
+// Sub-teknik listesini gösteren alt bileşen
+const MitreSubtechniqueList = ({ techniqueId }) => {
+    const { activeTopic } = useRule();
+    const listRef = useRef(null);
+    const [subtechniques, setSubtechniques] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (techniqueId) {
+            setIsLoading(true);
+            fetch(`http://127.0.0.1:5000/api/subtechniques/${techniqueId}`)
+                .then(res => res.json())
+                .then(data => { setSubtechniques(data); setIsLoading(false); })
+                .catch(() => setIsLoading(false));
+        }
+    }, [techniqueId]);
+
+    useEffect(() => {
+        if (activeTopic && listRef.current) {
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [activeTopic]);
+    
+    return (
+        <div className="info-panel-content">
+            <h3>Alt-Teknikler ({techniqueId})</h3>
+            <p>Aşağıda seçtiğiniz teknik ile ilişkili alt-teknikler listelenmiştir.</p>
+            {isLoading ? <p>Yükleniyor...</p> : (
+                <ul className="info-options-list" ref={listRef}>
+                    {subtechniques.map(sub => (
+                        <li key={sub.id} id={`info-item-${sub.id.replace('.', '-')}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
+                            <strong>{sub.name} ({sub.id})</strong>
+                            <span>{sub.description}</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
+// Tüm kural seçeneklerini listeleyen alt bileşen
 const AllOptionsInfo = () => {
+    const { activeTopic } = useRule();
+    const listRef = useRef(null);
     const optionKeywords = Object.keys(optionsDictionary).filter(k => !optionsDictionary[k].isModifier);
+    
+    useEffect(() => {
+        if (activeTopic && listRef.current) {
+            const highlightedElement = listRef.current.querySelector(`#info-item-${activeTopic}`);
+            if (highlightedElement) {
+                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, [activeTopic]);
+
     return (
         <div className="all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
             <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
-            <ul className="info-options-list">
+            <ul className="info-options-list" ref={listRef}>
                 {optionKeywords.map(keyword => (
-                    <li key={keyword}>
+                    <li key={keyword} id={`info-item-${keyword}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
                         <strong>{keyword}</strong>
                         <span>{infoData[keyword]?.summary || optionsDictionary[keyword].description}</span>
                     </li>
@@ -24,7 +159,7 @@ const AllOptionsInfo = () => {
     );
 };
 
-// Tüm Değiştiricileri Listeleyen Bileşen
+// "content" değiştiricilerini listeleyen alt bileşen
 const AllModifiersInfo = () => {
     const modifierKeywords = Object.keys(optionsDictionary).filter(k => optionsDictionary[k].isModifier);
     return (
@@ -45,11 +180,15 @@ const AllModifiersInfo = () => {
 
 // Ana Bilgi Paneli Bileşeni
 const InfoPanel = () => {
-    const { activeTopic, optionsViewActive, modifierInfoActive } = useRule();
-    // HATA BURADAYDI, DÜZELTİLDİ: active.Topic yerine activeTopic
+    const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
     const currentInfo = activeTopic ? infoData[activeTopic] : null;
 
-    // 1. Durum: Eğer belirli bir konu seçiliyse (hover veya focus), o konunun detayını göster.
+    if (mitreInfo) {
+        if (mitreInfo.type === 'tactic_list') return <MitreTacticList />;
+        if (mitreInfo.type === 'technique_list' && mitreInfo.tacticId) return <MitreTechniqueList tacticId={mitreInfo.tacticId} />;
+        if (mitreInfo.type === 'subtechnique_list' && mitreInfo.techniqueId) return <MitreSubtechniqueList techniqueId={mitreInfo.techniqueId} />;
+    }
+
     if (currentInfo) {
         return (
             <div className="info-panel-content">
@@ -63,17 +202,9 @@ const InfoPanel = () => {
         );
     }
 
-    // 2. Durum: Eğer "Değiştirici Ekle" alanı aktifse, tüm değiştiricileri listele.
-    if (modifierInfoActive) {
-        return <AllModifiersInfo />;
-    }
+    if (modifierInfoActive) return <AllModifiersInfo />;
+    if (optionsViewActive) return <AllOptionsInfo />;
 
-    // 3. Durum: Eğer ana seçenek ekleme aşamasındaysak, tüm seçenekleri listele.
-    if (optionsViewActive) {
-        return <AllOptionsInfo />;
-    }
-
-    // 4. Durum (Varsayılan): Header aşamasındaysak, genel karşılama mesajını göster.
     return (
         <div className="panel-placeholder">
             <h3>Bilgi Paneli</h3>

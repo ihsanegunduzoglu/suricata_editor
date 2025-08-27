@@ -167,6 +167,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   display: flex;
   flex-direction: column;
   flex-grow: 1; /* Esneklik için */
+  border-bottom: 1px solid var(--border-primary);
 }
 .editor-row {
   display: flex;
@@ -188,7 +189,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   text-transform: uppercase;
 }
 .input-group input {
-  background-color: var(--bg-input);
+  background-color: transparent;
   border: 1px solid var(--border-primary);
   color: var(--text-primary);
   padding: 0.5rem 0.75rem;
@@ -447,7 +448,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-size: 1.5rem;
   width: 50px;
   height: 50px;
-  background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
+  background: transparent;
   color: #dcdcdc;
   border: 1px solid #4a4a4a;
   border-radius: 10%;
@@ -457,6 +458,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  margin-top: 1rem;
 }
 .export-button:hover {
   transform: translateY(-2px) scale(1.05);
@@ -470,7 +472,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   transition: all 0.1s ease-in;
 }
 .finalized-rule-container {
-  background-color: var(--bg-panel);
+  background-color: transparent;
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   padding: 0;
@@ -494,7 +496,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   z-index: 20;
 }
 .rule-action-btn {
-  background-color: var(--bg-suggestion-hover);
+  background-color: #121212;
   color: var(--text-secondary);
   border: 1px solid var(--border-primary);
   border-radius: 4px;
@@ -531,7 +533,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .info-panel-content h3, .all-options-info h3 {
   margin-top: 0;
-  color: var(--text-accent);
+  color: var(--text-secondary);
   font-size: 1.5rem;
   border-bottom: 2px solid var(--border-primary);
   padding-bottom: 0.75rem;
@@ -556,7 +558,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  border-left: 4px solid var(--border-left-accent);
+  border-left: 4px solid var(--text-secondary);
   transition: background-color 0.2s ease;
 }
 .info-options-list li:hover {
@@ -566,7 +568,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     background-color: rgba(0, 0, 0, 0.08); /* Açık tema için özel hover */
 }
 .info-options-list li strong {
-  color: var(--text-value);
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
@@ -646,4 +648,133 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .validation-message {
   flex-grow: 1;
+}
+
+/* ==========================================================================
+   MITRE ATT&CK Editör Stilleri
+   ========================================================================== */
+
+/* Editörün ana kartı */
+.mitre-editor-card {
+  background-color: var(--bg-hover);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* "MITRE ATT&CK Eşlemesi Ekle" başlığı */
+.mitre-editor-card h4 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-accent);
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Seçim kutularını (dropdown) içeren kapsayıcı */
+.mitre-selectors {
+  display: flex;
+  gap: 1rem; /* Kutular arası boşluk */
+  margin-bottom: 1.5rem;
+}
+
+/* Her bir seçim kutusu (select) */
+.mitre-selectors select {
+  flex-grow: 1; /* Boşluğu dolduracak şekilde esne */
+  width: 33%; /* Eşit genişlikte başlamaları için */
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mitre-selectors select:focus {
+  outline: none;
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px var(--shadow-color);
+}
+
+.mitre-selectors select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--bg-hover);
+}
+
+/* "Eşlemeyi Ekle" butonu */
+.mitre-add-btn {
+  display: block; /* Butonun tam genişlik kaplamasını engeller */
+  margin-left: auto; /* Sağa yaslamak için */
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--text-accent);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mitre-add-btn:hover:not(:disabled) {
+  background-color: #007acc; /* Hover rengini biraz daha belirgin yapalım */
+}
+
+.mitre-add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Yükleniyor... yazısı */
+.loader {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+/* ==========================================================================
+   MITRE Buton ve Araç Çubuğu Stilleri
+   ========================================================================== */
+
+/* "MITRE ATT&CK Ekle" butonunu içeren araç çubuğu */
+.metadata-toolbar {
+  text-align: right;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+  border-top: 1px dashed var(--border-primary);
+}
+
+/* "MITRE ATT&CK Ekle" / "Gizle" butonu */
+.mitre-toggle-btn {
+  background-color: transparent;
+  color: var(--text-accent);
+  border: 1px solid var(--border-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-right: 1rem;
+}
+
+.mitre-toggle-btn:hover {
+  background-color: var(--text-accent);
+  border-color: var(--text-accent);
+  color: #ffffff;
 }

@@ -1,6 +1,5 @@
 // src/context/RuleContext.js
 
-// DEĞİŞİKLİK: 'useMemo'yu import ediyoruz
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { generateRuleString } from '../utils/ruleGenerator';
 import { validateRuleForFinalization } from '../utils/ruleValidator';
@@ -42,9 +41,8 @@ export const RuleProvider = ({ children }) => {
     const [isRulesListVisible, setIsRulesListVisible] = useState(true);
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
+    const [mitreInfo, setMitreInfo] = useState(null);
 
-    // DEĞİŞİKLİK: activeSession'ı useMemo ile güvenli bir şekilde hesaplıyoruz.
-    // ruleSessions tanımsız olsa bile ?. operatörü sayesinde hata vermez.
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
     useEffect(() => {
@@ -73,6 +71,7 @@ export const RuleProvider = ({ children }) => {
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? createNewSession() : s));
         setEditingSourceId(null);
         updateOptionsViewActive(false);
+        setMitreInfo(null);
     };
     
     const finalizeRule = (editorSessionId) => {
@@ -119,6 +118,7 @@ export const RuleProvider = ({ children }) => {
     const updateActiveTopic = (topic) => setActiveTopic(topic);
     const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
     const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
+    const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
@@ -133,6 +133,8 @@ export const RuleProvider = ({ children }) => {
         isInfoPanelVisible,
         theme,
         activeSession,
+        mitreInfo,
+        updateMitreInfo,
         updateActiveTopic,
         updateOptionsViewActive,
         updateModifierInfoActive,

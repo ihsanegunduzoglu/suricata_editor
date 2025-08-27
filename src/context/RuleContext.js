@@ -1,7 +1,9 @@
 // src/context/RuleContext.js
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// DEĞİŞİKLİK: 'useMemo'yu import ediyoruz
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { generateRuleString } from '../utils/ruleGenerator';
+import { validateRuleForFinalization } from '../utils/ruleValidator';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify';
 
@@ -36,13 +38,18 @@ export const RuleProvider = ({ children }) => {
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
-    const [modifierInfoActive, setModifierInfoActive] = useState(false); // YENİ STATE
+    const [modifierInfoActive, setModifierInfoActive] = useState(false);
+    const [isRulesListVisible, setIsRulesListVisible] = useState(true);
+    const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
+    const [theme, setTheme] = useState('dark');
+
+    // DEĞİŞİKLİK: activeSession'ı useMemo ile güvenli bir şekilde hesaplıyoruz.
+    // ruleSessions tanımsız olsa bile ?. operatörü sayesinde hata vermez.
+    const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
-    
-    const getEditorSession = () => ruleSessions.find(s => s.status === 'editing');
 
     const updateHeaderData = (sessionId, newHeaderData) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, headerData: newHeaderData } : s));
@@ -54,25 +61,16 @@ export const RuleProvider = ({ children }) => {
     
     const startEditingRule = (sourceSessionId) => {
         const sourceRule = ruleSessions.find(s => s.id === sourceSessionId);
-        const editor = getEditorSession();
-        if (!sourceRule || !editor) return;
-
-        const editorWithData = {
-            ...editor,
-            headerData: { ...sourceRule.headerData },
-            ruleOptions: [...sourceRule.ruleOptions] 
-        };
-
-        setRuleSessions(prev => prev.map(s => s.id === editor.id ? editorWithData : s));
+        if (!sourceRule || !activeSession) return;
+        const editorWithData = { ...activeSession, headerData: { ...sourceRule.headerData }, ruleOptions: [...sourceRule.ruleOptions] };
+        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? editorWithData : s));
         setEditingSourceId(sourceSessionId);
         toast.info("Kural düzenleniyor...");
     };
 
     const cancelEditing = () => {
-        const editor = getEditorSession();
-        if (!editor) return;
-        
-        setRuleSessions(prev => prev.map(s => s.id === editor.id ? createNewSession() : s));
+        if (!activeSession) return;
+        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? createNewSession() : s));
         setEditingSourceId(null);
     };
     
@@ -80,33 +78,24 @@ export const RuleProvider = ({ children }) => {
         const sessionToFinalize = ruleSessions.find(s => s.id === editorSessionId);
         if (!sessionToFinalize) return;
 
-        if (!sessionToFinalize.ruleOptions.some(o => o.keyword === 'msg') || !sessionToFinalize.ruleOptions.some(o => o.keyword === 'sid')) {
-            toast.error('Lütfen kurala en azından "msg" ve "sid" seçeneklerini ekleyin.');
+        const finalValidationError = validateRuleForFinalization(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
+        if (finalValidationError) {
+            toast.error(finalValidationError);
             return;
         }
         
         const finalRuleString = generateRuleString(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
-
+        
         if (editingSourceId) {
-            setRuleSessions(prev => 
-                prev.map(s => {
-                    if (s.id === editingSourceId) {
-                        return { ...sessionToFinalize, id: editingSourceId, status: 'finalized', ruleString: finalRuleString };
-                    }
-                    if (s.id === editorSessionId) {
-                        return createNewSession();
-                    }
-                    return s;
-                })
-            );
+            setRuleSessions(prev => prev.map(s => {
+                if (s.id === editingSourceId) { return { ...sessionToFinalize, id: editingSourceId, status: 'finalized', ruleString: finalRuleString }; }
+                if (s.id === editorSessionId) { return createNewSession(); }
+                return s;
+            }));
             toast.success('Kural başarıyla güncellendi!');
         } else {
             const newFinalizedRule = { ...sessionToFinalize, status: 'finalized', ruleString: finalRuleString };
-            setRuleSessions(prev => [
-                ...prev.filter(s => s.id !== editorSessionId),
-                newFinalizedRule,
-                createNewSession()
-            ]);
+            setRuleSessions(prev => [...prev.filter(s => s.id !== editorSessionId), newFinalizedRule, createNewSession()]);
             toast.success('Kural başarıyla kaydedildi!');
         }
         setEditingSourceId(null);
@@ -119,38 +108,36 @@ export const RuleProvider = ({ children }) => {
     };
     
     const duplicateRule = (sessionToDuplicate) => {
-        const editor = getEditorSession();
-        const duplicatedDataToEditor = {
-            ...editor,
-            headerData: { ...sessionToDuplicate.headerData },
-            ruleOptions: [...sessionToDuplicate.ruleOptions]
-        };
-        setRuleSessions(prev => prev.map(s => s.id === editor.id ? duplicatedDataToEditor : s));
+        if (!activeSession) return;
+        const duplicatedDataToEditor = { ...activeSession, headerData: { ...sessionToDuplicate.headerData }, ruleOptions: [...sessionToDuplicate.ruleOptions] };
+        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? duplicatedDataToEditor : s));
         setEditingSourceId(null);
         toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
     };
 
-    const updateActiveTopic = (topic) => {
-        setActiveTopic(topic);
-    };
-
-    const updateOptionsViewActive = (isActive) => {
-        setOptionsViewActive(isActive);
-    };
-
-    const updateModifierInfoActive = (isActive) => {
-        setModifierInfoActive(isActive);
-    };
+    const updateActiveTopic = (topic) => setActiveTopic(topic);
+    const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
+    const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
+    const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
+    const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
+    const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
 
     const value = {
         ruleSessions,
         editingSourceId,
         activeTopic,
         optionsViewActive,
-        modifierInfoActive, // YENİ
+        modifierInfoActive,
+        isRulesListVisible,
+        isInfoPanelVisible,
+        theme,
+        activeSession,
         updateActiveTopic,
         updateOptionsViewActive,
-        updateModifierInfoActive, // YENİ
+        updateModifierInfoActive,
+        toggleRulesList,
+        toggleInfoPanel,
+        toggleTheme,
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,

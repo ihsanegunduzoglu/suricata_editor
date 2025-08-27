@@ -2,20 +2,19 @@
 
 import React from 'react';
 import './App.css';
-import { RuleProvider } from './context/RuleContext';
+// DEĞİŞİKLİK BURADA: Dosya yolu './' ile düzeltildi
+import { RuleProvider, useRule } from './context/RuleContext';
 import Workbench from './components/Workbench';
-
-// YENİ: react-toastify importları
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function App() { 
+const ThemedApp = () => {
+    const { theme } = useRule();
+    const toastTheme = theme === 'light' ? 'light' : 'dark';
+
     return (
-        <RuleProvider>
+        <div className={`theme-wrapper ${theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
             <Workbench />
-            {/* YENİ: ToastContainer'ı uygulamamızın en üst seviyesine ekliyoruz.
-              Tüm bildirimler burada görünecek. theme="dark" ile karanlık temamıza uyumlu hale getiriyoruz.
-            */}
             <ToastContainer
                 position="bottom-right"
                 autoClose={5000}
@@ -26,8 +25,16 @@ function App() {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                theme="dark"
+                theme={toastTheme}
             />
+        </div>
+    );
+};
+
+function App() { 
+    return (
+        <RuleProvider>
+            <ThemedApp />
         </RuleProvider>
     ); 
 }

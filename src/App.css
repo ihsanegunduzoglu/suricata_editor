@@ -1,170 +1,237 @@
 /* ==========================================================================
-   Suricata Kural Editörü - Ana Stil Dosyası (Temizlenmiş Sürüm)
+   Suricata Kural Editörü - Birleştirilmiş Ana Stil Dosyası
+   Açıklama: Bu dosya, iki ayrı stil dosyasının özelliklerini
+             hiçbir kural eksiltilmeden bir araya getirerek oluşturulmuştur.
+             Tema değiştirme, geliştirilmiş yerleşim ve detaylı bileşen
+             stillerini içermektedir.
    ========================================================================== */
 
-/* --- Genel Değişkenler ve Temel Stiller --- */
-:root {
-  --text-color: #ffffff;
-  --border-color: #333333;
-  --input-background: #000000;
-  --label-color: #aaaaaa;
-  --accent-color: #cccccc;
-  --suggestion-hover-bg: #2a2d2e;
-  --keyword-color: #c586c0; /* Morumsu renk */
-  --value-color: #ce9178; /* Turuncumsu renk */
+
+/* ==========================================================================
+   TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
+   ========================================================================== */
+
+/* Tema sarmalayıcısı için temel ayarlar */
+.theme-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
+/* Varsayılan: Koyu Tema */
+.theme-dark {
+  --bg-main: #121212;
+  --bg-panel: #1e1e1e;
+  --bg-input: #2a2d2e;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-suggestion-hover: #3c3c3c;
+  --bg-code: rgba(0, 0, 0, 0.3);
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --text-keyword: #c586c0;
+  --text-value: #ce9178;
+  --text-accent: #0098ff;
+
+  --border-primary: #333333;
+  --border-accent: var(--text-accent);
+  --border-left-accent: var(--text-accent);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Açık Tema */
+.theme-light {
+  --bg-main: #dcd6d6;
+  --bg-panel: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.05);
+  --bg-suggestion-hover: #e0e0e0;
+  --bg-code: #e8e8e8;
+  
+  --text-primary: #242323;
+  --text-secondary: #1c1c1c;
+  --text-keyword: #9b229b;
+  --text-value: #b85a3c;
+  --text-accent: #007acc;
+  
+  --border-primary: #dcdcdc;
+  --border-accent: #333333;
+  --border-left-accent: var(--text-accent);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Temel HTML ve Body stilleri */
 html {
   scroll-padding-bottom: 20vh;
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #000000;
-  color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
 }
 
 /* ==========================================================================
-   ANA SAYFA YERLEŞİMİ (GRID)
+   ÜST MENÜ ÇUBUĞU
    ========================================================================== */
+.top-menu-bar {
+  background-color: var(--bg-panel);
+  padding: 0 1rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-primary);
+  z-index: 2000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-left { flex-grow: 1; }
+.menu-right { flex-shrink: 0; }
+.menu-item { position: relative; display: inline-block; }
+.menu-item > button {
+  background: none; border: none;
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  cursor: pointer; font-size: 0.9rem;
+}
+.menu-item > button:hover {
+  background-color: var(--bg-suggestion-hover);
+  color: var(--text-primary);
+}
+.dropdown-menu {
+  position: absolute; top: 100%; left: 0;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border-radius: 4px; list-style: none;
+  padding: 0.5rem 0; margin: 2px 0 0 0;
+  min-width: 200px; z-index: 1000;
+}
+.dropdown-menu li {
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.dropdown-menu li:hover {
+  background-color: var(--text-accent);
+  color: #fff; /* Açık ve Koyu temada okunurluk için sabit beyaz */
+}
+.theme-switcher { display: flex; align-items: center; gap: 0.5rem; }
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: var(--text-accent); }
+input:checked + .slider:before { transform: translateX(18px); }
+.slider.round { border-radius: 22px; }
+.slider.round:before { border-radius: 50%; }
+
+/* ==========================================================================
+   ANA YERLEŞİM (WORKBENCH)
+   ========================================================================== */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .app-layout {
   display: grid;
-  /* Grid yapısını daha stabil hale getiriyoruz, 'itme' sorununu çözer. */
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); 
-  gap: 2rem;
-  padding: 2rem;
-  height: 100vh;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
-
-/* --- Sol Sütun Alanı --- */
+.app-layout.single-column {
+  grid-template-columns: 1fr;
+}
 .main-content-area {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  /* Öneri menülerinin kesilmemesi için 'visible' yapıyoruz. */
-  overflow: visible; 
-  min-height: 0;
+  overflow-y: auto; /* Kendi içinde kaydırma için */
+  min-height: 0; /* Flexbox yükseklik hatasını önlemek için */
+  padding: 1.5rem;
 }
-
-/* --- Sağ Sütun Alanı --- */
 .right-info-panel {
-  background-color: #0a0a0a;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  background-color: var(--bg-panel);
+  border-left: 1px solid var(--border-primary);
   overflow-y: auto;
 }
-.panel-placeholder {
-  padding: 1.5rem;
-  color: var(--label-color);
-  text-align: center;
-}
-.panel-placeholder h3 {
-  color: var(--text-color);
-  margin-top: 0;
-}
-
 
 /* ==========================================================================
    AKTİF KURAL EDİTÖRÜ
    ========================================================================== */
-
-/* Aktif editör ana çerçevesi */
 .active-editor-wrapper {
-  background-color: transparent;
-  border: none;
-  border-radius: 4px;
-  /* 'Zıplama' sorununu çözmek için sabit minimum yükseklik */
-  min-height: 350px; 
-  /* İçeriğin dikeyde esnemesi için flex ayarları */
+  min-height: 350px;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  flex-grow: 1; /* Esneklik için */
 }
-
-/* Header (Action, Protocol vb.) girişlerinin olduğu satır */
 .editor-row {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
   width: 100%;
 }
-
 .input-group {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 100px;
-  /* Öneri menülerinin doğru konumlanması için */
-  position: relative; 
+  position: relative; /* Öneri menüleri için */
 }
-
 .input-group label {
-  color: var(--label-color);
+  color: var(--text-secondary);
   font-size: 0.8rem;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
 }
-
 .input-group input {
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 0.5rem 0.75rem; 
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 1.1rem;
   font-family: 'Consolas', 'Courier New', monospace;
   text-align: center;
 }
-
 .input-group input:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--border-accent);
 }
-
 .final-header-text {
   font-size: 1.2rem;
-  color:#ffffff;
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
-  margin-bottom: 0.5rem;
-
+  padding: 0 0.5rem;
+  margin-bottom: 1rem;
+}
+.closing-paren {
+  margin-top: auto; /* Kendisini en alta iter */
+  padding-bottom: 0.5rem;
 }
 
-
 /* ==========================================================================
-   OPTIONS BÖLÜMÜ
+   OPTIONS & CONTENT BÖLÜMLERİ
    ========================================================================== */
-
-/* Options bölümünün ana konteyneri (Header yazısı ve OptionsBuilder'ı içerir) */
 .options-view-container {
   display: flex;
   flex-direction: column;
-  /* Boşluğu doldurmak için dikeyde esneme */
-  flex-grow: 1; 
+  flex-grow: 1;
   position: relative;
-  padding-bottom: 2rem;
 }
-
 .options-builder {
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 1rem;
-  min-height: 200px;
   display: flex;
   flex-direction: column;
-  /* Boşluğu doldurmak için dikeyde esneme */
-  flex-grow: 1; 
+  flex-grow: 1;
 }
-
 .added-options-list {
   flex-grow: 1;
 }
-
 .option-row {
   display: flex;
   align-items: center;
@@ -175,31 +242,31 @@ body {
   margin: 2px 0;
 }
 .option-row:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-hover);
 }
 .option-keyword {
-  color: var(--keyword-color);
+  color: var(--text-keyword);
   margin-right: 0.5rem;
 }
 .option-value {
-  color: var(--value-color);
+  color: var(--text-value);
   white-space: pre-wrap;
   word-break: break-all;
 }
 .option-semicolon {
-  color: var(--text-color);
+  color: var(--text-primary);
   margin-left: 0.25rem;
 }
 .option-value-input {
   flex-grow: 1;
   background-color: transparent;
   border: none;
-  color: var(--value-color);
+  color: var(--text-value);
   font-family: inherit;
   font-size: inherit;
   padding: 0;
   margin: 0;
-  border-bottom: 1px solid var(--accent-color);
+  border-bottom: 1px solid var(--text-accent);
 }
 .option-value-input:focus {
   outline: none;
@@ -209,83 +276,88 @@ body {
   flex-grow: 1;
 }
 
-
-/* ==========================================================================
-   CONTENT EDİTÖRÜ (İSTEK ÜZERİNE ORİJİNAL HALİ)
-   ========================================================================== */
+/* App.css */
 
 .option-row-editing-card {
+  /* position: absolute ve ilgili tüm konumlandırma kodlarını sildik */
   width: 100%;
-  /* Orijinal, daha açık arka plan */
-  background-color: transparent; 
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 1rem;
-  margin: 0.5rem 0;
   box-sizing: border-box;
+  margin: 0.5rem 0;
+  
+  /* Tekrar şık bir kart görünümü veriyoruz */
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+
+  /* İsteğe bağlı: Yumuşak açılma animasyonu */
+  animation: fadeIn 0.3s ease-out;
 }
+
+/* Animasyon tanımı (eğer daha önce eklemediysen) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .content-value-row {
   display: flex;
   align-items: center;
-  /* Orijinal boşluk */
-  margin-bottom: 1rem; 
+  margin-bottom: 1.5rem;
 }
-/* Değer giriş input'una hafif bir arka plan vererek odak noktası yapalım */
 .content-value-row .option-value-input {
-    background-color: #1a1a1a; /* Hafif koyu bir arka plan */
-    border-radius: 4px;
-    padding: 0.5rem; /* İç boşluk ekle */
-    border-bottom: 2px solid transparent; /* Alttaki çizgiyi kaldırıp yerine focus efekti için yer aç */
+  background-color: var(--bg-panel);
+  border-radius: 4px;
+  padding: 0.5rem;
+  border-bottom: 2px solid transparent;
 }
-
 .content-value-row .option-value-input:focus {
-    border-bottom: 2px solid var(--accent-color); /* Odaklanınca alt çizgi belirsin */
-    background-color: #2a2d2e;
+  border-bottom: 2px solid var(--text-accent);
+  background-color: var(--bg-suggestion-hover);
 }
 .modifiers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  padding: 1rem;
-
-  border-top: none;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
+  padding: 0;
 }
-
 .modifier-item {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.05); /* Hafif bir arka plan */
+  background-color: var(--bg-hover);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 0.9rem;
 }
-
 .modifier-item label {
   margin-right: 0.5rem;
-  color: var(--label-color);
+  color: var(--text-secondary);
 }
-
 .modifier-item input[type="number"],
 .modifier-item input[type="text"] {
   background-color: transparent;
   border: none;
-  color: var(--value-color);
+  color: var(--text-value);
   width: 100%;
   padding: 0;
 }
-
 .modifier-item input[type="number"]:focus,
 .modifier-item input[type="text"]:focus {
   outline: none;
 }
 
-
 /* ==========================================================================
-   ÖNERİ PENCERELERİ (TÜMÜ İÇİN ORTAK)
+   ÖNERİ PENCERELERİ (SUGGESTIONS)
    ========================================================================== */
-
 .add-option-container {
   position: relative;
 }
@@ -293,8 +365,8 @@ body {
   width: 100%;
   background-color: transparent;
   border: none;
-  border-top: 1px dashed var(--border-color);
-  color: var(--text-color);
+  border-top: 1px dashed var(--border-primary);
+  color: var(--text-primary);
   padding: 0.75rem 0.5rem;
   margin-top: 0.5rem;
   font-size: 1rem;
@@ -304,99 +376,113 @@ body {
 .add-option-search:focus {
   outline: none;
   border-top-style: solid;
-  border-top-color: var(--accent-color);
+  border-top-color: var(--text-accent);
 }
-
 .suggestions-list,
 .add-option-list {
-  /* Sayfa akışından çıkarıp kaydırmayı engelleme */
-  position: absolute;   
+  position: absolute;
   top: 100%;
   left: 0;
   right: 0;
-  /* Her şeyin üzerinde görünmesini sağlama */
-  z-index: 200;         
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
+  z-index: 200;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
   border-radius: 0 0 4px 4px;
   list-style: none;
   margin: 2px 0 0 0;
   padding: 0;
   max-height: 250px;
   overflow-y: auto;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
-.suggestions-list li, 
+.suggestions-list li,
 .add-option-list li {
   font-size: 1.1rem;
-  color: var(--text-color);
+  color: var(--text-primary);
   padding: .75rem;
   cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-primary);
 }
-.suggestions-list li:last-child, 
+.suggestions-list li:last-child,
 .add-option-list li:last-child {
   border-bottom: none;
 }
-.suggestions-list li:hover, 
+.suggestions-list li:hover,
 .add-option-list li:hover {
-  background-color: var(--suggestion-hover-bg);
+  background-color: var(--bg-suggestion-hover);
+}
+.option-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
 }
 
 /* ==========================================================================
-   TAMAMLANMIŞ KURALLAR LİSTESİ
+   FİNALİZE EDİLMİŞ KURALLAR
    ========================================================================== */
-
-.finalized-rules-list {
-  padding-right: 10px;
-  position: relative;
-  
+.rules-scroll-wrapper {
+  overflow-y: auto;
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+  padding-right: 10px;
+  padding-top: 20px;
 }
-.finalized-rule-container {
-  margin-bottom: 1.5rem;
-}
-.finalized-rules-list::-webkit-scrollbar {
+.rules-scroll-wrapper::-webkit-scrollbar {
   width: 8px;
 }
-.finalized-rules-list::-webkit-scrollbar-track {
+.rules-scroll-wrapper::-webkit-scrollbar-track {
   background: transparent;
 }
-.finalized-rules-list::-webkit-scrollbar-thumb {
+.rules-scroll-wrapper::-webkit-scrollbar-thumb {
   background-color: #333;
   border-radius: 10px;
-  border: 2px solid #000;
+  border: 2px solid var(--bg-main);
 }
-
-/* ==========================================================================
-   FİNALİZE EDİLMİŞ KURAL STİLLERİ (YENİ İSTEKLER)
-   ========================================================================== */
-
-/* Tamamlanmış her kurala, aktif editör gibi bir çerçeve veriyoruz */
+.export-button {
+  position: sticky; /* Kaydırma alanına göre yapışkan */
+  top: 1rem;
+  float: right; /* Sağa yaslamak için */
+  z-index: 10;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
+  color: #dcdcdc;
+  border: 1px solid #4a4a4a;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  transition: all 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.export-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 12px var(--shadow-color);
+  background: linear-gradient(145deg, #4a4a4a, #3c3c3c);
+  color: #fff;
+}
+.export-button:active {
+  transform: translateY(1px) scale(1.0);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: all 0.1s ease-in;
+}
 .finalized-rule-container {
-  background-color: #0a0a0a;
-  border: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
-  padding: 0; 
+  padding: 0;
   position: relative;
   transition: all 0.2s ease-in-out;
-  margin-bottom: 1.5rem; /* Bu kural zaten vardı ama burada toplu dursun */
+  margin-bottom: 1.5rem;
 }
-
-/* Kuralın üzerine gelindiğinde hafif bir vurgu */
 .finalized-rule-container:hover {
   border-color: #555;
 }
-
-/* DÜZENLENEN KURALI AYDINLATMA */
 .finalized-rule-container.is-being-edited {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(204, 204, 204, 0.2);
+  border-color: var(--text-accent);
+  box-shadow: 0 0 10px var(--shadow-color);
 }
-
-/* Kural aksiyon butonlarının stilleri (zaten vardı, buraya taşıdık) */
 .rule-actions {
   position: absolute;
   top: -10px;
@@ -406,9 +492,9 @@ body {
   z-index: 20;
 }
 .rule-action-btn {
-  background-color: #2a2d2e;
-  color: var(--label-color);
-  border: 1px solid var(--border-color);
+  background-color: var(--bg-suggestion-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   width: 28px;
   height: 28px;
@@ -421,230 +507,141 @@ body {
 }
 .rule-action-btn:hover:not(:disabled) {
   background-color: #3c3c3c;
-  color: var(--text-color);
-  border-color: var(--accent-color);
+  color: var(--text-primary);
+  border-color: var(--text-accent);
 }
 .rule-action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* ==========================================================================
-   KAYDIRMA VE BUTON GÖRÜNÜMÜ DÜZELTMELERİ
-   ========================================================================== */
-
-/* 1. Kural listesinin sayfa yerine kendi içinde kaymasını sağlayan düzeltme */
-.main-content-area {
-  /* Bu kural, flexbox'ın yükseklik hesaplamasını düzelterek
-     içindeki scroll edilebilir alanın doğru çalışmasını sağlar. */
-  min-height: 0;
-}
-
-/* 2. Listedeki ilk kuralın üstteki butonlarının kesilmesini engelleyen düzeltme */
-.finalized-rules-list {
-  /* Üst boşluk ekleyerek, ilk kuralın negatif konumlu butonlarına
-     görünecekleri bir alan açıyoruz. */
-  padding-top: 15px;
-}
-/* App.css dosyasının sonuna ekleyebilirsiniz */
-
-.export-button {
-  position: absolute; /* Sayfadaki diğer elemanlardan bağımsız, sabit konum */
-  top: 1rem;       /* Ekranın üstünden boşluk */
-  right: 1.50rem;      /* Ekranın solundan boşluk */
-  z-index: 1000;   /* Diğer tüm elemanların üzerinde görünmesi için */
-  float: right; 
-  /* Boyut ve görünüm ayarları */
-  font-size: 1.5rem; /* İkonu büyütelim */
-  width: 50px;       /* Genişlik */
-  height: 50px;      /* Yükseklik */
-  border-radius: 12px;
-  background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  
-  /* Mevcut toolbar-button stilini bozmamak için bazı eklemeler */
-  background-color: #2a2d2e;
-  border: 1px solid #4a4a4a;
-  color: #dcdcdc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-}
-
-.export-button:hover {
-  background-color: #3c3c3c;
-  color: var(--text-color);
-  border-color: var(--accent-color);
-}
-
-.rules-scroll-wrapper {
-  overflow-y: auto; /* Kaydırma çubuğu artık burada */
-  flex-grow: 1;     /* Mevcut alanı doldurur */
-  padding-right: 10px; /* Kaydırma çubuğu için boşluk */
-
-  padding-top: 20px;
-}
-
-/* Kapanış parantezini dikey olarak en sona yaslar */
-.closing-paren {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-
-  padding-left: 0.5rem;
-
-}
-
 
 /* ==========================================================================
-   BİLGİ PANELİ STİLLERİ (Geliştirilmiş Görünüm)
+   BİLGİ PANELİ (GELİŞTİRİLMİŞ)
    ========================================================================== */
-
-.info-panel-content {
+.panel-placeholder {
   padding: 1.5rem;
-  background-color: var(--background-color-dark); /* Hafif koyu bir arka plan */
-  border-radius: 8px; /* Köşeleri yuvarla */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Hafif bir gölge */
-  color: var(--text-color); /* Genel metin rengi */
+  text-align: center;
+  color: var(--text-secondary);
 }
-
-.info-panel-content h3 {
+.info-panel-content, .all-options-info {
+  padding: 1.5rem;
+}
+.info-panel-content h3, .all-options-info h3 {
   margin-top: 0;
-  color: var(--accent-color);
-  font-size: 1.5rem; /* Başlığı büyütelim */
-  border-bottom: 2px solid var(--border-color); /* Kalın bir alt çizgi */
-  padding-bottom: 0.75rem; /* Çizgi ile başlık arası boşluk */
-  margin-bottom: 1.5rem; /* Başlık ile paragraf arası boşluk */
+  color: var(--text-accent);
+  font-size: 1.5rem;
+  border-bottom: 2px solid var(--border-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
-
-.info-panel-content p {
+.info-panel-content p, .all-options-info p {
   line-height: 1.6;
-  color: var(--label-color);
-  margin-bottom: 1.5rem; /* Paragraf ile liste arası boşluk */
-  font-size: 0.95rem; /* Paragraf metnini hafif büyüt */
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
-
 .info-options-list {
   list-style: none;
   padding: 0;
   margin-top: 1rem;
-  /* border-top: 1px dashed var(--border-color); */ /* İstersen buraya kesik çizgi ekleyebilirsin */
   padding-top: 0.5rem;
 }
-
 .info-options-list li {
-  background-color: rgba(255, 255, 255, 0.05); /* Her bir seçeneğe hafif bir arka plan */
-  padding: 0.75rem 1rem; /* İç boşluk */
-  margin-bottom: 0.75rem; /* Elemanlar arası boşluk */
-  border-radius: 6px; /* Köşeleri yuvarla */
+  background-color: var(--bg-hover);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 6px;
   display: flex;
-  flex-direction: column; /* Başlık ve detayı alt alta al */
-  border-left: 4px solid var(--accent-color); /* Sol tarafta renkli bir çizgi */
-  transition: background-color 0.2s ease; /* Hover efekti için geçiş */
+  flex-direction: column;
+  border-left: 4px solid var(--border-left-accent);
+  transition: background-color 0.2s ease;
 }
-
 .info-options-list li:hover {
-  background-color: rgba(255, 255, 255, 0.08); /* Üzerine gelince biraz daha parlak olsun */
+  background-color: rgba(255, 255, 255, 0.08); /* Koyu tema için özel hover */
 }
-
+.theme-light .info-options-list li:hover {
+    background-color: rgba(0, 0, 0, 0.08); /* Açık tema için özel hover */
+}
 .info-options-list li strong {
-  color: var(--value-color); /* Seçenek adı rengi */
-  font-size: 1.1rem; /* Adı biraz büyüt */
-  margin-bottom: 0.25rem; /* Ad ile detay arasına boşluk */
+  color: var(--text-value);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
 }
-
-/* Detay metnini biraz daha açık renkte ve küçük yapabiliriz */
 .info-options-list li span {
-  color: var(--label-color); 
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
-
-/* Eğer span ile sarmalamadıysak, li içinde strong'dan sonraki metni hedef alabiliriz */
-.info-options-list li strong + * { /* strong'dan hemen sonra gelen herhangi bir element */
-  color: var(--label-color); 
-  font-size: 0.85rem;
-}
-
-/* Placeholer stilini de geliştirelim */
-.panel-placeholder {
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--label-color);
-    background-color: var(--background-color-dark);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.panel-placeholder h3 {
-    color: var(--accent-color);
-    margin-bottom: 1rem;
-}
-/* Tüm Seçenekler Listesi Stilleri */
-
-.all-options-info {
-  padding: 1.5rem;
-  background-color: var(--background-color-dark);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  color: var(--text-color);
-}
-
-.all-options-info h3 {
-  margin-top: 0;
-  color: var(--accent-color);
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.all-options-info p {
-  line-height: 1.6;
-  color: var(--label-color);
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
-}
-
-/* Detaylı Bilgi Paneli Stilleri */
-
 .info-summary {
   font-size: 1.1rem;
-  color: var(--text-color);
+  color: var(--text-primary);
   margin-bottom: 2rem;
 }
-
 .info-block {
   margin-bottom: 1.5rem;
 }
-
 .info-block h4 {
-  color: var(--label-color);
+  color: var(--text-secondary);
   font-weight: bold;
   font-size: 0.9rem;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-primary);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
-
 .info-code {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--bg-code);
   padding: 1rem;
   border-radius: 4px;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-
 .info-code code {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 0.95rem;
-  color: var(--value-color);
+  color: var(--text-value);
 }
 
-/* Öneri listelerindeki açıklama metni için stil */
-.option-description {
-  color: var(--label-color);
+/* ==========================================================================
+   DENETİM PANELİ STİLLERİ
+   ========================================================================== */
+
+.validation-panel {
+  padding: 0.5rem 0;
+  margin-top: 1rem;
+  border-top: 1px dashed var(--border-primary);
+}
+
+.validation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.validation-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
   font-size: 0.9rem;
-  margin-left: 0.5rem;
+}
+
+.validation-item.error {
+  background-color: rgba(255, 100, 100, 0.1);
+  color: #ffc4c4;
+}
+
+.validation-item.warning {
+  background-color: rgba(255, 220, 100, 0.1);
+  color: #ffe8a8;
+}
+
+.validation-icon {
+  margin-right: 0.75rem;
+  font-size: 1rem;
+}
+
+.validation-message {
+  flex-grow: 1;
 }

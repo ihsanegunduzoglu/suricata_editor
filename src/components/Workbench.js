@@ -7,6 +7,7 @@ import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
 import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
+import ValidationPanel from './ValidationPanel'; // YENİ: ValidationPanel'i import et
 
 const Workbench = () => {
     const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible } = useRule();
@@ -49,6 +50,8 @@ const Workbench = () => {
                         ) : (
                             <p>Yeni kural oluşturuluyor...</p>
                         )}
+                        {/* YENİ: Hata/Uyarı paneli burada gösterilecek */}
+                        <ValidationPanel />
                     </div>
 
                     {isRulesListVisible && (

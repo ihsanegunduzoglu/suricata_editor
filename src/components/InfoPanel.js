@@ -21,7 +21,8 @@ const MitreTacticList = () => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -33,7 +34,8 @@ const MitreTacticList = () => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className="info-options-list" ref={listRef}>
                     {tactics.map(tactic => (
-                        <li key={tactic.id} id={`info-item-${tactic.id}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
+                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+                        <li key={tactic.id} id={`info-item-${tactic.id.replace(/\./g, '-')}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
                             <strong>{tactic.name} ({tactic.id})</strong>
                             <span>{tactic.description}</span>
                         </li>
@@ -63,7 +65,8 @@ const MitreTechniqueList = ({ tacticId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -75,7 +78,8 @@ const MitreTechniqueList = ({ tacticId }) => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className="info-options-list" ref={listRef}>
                     {techniques.map(tech => (
-                        <li key={tech.id} id={`info-item-${tech.id.replace('.', '-')}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
+                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+                        <li key={tech.id} id={`info-item-${tech.id.replace(/\./g, '-')}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
                             <strong>{tech.name} ({tech.id})</strong>
                             <span>{tech.description}</span>
                         </li>
@@ -105,7 +109,8 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace('.', '-')}`);
+            // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -117,7 +122,8 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className="info-options-list" ref={listRef}>
                     {subtechniques.map(sub => (
-                        <li key={sub.id} id={`info-item-${sub.id.replace('.', '-')}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
+                        // DEĞİŞİKLİK: ID'deki noktayı tire ile değiştir
+                        <li key={sub.id} id={`info-item-${sub.id.replace(/\./g, '-')}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
                             <strong>{sub.name} ({sub.id})</strong>
                             <span>{sub.description}</span>
                         </li>

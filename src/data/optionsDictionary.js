@@ -6,7 +6,8 @@ const formatModifiersForDisplay = (modifiers) => {
     if (modifiers.nocase) parts.push('nocase');
     if (modifiers.depth && modifiers.depth !== '') parts.push(`depth:${modifiers.depth}`);
     if (modifiers.offset && modifiers.offset !== '') parts.push(`offset:${modifiers.offset}`);
-    return parts.length > 0 ? '; ' + parts.join('; ') : '';
+    // DEĞİŞİKLİK: Başına boşluk ekleyerek birleştiriyoruz
+    return parts.length > 0 ? ' ' + parts.join('; ') : '';
 };
 
 const optionsDictionary = {
@@ -97,7 +98,12 @@ const optionsDictionary = {
     description: 'Aranacak içerik', 
     inputType: 'text', 
     defaultValue: '', 
-    format: (val, mods) => `"${val}"${formatModifiersForDisplay(mods)}`,
+    // DEĞİŞİKLİK: Bu formatlama artık ruleGenerator'da yapıldığı için basitleştirildi.
+    format: (val, mods) => {
+        const valuePart = `"${val}"`;
+        const modsPart = formatModifiersForDisplay(mods);
+        return `${valuePart}${modsPart}`;
+    },
     category: 'modifier_host'
   },
   'pcre': {
@@ -146,4 +152,5 @@ const optionsDictionary = {
   },
 };
 
+// DEĞİŞİKLİK: ruleGenerator'da kullanmak için export ediyoruz
 export { optionsDictionary, formatModifiersForDisplay };

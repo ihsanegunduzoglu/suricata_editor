@@ -5,9 +5,12 @@ import { useRule } from '../context/RuleContext';
 import suggestionsData from '../data/suggestionsData';
 import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
+import { toast } from 'react-toastify';
+import { validateHeaderField } from '../utils/ruleValidator';
 
 const HeaderEditor = ({ session }) => {
-    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive } = useRule();
+    // DEĞİŞİKLİK: 'cancelEditing' fonksiyonunu context'ten alıyoruz.
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing } = useRule();
     
     const [activeInput, setActiveInput] = useState(null);
 
@@ -33,6 +36,13 @@ const HeaderEditor = ({ session }) => {
         updateActiveTopic(label);
     };
 
+    const handleBlur = (fieldName, value) => {
+        const errorMessage = validateHeaderField(fieldName, value);
+        if (errorMessage) {
+            toast.warn(errorMessage);
+        }
+    };
+
     const applySuggestion = (suggestion) => {
         if (activeInput) {
             handleChange(activeInput, suggestion);
@@ -44,6 +54,11 @@ const HeaderEditor = ({ session }) => {
         if (nextIndex < labels.length) {
             setTimeout(() => inputRefs.current[nextIndex]?.focus(), 0);
         } else {
+            const isHeaderComplete = Object.values(session.headerData).every(val => val && val.trim() !== '');
+            if (!isHeaderComplete) {
+                toast.warn('Lütfen devam etmeden önce tüm başlık alanlarını doldurun.');
+                return; 
+            }
             updateOptionsViewActive(true);
         }
     };
@@ -84,9 +99,18 @@ const HeaderEditor = ({ session }) => {
             }
         }
         
+        // DEĞİŞİKLİK: Escape tuşu için özel kontrol ekledik.
         if (e.key === 'Escape') {
             e.preventDefault();
-            moveToPrevField(currentIndex);
+            // Eğer ilk kutudaysak (currentIndex === 0) VE kutu boşsa...
+            if (currentIndex === 0 && e.target.value === '') {
+                // Kural oluşturmayı/düzenlemeyi iptal et.
+                cancelEditing();
+                toast.info("Kural işlemi iptal edildi.");
+            } else {
+                // Diğer tüm durumlarda bir önceki alana git.
+                moveToPrevField(currentIndex);
+            }
         }
 
         if (e.key === 'Backspace' && e.target.value === '') { 
@@ -143,6 +167,7 @@ const HeaderEditor = ({ session }) => {
                     value={session.headerData[label]}
                     onChange={e => handleChange(label, e.target.value)}
                     onFocus={() => handleFocus(label)} 
+                    onBlur={() => handleBlur(label, session.headerData[label])}
                     onKeyDown={e => handleKeyDown(e, index)} 
                     isActive={activeInput === label} 
                     suggestions={filteredSuggestions}

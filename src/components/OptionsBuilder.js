@@ -37,12 +37,16 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         const targetOption = updatedOptions[index];
 
         if (targetOption) {
-            // ContentEditor'dan gelen veri bir nesnedir ({ value, modifiers })
+            // ContentEditor'dan gelen veri bir nesnedir ({ value, modifiers, format })
             // Diğer inputlardan gelen veri ise bir string'dir.
             // Bu kontrol, iki durumu da doğru şekilde yönetmemizi sağlar.
             if (typeof newValue === 'object' && newValue !== null && newValue.hasOwnProperty('modifiers')) {
                 targetOption.value = newValue.value;
                 targetOption.modifiers = newValue.modifiers; // Modifiers'ı burada güncelliyoruz
+                // DEĞİŞİKLİK: Format bilgisini de güncelliyoruz
+                if (newValue.hasOwnProperty('format')) {
+                    targetOption.format = newValue.format;
+                }
             } else {
                 targetOption.value = newValue; // Diğer seçeneklerin sadece değerini güncelliyoruz
             }

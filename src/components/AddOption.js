@@ -6,7 +6,7 @@ import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
 const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
-    const { finalizeRule, updateActiveTopic } = useRule(); // updateActiveTopic'i al
+    const { finalizeRule, updateActiveTopic } = useRule();
     const protocol = session.headerData.Protocol;
     const ruleOptions = session.ruleOptions;
 
@@ -27,9 +27,15 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     }, [ruleOptions, protocol]);
     
     const handleAdd = (keyword) => {
-        const newOption = { id: uuidv4(), keyword: keyword, value: optionsDictionary[keyword].defaultValue };
+        const newOption = { 
+            id: uuidv4(), 
+            keyword: keyword, 
+            value: optionsDictionary[keyword].defaultValue 
+        };
         if (keyword === 'content') { 
-            newOption.modifiers = { nocase: false, depth: '', offset: '' }; 
+            newOption.modifiers = { nocase: false, depth: '', offset: '' };
+            // DEĞİŞİKLİK: content'e varsayılan formatı ekliyoruz
+            newOption.format = 'ascii'; 
         }
         onOptionAdd(newOption);
         setSearchTerm('');
@@ -57,21 +63,23 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
 
     return (
         <div className="add-option-container"> {/* Bilgi panelini sabit tutmak için otomatik temizleme kaldırıldı */}
+
             <input 
                 ref={ref} type="text" className="add-option-search" 
                 placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
                 onKeyDown={handleKeyDown} 
-                onFocus={() => {}}
+
+                onFocus={() => updateActiveTopic(null)}
             />
             {searchTerm && (
-                <ul className="add-option-list">
+                <ul className="add-option-list" onMouseLeave={() => updateActiveTopic(null)}>
                     {filteredOptions.map(keyword => (
                         <li 
                             key={keyword} 
                             onClick={() => handleAdd(keyword)}
-                            onMouseEnter={() => updateActiveTopic(keyword)} // Fare üzerine gelince konuyu güncelle
+                            onMouseEnter={() => updateActiveTopic(keyword)}
                         >
                             {keyword}<span className='option-description'> - {optionsDictionary[keyword].description}</span>
                         </li>

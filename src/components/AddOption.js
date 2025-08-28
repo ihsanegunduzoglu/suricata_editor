@@ -27,9 +27,15 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     }, [ruleOptions, protocol]);
     
     const handleAdd = (keyword) => {
-        const newOption = { id: uuidv4(), keyword: keyword, value: optionsDictionary[keyword].defaultValue };
+        const newOption = { 
+            id: uuidv4(), 
+            keyword: keyword, 
+            value: optionsDictionary[keyword].defaultValue 
+        };
         if (keyword === 'content') { 
-            newOption.modifiers = { nocase: false, depth: '', offset: '' }; 
+            newOption.modifiers = { nocase: false, depth: '', offset: '' };
+            // DEĞİŞİKLİK: content'e varsayılan formatı ekliyoruz
+            newOption.format = 'ascii'; 
         }
         onOptionAdd(newOption);
         setSearchTerm('');

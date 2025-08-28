@@ -42,6 +42,7 @@ export const RuleProvider = ({ children }) => {
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
+    const [selectedRuleIds, setSelectedRuleIds] = useState(new Set()); // YENİ: Seçili kuralları tutan state
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
@@ -49,7 +50,6 @@ export const RuleProvider = ({ children }) => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
 
-    // DEĞİŞİKLİK: Fonksiyon orijinal, basit haline geri döndü.
     const updateHeaderData = (sessionId, newHeaderData) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, headerData: newHeaderData } : s));
     };
@@ -73,6 +73,7 @@ export const RuleProvider = ({ children }) => {
         setEditingSourceId(null);
         updateOptionsViewActive(false);
         setMitreInfo(null);
+        setSelectedRuleIds(new Set()); // YENİ: Düzenleme iptal edilince seçimi temizle
     };
     
     const finalizeRule = (editorSessionId) => {
@@ -105,6 +106,12 @@ export const RuleProvider = ({ children }) => {
 
     const deleteRule = (sessionId) => {
         setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
+        // YENİ: Silinen kural seçiliyse, seçim listesinden de kaldır
+        setSelectedRuleIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(sessionId);
+            return newSet;
+        });
         toast.info('Kural silindi.');
     };
     
@@ -113,7 +120,31 @@ export const RuleProvider = ({ children }) => {
         const duplicatedDataToEditor = { ...activeSession, headerData: { ...sessionToDuplicate.headerData }, ruleOptions: [...sessionToDuplicate.ruleOptions] };
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? duplicatedDataToEditor : s));
         setEditingSourceId(null);
+        setSelectedRuleIds(new Set()); // YENİ: Kural çoğaltılınca seçimi temizle
         toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
+    };
+    
+    // YENİ: Dışarıdan kural import etme fonksiyonu
+    const importRules = (rulesString) => {
+        const lines = rulesString.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
+        if (lines.length === 0) {
+            toast.warn('İçe aktarılacak geçerli kural bulunamadı.');
+            return;
+        }
+        const newSessions = lines.map(line => ({
+            id: uuidv4(),
+            status: 'finalized',
+            ruleString: line.trim(),
+            headerData: {}, // Not: Tam bir parser olmadan bu alanlar boş kalır
+            ruleOptions: [], // Not: Tam bir parser olmadan bu alanlar boş kalır
+        }));
+        
+        setRuleSessions(prev => {
+            const editing = prev.find(s => s.status === 'editing');
+            const finalized = prev.filter(s => s.status === 'finalized');
+            return [editing, ...newSessions, ...finalized];
+        });
+        toast.success(`${newSessions.length} kural başarıyla içe aktarıldı.`);
     };
 
     const updateActiveTopic = (topic) => setActiveTopic(topic);
@@ -122,40 +153,7 @@ export const RuleProvider = ({ children }) => {
     const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
-
     const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
-
-    const appendImportedRules = (specs) => {
-        if (!Array.isArray(specs) || specs.length === 0) return;
-        const newFinalized = specs.map(spec => {
-            const id = uuidv4();
-            const status = 'finalized';
-            const headerData = spec.headerData || { 'Action': '', 'Protocol': '', 'Source IP': '', 'Source Port': '', 'Direction': '', 'Destination IP': '', 'Destination Port': '' };
-            const ruleOptions = Array.isArray(spec.ruleOptions) ? spec.ruleOptions : [];
-            const ruleString = generateRuleString(headerData, ruleOptions);
-            return { id, status, headerData, ruleOptions, ruleString };
-        });
-        setRuleSessions(prev => {
-            const existingFinalized = prev.filter(s => s.status === 'finalized');
-            const existingEditing = prev.find(s => s.status === 'editing') || createNewSession();
-            return [...existingFinalized, ...newFinalized, existingEditing];
-        });
-        toast.success(`${specs.length} kural içe aktarıldı.`);
-    };
-
-    const toggleRuleSelected = (ruleId) => {
-        setSelectedRuleIds(prev => prev.includes(ruleId)
-            ? prev.filter(id => id !== ruleId)
-            : [...prev, ruleId]
-        );
-    };
-
-    const selectAllFinalized = () => {
-        const allFinalizedIds = ruleSessions.filter(s => s.status === 'finalized').map(s => s.id);
-        setSelectedRuleIds(allFinalizedIds);
-    };
-
-    const clearSelection = () => setSelectedRuleIds([]);
 
     const value = {
         ruleSessions,
@@ -168,6 +166,9 @@ export const RuleProvider = ({ children }) => {
         theme,
         activeSession,
         mitreInfo,
+        selectedRuleIds, // YENİ
+        setSelectedRuleIds, // YENİ
+        importRules, // YENİ
         updateMitreInfo,
         updateActiveTopic,
         updateOptionsViewActive,

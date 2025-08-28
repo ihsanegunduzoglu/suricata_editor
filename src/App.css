@@ -689,9 +689,6 @@ input:checked + .slider:before { transform: translateX(18px); }
   transition: all 0.2s ease-out;
 }
 
-
-}
-
 .validation-item {
   display: flex;
   align-items: center;

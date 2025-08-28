@@ -4,14 +4,11 @@ import React from 'react';
 import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// YENİ: Koyu ve Açık mod için iki farklı stil import ediyoruz
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-// DEĞİŞİKLİK: isBeingEdited prop'unu alıyoruz
-const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected }) => {
-    // DEĞİŞİKLİK: cancelEditing fonksiyonunu da context'ten alıyoruz
-    const { deleteRule, duplicateRule, startEditingRule, cancelEditing ,theme} = useRule();
-  
+// YENİ: Kural seçimi için proplar eklendi: isSelected, onToggleSelect
+const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) => {
+    const { deleteRule, duplicateRule, startEditingRule, cancelEditing, theme } = useRule();
     
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(session.ruleString);
@@ -26,19 +23,22 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
         }
     };
 
-    // YENİ: Tema durumuna göre doğru renklendirme stilini seçiyoruz
     const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
 
+    // YENİ: Seçili olma durumuna göre ek bir class
+    const containerClassName = `finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''} ${isSelected ? 'is-selected' : ''}`;
+
     return (
-        <div className={`finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''}`}>
+        <div className={containerClassName}>
             <div className="rule-actions">
-                <button 
-                    className="rule-action-btn" 
-                    title={isSelected ? "Seçimi kaldır" : "Seç"}
-                    onClick={onToggleSelected}
-                >
-                    {isSelected ? '✓' : ''}
-                </button>
+                {/* YENİ: Kural seçimi için checkbox */}
+                <input 
+                    type="checkbox" 
+                    className="rule-selection-checkbox"
+                    checked={isSelected}
+                    onChange={onToggleSelect}
+                    title="Bu kuralı seç"
+                />
                 <button 
                     className="rule-action-btn" 
                     title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"}
@@ -73,8 +73,8 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
             </div>
             <SyntaxHighlighter 
                 language="bash" 
-                style={syntaxTheme} // YENİ: Dinamik stili burada kullanıyoruz
-                customStyle={{ margin: 0, padding: '1.5em', backgroundColor: 'transparent' }}
+                style={syntaxTheme}
+                customStyle={{ margin: 0, padding: '1.5em 1.5em 1.5em 3.5em' }} // YENİ: Checkbox için solda boşluk
                 codeTagProps={{ style: { fontSize: '1rem', fontFamily: "'Consolas', 'Courier New', monospace" } }}
                 wrapLines={true}
                 wrapLongLines={true}

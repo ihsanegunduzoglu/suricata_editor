@@ -1,91 +1,81 @@
 // src/components/Workbench.js
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
 import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
-<<<<<<< HEAD
 import ValidationPanel from './ValidationPanel';
-import { optionsDictionary } from '../data/optionsDictionary'; // YENİ: Protokol kontrolü için import edildi
-=======
-import ValidationPanel from './ValidationPanel'; 
->>>>>>> ddd6b3f67e748b35ddbd80ec4c8bfc55bf3a6776
 
 const Workbench = () => {
-    // YENİ: updateRuleOptions fonksiyonunu context'ten alıyoruz
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, updateRuleOptions } = useRule();
+    // YENİ: Kural seçimi ve import için gerekli state ve fonksiyonlar context'ten alındı
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, selectedRuleIds, setSelectedRuleIds, importRules } = useRule();
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
 
-    // YENİ: Protokol değişikliğini takip etmek için yan etki (side effect)
-    const prevProtocolRef = useRef();
-    useEffect(() => {
-        if (!activeSession) return;
-
-        const currentProtocol = activeSession.headerData.Protocol;
-
-        // Sadece protokol gerçekten değiştiğinde ve bu ilk render olmadığında çalış
-        if (prevProtocolRef.current && currentProtocol !== prevProtocolRef.current) {
-            const originalOptions = activeSession.ruleOptions;
-            
-            const cleanedOptions = originalOptions.filter(option => {
-                const optionInfo = optionsDictionary[option.keyword];
-                if (!optionInfo?.dependsOnProtocol) {
-                    return true; // Bağımlılık yoksa koru
-                }
-                return optionInfo.dependsOnProtocol === currentProtocol.toLowerCase(); // Varsa ve eşleşiyorsa koru
-            });
-
-            const removedCount = originalOptions.length - cleanedOptions.length;
-            if (removedCount > 0) {
-                updateRuleOptions(activeSession.id, cleanedOptions);
-                toast.warn(`${removedCount} adet seçenek, yeni protokolle uyumsuz olduğu için kaldırıldı.`);
-            }
-        }
-
-        // Mevcut protokolü, bir sonraki kontrol için referansta sakla
-        prevProtocolRef.current = currentProtocol;
-
-    }, [activeSession?.headerData.Protocol, activeSession?.id, activeSession?.ruleOptions, updateRuleOptions]);
-
+    // YENİ: Eksik olan ref ve değişkenler tanımlandı
+    const fileInputRef = useRef(null);
+    const finalizedRuleIds = finalizedSessions.map(s => s.id);
+    const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
 
     const handleExport = () => {
-<<<<<<< HEAD
-        const finalizedRules = finalizedSessions
-=======
-       
-        if (selectedRuleIds.length === 0) {
-            toast.warn('Lütfen önce en az bir kural seçin.');
-            return;
-        }
+        // YENİ: Sadece seçili kuralları veya hiçbiri seçili değilse tüm kuralları dışa aktar
+        const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.size === 0 || selectedRuleIds.has(session.id));
 
-        const source = finalizedSessions.filter(s => selectedRuleIds.includes(s.id));
-        const finalizedRules = source
->>>>>>> ddd6b3f67e748b35ddbd80ec4c8bfc55bf3a6776
-            .map(session => session.ruleString)
-            .join('\n\n');
-
-        if (!finalizedRules || finalizedRules.length === 0) {
+        if (rulesToExport.length === 0) {
             toast.warn('Dışa aktarılacak kural bulunmuyor.');
             return;
         }
 
-        const blob = new Blob([finalizedRules], { type: 'text/plain' });
+        const rulesString = rulesToExport.map(session => session.ruleString).join('\n\n');
+        const blob = new Blob([rulesString], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-<<<<<<< HEAD
         a.download = 'custom.rules';
-=======
-        a.download = 'selected.rules';
->>>>>>> ddd6b3f67e748b35ddbd80ec4c8bfc55bf3a6776
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    };
+
+    // YENİ: Eksik fonksiyonlar tanımlandı
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImportFile = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                importRules(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+        event.target.value = null; // Aynı dosyayı tekrar seçebilmek için
+    };
+
+    const clearSelection = () => {
+        setSelectedRuleIds(new Set());
+    };
+
+    const selectAllFinalized = () => {
+        setSelectedRuleIds(new Set(finalizedRuleIds));
+    };
+
+    const handleToggleSelect = (ruleId) => {
+        setSelectedRuleIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(ruleId)) {
+                newSet.delete(ruleId);
+            } else {
+                newSet.add(ruleId);
+            }
+            return newSet;
+        });
     };
     
     const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
@@ -108,46 +98,24 @@ const Workbench = () => {
 
                     {isRulesListVisible && (
                         <div className="finalized-rules-list">
-<<<<<<< HEAD
-                            <button 
-                                onClick={handleExport} 
-                                className="toolbar-button export-button"
-                                title="Kuralları .rules dosyası olarak indir"
-                            >
-                                ⇩
-                            </button>
-=======
+                             {/* YENİ: Araç çubuğu eklendi */}
                             <div className="rules-toolbar">
-                                <button 
-                                    onClick={handleExport} 
-                                    className="toolbar-button export-button"
-                                    title="Kuralları .rules dosyası olarak indir"
-                                >
-                                    ⇩
-                                </button>
-                                <button 
-                                    onClick={handleImportClick}
-                                    className="toolbar-button import-button"
-                                    title=".rules dosyasından içe aktar"
-                                >
-                                    ⇧
-                                </button>
-                                <button 
-                                    onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
-                                    className="toolbar-button select-all-button"
-                                    title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
-                                >
-                                    ✓
+                                <button onClick={handleImportClick} title="Kuralları İçe Aktar">Import</button>
+                                <button onClick={handleExport} title="Seçili Kuralları Dışa Aktar">Export</button>
+                                <button onClick={allSelected ? clearSelection : selectAllFinalized}>
+                                    {allSelected ? 'Seçimi Temizle' : 'Tümünü Seç'}
                                 </button>
                             </div>
-                            <input type="file" ref={fileInputRef} accept=".rules,.txt" style={{ display: 'none' }} onChange={handleImportFile} />
->>>>>>> ddd6b3f67e748b35ddbd80ec4c8bfc55bf3a6776
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
                             <div className="rules-scroll-wrapper"> 
                                 {finalizedSessions.reverse().map(session => (
                                     <FinalizedRule 
                                         key={session.id} 
                                         session={session} 
                                         isBeingEdited={session.id === editingSourceId}
+                                        // YENİ: Seçim için gerekli proplar eklendi
+                                        isSelected={selectedRuleIds.has(session.id)}
+                                        onToggleSelect={() => handleToggleSelect(session.id)}
                                     />
                                 ))}
                             </div>

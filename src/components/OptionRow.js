@@ -82,7 +82,7 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
                     onChange={(e) => onValueChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     autoFocus 
-                    placeholder="Örn: author Emre, attack_id T1059.001..."
+                    placeholder=""
                 />
                 <span className="option-semicolon">;</span>
             </div>
@@ -138,8 +138,6 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
             return (
                 <ContentEditor 
                     option={option} 
-                    // DÜZELTME BURADA: ContentEditor'dan gelen yeni nesneyi
-                    // doğrudan bir üst bileşene iletiyoruz.
                     onValueChange={onValueChange} 
                     onStopEditing={onStopEditing} 
                 />
@@ -191,7 +189,8 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
             ) : (
                 <>
                     <span className="option-keyword">{option.keyword}:</span>
-                    <span className="option-value">{optionInfo.format(option.value, option.modifiers)}</span>
+                    {/* DEĞİŞİKLİK: format fonksiyonuna artık option nesnesinin tamamını gönderiyoruz. */}
+                    <span className="option-value">{optionInfo.format(option)}</span>
                 </>
             )}
             <span className="option-semicolon">;</span>
@@ -200,3 +199,4 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
 };
 
 export default OptionRow;
+

@@ -21,18 +21,16 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
 
     const handleModifierChange = (modifierKey, modifierValue) => {
         const newModifiers = { ...(option.modifiers || {}), [modifierKey]: modifierValue };
-        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
         onValueChange({ value: option.value, modifiers: newModifiers, format: option.format });
     };
     
     const handleMainValueChange = (e) => {
-        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
         onValueChange({ value: e.target.value, modifiers: option.modifiers, format: option.format });
     };
 
-    // YENİ: Format seçimi değiştiğinde çağrılacak fonksiyon
     const handleFormatChange = (newFormat) => {
         onValueChange({ value: option.value, modifiers: option.modifiers, format: newFormat });
+        valueInputRef.current?.focus(); // Odağı tekrar metin kutusuna döndür
     };
     
     const handleMainValueKeyDown = (e) => {
@@ -90,44 +88,42 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         <div 
             className="option-row-editing-card" 
             onKeyDown={handleCommandKeyDown} 
-            onMouseLeave={() => { /* Bilgi panelini sabit bırak */ }}
+            onMouseLeave={() => {
+                if (document.activeElement !== commandInputRef.current) {
+                    updateActiveTopic(option.keyword);
+                }
+            }}
         >
             <div className="content-editor-main-row">
                 <div className="content-value-row">
                     <span className="option-keyword">{option.keyword}:</span>
-                    <input
-                        ref={valueInputRef}
-                        type="text"
-                        className="option-value-input"
-                        value={option.value}
-                        onChange={handleMainValueChange}
-                        onKeyDown={handleMainValueKeyDown}
-                        placeholder="Örn: 'evil.exe' veya '|FF D8 FF E0|'"
-                        autoFocus
-                    />
-                </div>
-                {/* YENİ: Format Seçim Alanı */}
-                <div className="content-format-selector">
-                    <span className="format-label">Format:</span>
-                    <div className="format-options">
-                        <label>
-                            <input 
-                                type="radio" 
-                                name={`format-${option.id}`} 
-                                value="ascii" 
-                                checked={option.format === 'ascii'} 
-                                onChange={() => handleFormatChange('ascii')}
-                            /> ASCII
-                        </label>
-                        <label>
-                            <input 
-                                type="radio" 
-                                name={`format-${option.id}`} 
-                                value="hex" 
-                                checked={option.format === 'hex'} 
-                                onChange={() => handleFormatChange('hex')}
-                            /> Hex
-                        </label>
+                    <div className="input-with-format-selector"> {/* Yeni kapsayıcı */}
+                        <input
+                            ref={valueInputRef}
+                            type="text"
+                            className="option-value-input"
+                            value={option.value}
+                            onChange={handleMainValueChange}
+                            onKeyDown={handleMainValueKeyDown}
+                            placeholder=""
+                            autoFocus
+                        />
+                        {/* Format Seçim Alanı - Giriş kutusunun içinde */}
+                        <div className="content-format-inline-selector">
+                            <span 
+                                className={`format-option-inline ${option.format === 'ascii' ? 'active' : ''}`}
+                                onClick={() => handleFormatChange('ascii')}
+                            >
+                                ASCII
+                            </span>
+                            <span className="format-divider-inline">|</span>
+                            <span 
+                                className={`format-option-inline ${option.format === 'hex' ? 'active' : ''}`}
+                                onClick={() => handleFormatChange('hex')}
+                            >
+                                HEX
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,7 +176,7 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                             onChange={e => setCommand(e.target.value)}
                             onFocus={() => {
                                 updateModifierInfoActive(true);
-                                updateActiveTopic(null); // Spesifik konuyu temizle
+                                updateActiveTopic(null);
                             }}
                             onBlur={() => {
                                 setTimeout(() => {

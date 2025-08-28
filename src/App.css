@@ -1015,3 +1015,73 @@ input:checked + .slider:before { transform: translateX(18px); }
 .format-options input[type="radio"]:checked:before {
   transform: scale(1);
 }
+
+/* ==========================================================================
+   YENİ: CONTENT EDİTÖRÜ - INPUT İÇİ FORMAT SEÇİCİ STİLLERİ (GÜNCELLENMİŞ)
+   ========================================================================== */
+
+/* Input ile format seçiciyi kapsayan div */
+.input-with-format-selector {
+  position: relative;
+  display: flex; /* Dikey hizalama için flex kullanıyoruz */
+  align-items: center; /* Öğeleri dikeyde ortala */
+  flex-grow: 1;
+}
+
+/* Format seçiciyi input'un içinde konumlandır */
+.content-format-inline-selector {
+  position: absolute;
+  top: 50%; /* Dikeyde %50'ye konumlandır */
+  transform: translateY(-50%); /* Kendi yüksekliğinin yarısı kadar yukarı çekerek tam ortala */
+  right: 0.75rem; /* Sağ kenardan boşluk */
+  bottom: 0.10rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  user-select: none;
+  z-index: 10;
+}
+
+.format-option-inline {
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  /* Pasif durumdaki metin rengi ve şeffaflığı */
+  color: var(--text-secondary);
+  opacity: 0.6;
+  background-color: transparent; /* Arka plan yok */
+  transition: all 0.2s ease;
+}
+
+/* Pasif durumdaki seçeneğin üzerine gelince */
+.format-option-inline:hover:not(.active) {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* Aktif durumdaki seçenek: Sadece metin değişiyor */
+.format-option-inline.active {
+  background-color: transparent; /* Arka plan yok */
+  box-shadow: none; /* Parlama yok */
+  color: #FFFFFF; /* Parlak beyaz metin */
+  font-weight: 700; /* Daha kalın */
+  opacity: 1;
+}
+
+/* Ayırıcı | karakteri */
+.format-divider-inline {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  opacity: 0.4;
+}
+
+/* Giriş kutusunun kendisi */
+.option-value-input {
+    width: 100%;
+    box-sizing: border-box;
+    /* Metnin seçicinin altına girmemesi için sağdan boşluk */
+    padding-right: 400px !important; 
+    /* Ekstra alt boşluğu kaldırarak satır yüksekliğini normale döndür */
+}

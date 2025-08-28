@@ -1,13 +1,20 @@
 // src/data/optionsDictionary.js
 
+const asciiToHex = (str) => {
+    if (!str) return '||';
+    const hex = Array.from(str)
+        .map(char => char.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join(' ');
+    return `|${hex}|`;
+};
+
 const formatModifiersForDisplay = (modifiers) => {
     if (!modifiers) return '';
     const parts = [];
     if (modifiers.nocase) parts.push('nocase');
     if (modifiers.depth && modifiers.depth !== '') parts.push(`depth:${modifiers.depth}`);
     if (modifiers.offset && modifiers.offset !== '') parts.push(`offset:${modifiers.offset}`);
-    // DEĞİŞİKLİK: Başına boşluk ekleyerek birleştiriyoruz
-    return parts.length > 0 ? ' ' + parts.join('; ') : '';
+    return parts.length > 0 ? '; ' + parts.join('; ') : '';
 };
 
 const optionsDictionary = {
@@ -15,7 +22,7 @@ const optionsDictionary = {
     description: 'Kural mesajı', 
     inputType: 'text', 
     defaultValue: '', 
-    format: (val) => `"${val}"`,
+    format: (option) => `"${option.value}"`,
     category: 'singular_required',
     allowMultiple: false,
   },
@@ -23,7 +30,7 @@ const optionsDictionary = {
     description: 'Kural ID', 
     inputType: 'number', 
     defaultValue: '', 
-    format: (val) => val, 
+    format: (option) => option.value, 
     allowMultiple: false,
     category: 'singular_required'
   },
@@ -31,7 +38,7 @@ const optionsDictionary = {
     description: 'Revizyon numarası', 
     inputType: 'number', 
     defaultValue: '1', 
-    format: (val) => val, 
+    format: (option) => option.value, 
     allowMultiple: false,
     category: 'simple_value'
   },
@@ -39,7 +46,7 @@ const optionsDictionary = {
     description: 'Saldırı sınıflandırması',
     inputType: 'autocomplete',
     defaultValue: '',
-    format: (val) => val,
+    format: (option) => option.value,
     allowMultiple: false,
     category: 'classification',
     suggestions: [
@@ -56,7 +63,7 @@ const optionsDictionary = {
     description: 'Dış kaynak referansı (CVE vb.)',
     inputType: 'text',
     defaultValue: '',
-    format: (val) => val,
+    format: (option) => option.value,
     category: 'metadata',
     allowMultiple: true,
   },
@@ -64,7 +71,7 @@ const optionsDictionary = {
     description: 'Key-value formatında meta veri',
     inputType: 'text',
     defaultValue: '',
-    format: (val) => val,
+    format: (option) => option.value,
     category: 'metadata',
     allowMultiple: true,
   },
@@ -72,7 +79,7 @@ const optionsDictionary = {
     description: 'Uyarı öncelik seviyesi (1-255)',
     inputType: 'number',
     defaultValue: '',
-    format: (val) => val,
+    format: (option) => option.value,
     allowMultiple: false,
     category: 'metadata',
   },
@@ -80,7 +87,7 @@ const optionsDictionary = {
     description: 'Bağlantı durumu', 
     inputType: 'autocomplete', 
     defaultValue: '', 
-    format: (val) => val,
+    format: (option) => option.value,
     category: 'fixed_option',
     suggestions: [
         { name: 'established', description: 'Kurulmuş TCP bağlantıları' },
@@ -98,10 +105,17 @@ const optionsDictionary = {
     description: 'Aranacak içerik', 
     inputType: 'text', 
     defaultValue: '', 
-    // DEĞİŞİKLİK: Bu formatlama artık ruleGenerator'da yapıldığı için basitleştirildi.
-    format: (val, mods) => {
-        const valuePart = `"${val}"`;
-        const modsPart = formatModifiersForDisplay(mods);
+    format: (option) => {
+        let valuePart;
+        const isAlreadyHex = /^\|.*\|$/.test(option.value);
+
+        if (option.format === 'hex') {
+            valuePart = isAlreadyHex ? option.value : asciiToHex(option.value);
+        } else { // 'ascii'
+            const escapedValue = option.value.replace(/"/g, '\\"');
+            valuePart = `"${escapedValue}"`;
+        }
+        const modsPart = formatModifiersForDisplay(option.modifiers);
         return `${valuePart}${modsPart}`;
     },
     category: 'modifier_host'
@@ -110,14 +124,14 @@ const optionsDictionary = {
     description: 'Perl Uyumlu Regex ile arama',
     inputType: 'text',
     defaultValue: '',
-    format: (val) => `/${val}/`,
+    format: (option) => `/${option.value}/`,
     category: 'payload'
   },
   'http.method': {
     description: 'HTTP metodunu kontrol et',
     inputType: 'text',
     defaultValue: '',
-    format: (val) => `"${val}"`,
+    format: (option) => `"${option.value}"`,
     dependsOnProtocol: 'http',
     category: 'http',
   },
@@ -152,5 +166,4 @@ const optionsDictionary = {
   },
 };
 
-// DEĞİŞİKLİK: ruleGenerator'da kullanmak için export ediyoruz
 export { optionsDictionary, formatModifiersForDisplay };

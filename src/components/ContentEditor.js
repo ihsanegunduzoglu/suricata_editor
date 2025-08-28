@@ -21,25 +21,24 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
 
     const handleModifierChange = (modifierKey, modifierValue) => {
         const newModifiers = { ...(option.modifiers || {}), [modifierKey]: modifierValue };
-        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
         onValueChange({ value: option.value, modifiers: newModifiers, format: option.format });
     };
     
     const handleMainValueChange = (e) => {
-        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
         onValueChange({ value: e.target.value, modifiers: option.modifiers, format: option.format });
     };
 
-    // YENİ: Format seçimi değiştiğinde çağrılacak fonksiyon
     const handleFormatChange = (newFormat) => {
         onValueChange({ value: option.value, modifiers: option.modifiers, format: newFormat });
+        valueInputRef.current?.focus();
     };
     
     const handleMainValueKeyDown = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' || e.key === 'Escape') {
             e.preventDefault();
-            updateActiveTopic(null);
             setIsValueConfirmed(true);
+            // Enter'a basıldığında düzenlemeyi bitirmek yerine, bir sonraki adıma geçmesini sağla
+            // Bu, 'modifier' ekleme alanını açar
         }
     };
 
@@ -48,31 +47,22 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
             commandInputRef.current.focus();
         }
     }, [isValueConfirmed]);
-
-    const handleStopEditing = () => {
-        updateModifierInfoActive(false);
-        onStopEditing();
-    };
     
     const handleModifierInputKeyDown = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' || e.key === 'Escape') {
             e.preventDefault();
             e.stopPropagation();
-            commandInputRef.current?.focus();
+            onStopEditing(); // Değiştirici input'larındayken Enter/Esc düzenlemeyi bitirir
         }
     };
 
     const handleCommandKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            handleStopEditing();
+        if (e.key === 'Escape' || (e.key === 'Enter' && command === '')) {
+            onStopEditing();
             return;
         }
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (command === '' && document.activeElement === commandInputRef.current) {
-                handleStopEditing();
-                return;
-            }
             const targetModifier = filteredModifiers[0];
             if (targetModifier) {
                 const modifierInfo = optionsDictionary[targetModifier];
@@ -87,47 +77,36 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
     };
 
     return (
-        <div 
-            className="option-row-editing-card" 
-            onKeyDown={handleCommandKeyDown} 
-            onMouseLeave={() => { /* Bilgi panelini sabit bırak */ }}
-        >
+        <div className="option-row-editing-card">
             <div className="content-editor-main-row">
                 <div className="content-value-row">
                     <span className="option-keyword">{option.keyword}:</span>
-                    <input
-                        ref={valueInputRef}
-                        type="text"
-                        className="option-value-input"
-                        value={option.value}
-                        onChange={handleMainValueChange}
-                        onKeyDown={handleMainValueKeyDown}
-                        placeholder="Örn: 'evil.exe' veya '|FF D8 FF E0|'"
-                        autoFocus
-                    />
-                </div>
-                {/* YENİ: Format Seçim Alanı */}
-                <div className="content-format-selector">
-                    <span className="format-label">Format:</span>
-                    <div className="format-options">
-                        <label>
-                            <input 
-                                type="radio" 
-                                name={`format-${option.id}`} 
-                                value="ascii" 
-                                checked={option.format === 'ascii'} 
-                                onChange={() => handleFormatChange('ascii')}
-                            /> ASCII
-                        </label>
-                        <label>
-                            <input 
-                                type="radio" 
-                                name={`format-${option.id}`} 
-                                value="hex" 
-                                checked={option.format === 'hex'} 
-                                onChange={() => handleFormatChange('hex')}
-                            /> Hex
-                        </label>
+                    <div className="input-with-format-selector">
+                        <input
+                            ref={valueInputRef}
+                            type="text"
+                            className="option-value-input"
+                            value={option.value}
+                            onChange={handleMainValueChange}
+                            onKeyDown={handleMainValueKeyDown}
+                            placeholder="Örn: 'evil.exe' veya '|FF D8 FF E0|'"
+                            autoFocus
+                        />
+                        <div className="content-format-inline-selector">
+                            <span 
+                                className={`format-option-inline ${option.format === 'ascii' ? 'active' : ''}`}
+                                onClick={() => handleFormatChange('ascii')}
+                            >
+                                ASCII
+                            </span>
+                            <span className="format-divider-inline">|</span>
+                            <span 
+                                className={`format-option-inline ${option.format === 'hex' ? 'active' : ''}`}
+                                onClick={() => handleFormatChange('hex')}
+                            >
+                                HEX
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,18 +114,21 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
             {isValueConfirmed && (
                 <>
                     <div className="modifiers-grid">
-                        <div className="modifier-item">
-                            <input 
-                                type="checkbox" 
-                                id={`nocase-${option.id}`} 
-                                checked={!!option.modifiers?.nocase} 
-                                onChange={(e) => handleModifierChange('nocase', e.target.checked)} 
-                                onFocus={() => updateActiveTopic('nocase')}
-                            />
-                            <label htmlFor={`nocase-${option.id}`}>nocase</label>
+                        <div className="modifier-item modifier-toggle">
+                            <label htmlFor={`nocase-${option.id}`}>
+                                <span>nocase</span>
+                                <input 
+                                    type="checkbox" 
+                                    id={`nocase-${option.id}`} 
+                                    checked={!!option.modifiers?.nocase} 
+                                    onChange={(e) => handleModifierChange('nocase', e.target.checked)} 
+                                    onFocus={() => updateActiveTopic('nocase')}
+                                />
+                                <span className="toggle-switch"></span>
+                            </label>
                         </div>
                         <div className="modifier-item">
-                            <label htmlFor={`depth-${option.id}`}>depth:</label>
+                            <label htmlFor={`depth-${option.id}`}>depth</label>
                             <input 
                                 type="number" 
                                 id={`depth-${option.id}`} 
@@ -155,10 +137,11 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                                 onChange={(e) => handleModifierChange('depth', e.target.value)}
                                 onKeyDown={handleModifierInputKeyDown}
                                 onFocus={() => updateActiveTopic('depth')}
+                                placeholder="Değer girin..."
                             />
                         </div>
                         <div className="modifier-item">
-                            <label htmlFor={`offset-${option.id}`}>offset:</label>
+                            <label htmlFor={`offset-${option.id}`}>offset</label>
                             <input 
                                 type="number" 
                                 id={`offset-${option.id}`} 
@@ -167,6 +150,7 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                                 onChange={(e) => handleModifierChange('offset', e.target.value)}
                                 onKeyDown={handleModifierInputKeyDown}
                                 onFocus={() => updateActiveTopic('offset')}
+                                placeholder="Değer girin..."
                             />
                         </div>
                     </div>
@@ -178,24 +162,16 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                             ref={commandInputRef} 
                             value={command} 
                             onChange={e => setCommand(e.target.value)}
-                            onFocus={() => {
-                                updateModifierInfoActive(true);
-                                updateActiveTopic(null); // Spesifik konuyu temizle
-                            }}
-                            onBlur={() => {
-                                setTimeout(() => {
-                                    if (!commandInputRef.current?.parentElement?.contains(document.activeElement)) {
-                                        updateModifierInfoActive(false);
-                                    }
-                                }, 150);
-                            }}
+                            onKeyDown={handleCommandKeyDown}
+                            onFocus={() => { updateModifierInfoActive(true); updateActiveTopic(null); }}
+                            onBlur={() => { setTimeout(() => { if (!commandInputRef.current?.parentElement?.contains(document.activeElement)) { updateModifierInfoActive(false); } }, 150); }}
                         />
                         {command && (
-                            <ul className="add-option-list" onMouseLeave={() => updateModifierInfoActive(true)}>
+                            <ul className="add-option-list">
                                 {filteredModifiers.map(k => (
                                     <li 
                                         key={k} 
-                                        onMouseDown={() => { setCommand(k); handleCommandKeyDown({ key: 'Enter', preventDefault: () => { } }); }}
+                                        onMouseDown={() => { setCommand(k); handleCommandKeyDown({ key: 'Enter', preventDefault: () => {} }); }}
                                         onMouseEnter={() => updateActiveTopic(k)}
                                     >
                                         <span className="option-keyword">{k}</span>

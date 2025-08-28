@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
-import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react'; // İkonlar import edildi
+import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
+import { optionsDictionary } from '../data/optionsDictionary'; // Gerekli import geri eklendi
 
 const Workbench = () => {
     const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, selectedRuleIds, setSelectedRuleIds, importRules, updateRuleOptions } = useRule();
@@ -16,6 +17,37 @@ const Workbench = () => {
     const fileInputRef = useRef(null);
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
+
+    // YENİ: Protokol değişikliğini dinleyen ve uyumsuz seçenekleri temizleyen useEffect geri eklendi
+    const prevProtocolRef = useRef();
+    useEffect(() => {
+        if (!activeSession) return;
+        const currentProtocol = activeSession.headerData.Protocol;
+
+        // Sadece protokol gerçekten değiştiğinde ve bu ilk render olmadığında çalış
+        if (prevProtocolRef.current && currentProtocol !== prevProtocolRef.current) {
+            const originalOptions = activeSession.ruleOptions;
+            
+            const cleanedOptions = originalOptions.filter(option => {
+                const optionInfo = optionsDictionary[option.keyword];
+                if (!optionInfo?.dependsOnProtocol) {
+                    return true; // Bağımlılık yoksa koru
+                }
+                return optionInfo.dependsOnProtocol === currentProtocol.toLowerCase(); // Varsa ve eşleşiyorsa koru
+            });
+
+            const removedCount = originalOptions.length - cleanedOptions.length;
+            if (removedCount > 0) {
+                updateRuleOptions(activeSession.id, cleanedOptions);
+                // İsteğin üzerine eklenen bildirim
+                toast.warn(`${removedCount} adet seçenek, yeni protokolle uyumsuz olduğu için kaldırıldı.`);
+            }
+        }
+        // Mevcut protokolü, bir sonraki kontrol için referansta sakla
+        prevProtocolRef.current = currentProtocol;
+
+    }, [activeSession?.headerData.Protocol, activeSession?.id, activeSession?.ruleOptions, updateRuleOptions]);
+
 
     const handleExport = () => {
         const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.size === 0 || selectedRuleIds.has(session.id));

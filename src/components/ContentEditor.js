@@ -19,6 +19,12 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
     const availableModifiers = useMemo(() => Object.keys(optionsDictionary).filter(k => optionsDictionary[k].isModifier), []);
     const filteredModifiers = command ? availableModifiers.filter(m => m.startsWith(command.toLowerCase())) : [];
 
+    // YENİ: Editörden çıkarken Bilgi Panelini sıfırlayan merkezi fonksiyon
+    const handleStopEditing = () => {
+        updateModifierInfoActive(false); // Bilgi Panelini sıfırla
+        onStopEditing(); // Editörü kapat
+    };
+
     const handleModifierChange = (modifierKey, modifierValue) => {
         const newModifiers = { ...(option.modifiers || {}), [modifierKey]: modifierValue };
         onValueChange({ value: option.value, modifiers: newModifiers, format: option.format });
@@ -37,8 +43,6 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         if (e.key === 'Enter' || e.key === 'Escape') {
             e.preventDefault();
             setIsValueConfirmed(true);
-            // Enter'a basıldığında düzenlemeyi bitirmek yerine, bir sonraki adıma geçmesini sağla
-            // Bu, 'modifier' ekleme alanını açar
         }
     };
 
@@ -49,16 +53,21 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
     }, [isValueConfirmed]);
     
     const handleModifierInputKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === 'Escape') {
+        if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            onStopEditing(); // Değiştirici input'larındayken Enter/Esc düzenlemeyi bitirir
+            commandInputRef.current?.focus();
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            handleStopEditing(); // DEĞİŞİKLİK: Sıfırlama fonksiyonunu çağır
         }
     };
 
     const handleCommandKeyDown = (e) => {
         if (e.key === 'Escape' || (e.key === 'Enter' && command === '')) {
-            onStopEditing();
+            handleStopEditing(); // DEĞİŞİKLİK: Sıfırlama fonksiyonunu çağır
             return;
         }
         if (e.key === 'Enter') {

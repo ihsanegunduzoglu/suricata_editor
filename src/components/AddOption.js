@@ -11,15 +11,21 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
     const [isFocused, setIsFocused] = useState(false);
     const debounceTimeout = useRef(null);
 
+    // DEĞİŞİKLİK: 'protocol' değişkeni eklendi ve useMemo'nun bağımlılıklarına dahil edildi.
+    const protocol = session.headerData.Protocol;
     const availableOptions = useMemo(() => {
         const addedKeywords = new Set(session.ruleOptions.map(o => o.keyword));
         return Object.keys(optionsDictionary).filter(keyword => {
             const optionInfo = optionsDictionary[keyword];
             if (optionInfo.isModifier) return false;
             if (optionInfo.allowMultiple === false && addedKeywords.has(keyword)) return false;
+            // YENİ: Protokol bağımlılığı kontrolü geri eklendi.
+            if (optionInfo.dependsOnProtocol && optionInfo.dependsOnProtocol !== protocol?.toLowerCase()) {
+                return false;
+            }
             return true;
         });
-    }, [session.ruleOptions]);
+    }, [session.ruleOptions, protocol]); // 'protocol' bağımlılık olarak eklendi
     
     const filteredOptions = useMemo(() => {
         return searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
@@ -73,7 +79,6 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
             onNavigateToList();
         }
 
-        // YENİ: Arama kutusundayken Escape'e basılırsa header'a dön
         if (e.key === 'Escape') {
             e.preventDefault();
             onNavigateBack();

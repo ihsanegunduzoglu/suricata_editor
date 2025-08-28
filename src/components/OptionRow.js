@@ -9,6 +9,7 @@ import { validateOptionField } from '../utils/ruleValidator';
 import MitreEditor from './MitreEditor';
 import { useRule } from '../context/RuleContext';
 
+// 'metadata' seçeneği için MetadataEditor (MITRE dahil)
 const MetadataEditor = ({ option, onValueChange, onStopEditing }) => {
     const { updateMitreInfo } = useRule();
     const [showMitre, setShowMitre] = useState(false);
@@ -24,10 +25,12 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing }) => {
     const handleEditKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === 'Escape') {
             e.preventDefault();
+            const errorMessage = validateOptionField(option.keyword, option.value);
+            if (errorMessage) toast.warn(errorMessage);
             onStopEditing();
         }
     };
-    
+
     useEffect(() => {
         if (showMitre && tactics.length === 0) {
             setIsLoading(true);
@@ -101,19 +104,15 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing }) => {
     );
 };
 
-// YENİ: onDelete prop'u eklendi
+// Ana OptionRow Bileşeni
 const OptionRow = ({ option, index, isSelected, isEditing, onStartEditing, onStopEditing, onValueChange, onDelete }) => {
     const optionInfo = optionsDictionary[option.keyword];
-
-    const handleBlur = () => {
-        const errorMessage = validateOptionField(option.keyword, option.value);
-        if (errorMessage) toast.warn(errorMessage);
-        onStopEditing();
-    };
     
     const handleEditKeyDown = (e) => {
         if ((e.key === 'Enter' && e.target.tagName.toLowerCase() !== 'textarea') || e.key === 'Escape') {
             e.preventDefault();
+            const errorMessage = validateOptionField(option.keyword, option.value);
+            if (errorMessage) toast.warn(errorMessage);
             onStopEditing();
         }
     };
@@ -146,7 +145,6 @@ const OptionRow = ({ option, index, isSelected, isEditing, onStartEditing, onSto
                         className="option-value-input"
                         value={option.value}
                         onChange={changeHandler}
-                        onBlur={handleBlur}
                         onKeyDown={handleEditKeyDown}
                         autoFocus
                     />
@@ -173,12 +171,10 @@ const OptionRow = ({ option, index, isSelected, isEditing, onStartEditing, onSto
                 </>
             )}
             <span className="option-semicolon">;</span>
-            
-            {/* YENİ: Silme butonu eklendi */}
             <button 
                 className="delete-option-btn" 
                 onClick={(e) => {
-                    e.stopPropagation(); // Satırın düzenleme moduna geçmesini engelle
+                    e.stopPropagation();
                     onDelete();
                 }}
                 title="Bu seçeneği sil"

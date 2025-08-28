@@ -15,10 +15,12 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        setTimeout(() => {
-            addOptionInputRef.current?.focus();
-        }, 0);
-    }, []);
+        if (!session.ruleOptions.some(o => o.value === '')) {
+            setTimeout(() => {
+                addOptionInputRef.current?.focus();
+            }, 0);
+        }
+    }, [session.ruleOptions.length]);
 
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
@@ -26,19 +28,15 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
                 updateActiveTopic(activeKeyword);
-            } else if (!activeKeyword) {
-                updateActiveTopic(null);
             }
         } else {
-            updateActiveTopic(null);
+             updateActiveTopic(null);
         }
     }, [editingIndex, selectedIndex, session.ruleOptions, updateActiveTopic]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (editingIndex !== null || document.activeElement === addOptionInputRef.current) {
-                return;
-            }
+            if (editingIndex !== null || document.activeElement === addOptionInputRef.current) return;
 
             const optionsCount = session.ruleOptions.length;
             
@@ -46,7 +44,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                 case 'ArrowDown':
                     e.preventDefault();
                     if (optionsCount > 0) {
-                        // DÜZELTME: Listenin sonundaysa, arama kutusuna odaklan
                         if (selectedIndex === optionsCount - 1) {
                             setSelectedIndex(null);
                             addOptionInputRef.current?.focus();
@@ -87,7 +84,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         const container = containerRef.current;
         container?.addEventListener('keydown', handleKeyDown);
         return () => container?.removeEventListener('keydown', handleKeyDown);
-
     }, [editingIndex, selectedIndex, session.ruleOptions, onNavigateBack]);
 
     useEffect(() => {
@@ -116,9 +112,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     };
 
     const handleStopEditing = () => {
-        const lastEditingIndex = editingIndex;
         setEditingIndex(null);
-        setSelectedIndex(lastEditingIndex);
+        setSelectedIndex(null); // Vurguyu temizle
         setTimeout(() => addOptionInputRef.current?.focus(), 0);
     };
 

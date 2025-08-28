@@ -8,14 +8,12 @@ const asciiToHex = (str) => {
     return `|${hex}|`;
 };
 
-// DEĞİŞİKLİK BURADA: Fonksiyon artık boşluk yerine noktalı virgül ekliyor.
 const formatModifiersForDisplay = (modifiers) => {
     if (!modifiers) return '';
     const parts = [];
     if (modifiers.nocase) parts.push('nocase');
     if (modifiers.depth && modifiers.depth !== '') parts.push(`depth:${modifiers.depth}`);
     if (modifiers.offset && modifiers.offset !== '') parts.push(`offset:${modifiers.offset}`);
-    // Eğer değiştirici varsa, başına boşluk değil, "; " ekleniyor.
     return parts.length > 0 ? '; ' + parts.join('; ') : '';
 };
 
@@ -117,7 +115,6 @@ const optionsDictionary = {
             const escapedValue = option.value.replace(/"/g, '\\"');
             valuePart = `"${escapedValue}"`;
         }
-
         const modsPart = formatModifiersForDisplay(option.modifiers);
         return `${valuePart}${modsPart}`;
     },

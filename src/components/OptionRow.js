@@ -9,11 +9,10 @@ import { validateOptionField } from '../utils/ruleValidator';
 import MitreEditor from './MitreEditor';
 import { useRule } from '../context/RuleContext';
 
-const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown }) => {
+const MetadataEditor = ({ option, onValueChange, onStopEditing }) => {
     const { updateMitreInfo } = useRule();
     const [showMitre, setShowMitre] = useState(false);
     const editorRef = useRef(null);
-
     const [tactics, setTactics] = useState([]);
     const [techniques, setTechniques] = useState([]);
     const [subtechniques, setSubtechniques] = useState([]);
@@ -22,19 +21,19 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
     const [selectedSubtechniqueId, setSelectedSubtechniqueId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    const handleEditKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === 'Escape') {
+            e.preventDefault();
+            onStopEditing();
+        }
+    };
+    
     useEffect(() => {
         if (showMitre && tactics.length === 0) {
             setIsLoading(true);
             fetch('http://127.0.0.1:5000/api/tactics')
-                .then(res => res.json())
-                .then(data => {
-                    setTactics(data);
-                    setIsLoading(false);
-                })
-                .catch(err => {
-                    console.error("Taktikler yüklenemedi", err);
-                    setIsLoading(false);
-                });
+                .then(res => res.json()).then(data => { setTactics(data); setIsLoading(false); })
+                .catch(err => { console.error("Taktikler yüklenemedi", err); setIsLoading(false); });
         }
     }, [showMitre, tactics.length]);
 
@@ -66,23 +65,22 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
         }
         const separator = currentValue.trim() === '' ? '' : ', ';
         onValueChange(currentValue + separator + mappingString);
-        
         updateMitreInfo(null);
         onStopEditing();
     };
 
     return (
         <div className="option-row-editing-card" ref={editorRef}>
-            <div className="option-row">
+            <div className="option-row is-editing">
                 <span className="option-keyword">{option.keyword}:</span>
                 <input 
                     type="text"
                     className="option-value-input" 
                     value={option.value} 
                     onChange={(e) => onValueChange(e.target.value)}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={handleEditKeyDown}
                     autoFocus 
-                    placeholder=""
+                    placeholder="Örn: author Emre, attack_id T1059.001..."
                 />
                 <span className="option-semicolon">;</span>
             </div>
@@ -93,88 +91,64 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
             </div>
             {showMitre && <MitreEditor 
                 onMappingAdd={handleMappingAdd} 
-                tactics={tactics}
-                techniques={techniques}
-                subtechniques={subtechniques}
-                selectedTacticId={selectedTacticId}
-                setSelectedTacticId={setSelectedTacticId}
-                selectedTechnique={selectedTechnique}
-                setSelectedTechnique={setSelectedTechnique}
-                selectedSubtechniqueId={selectedSubtechniqueId}
-                setSelectedSubtechniqueId={setSelectedSubtechniqueId}
+                tactics={tactics} techniques={techniques} subtechniques={subtechniques}
+                selectedTacticId={selectedTacticId} setSelectedTacticId={setSelectedTacticId}
+                selectedTechnique={selectedTechnique} setSelectedTechnique={setSelectedTechnique}
+                selectedSubtechniqueId={selectedSubtechniqueId} setSelectedSubtechniqueId={setSelectedSubtechniqueId}
                 isLoading={isLoading}
             />}
         </div>
     );
 };
 
-const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
+// YENİ: onDelete prop'u eklendi
+const OptionRow = ({ option, index, isSelected, isEditing, onStartEditing, onStopEditing, onValueChange, onDelete }) => {
     const optionInfo = optionsDictionary[option.keyword];
-    
+
     const handleBlur = () => {
         const errorMessage = validateOptionField(option.keyword, option.value);
-        if (errorMessage) {
-            toast.warn(errorMessage);
-        }
+        if (errorMessage) toast.warn(errorMessage);
         onStopEditing();
     };
-
-    const handleKeyDown = (e) => { 
-        if (e.key === 'Enter' && e.target.tagName.toLowerCase() !== 'textarea') {
+    
+    const handleEditKeyDown = (e) => {
+        if ((e.key === 'Enter' && e.target.tagName.toLowerCase() !== 'textarea') || e.key === 'Escape') {
             e.preventDefault();
             onStopEditing();
         }
     };
 
-    const handleNumericChange = (e) => {
-        const value = e.target.value;
-        if (value === '' || /^\d+$/.test(value)) {
-            onValueChange(value);
-        }
-    };
-
-    if (isEditing && optionInfo.inputType !== 'flag') {
+    if (isEditing) {
         if (option.keyword === 'content') {
-            return (
-                <ContentEditor 
-                    option={option} 
-                    onValueChange={onValueChange} 
-                    onStopEditing={onStopEditing} 
-                />
-            );
+            return <ContentEditor option={option} onValueChange={onValueChange} onStopEditing={onStopEditing} />;
         }
-
+        
         if (option.keyword === 'metadata') {
-            return <MetadataEditor 
-                option={option}
-                onValueChange={onValueChange}
-                onStopEditing={onStopEditing}
-                handleKeyDown={handleKeyDown}
-            />;
+            return <MetadataEditor option={option} onValueChange={onValueChange} onStopEditing={onStopEditing} />;
         }
 
-        const isNumericOnly = ['sid', 'rev', 'priority'].includes(option.keyword);
-        const changeHandler = isNumericOnly ? handleNumericChange : (e) => onValueChange(e.target.value);
+        const changeHandler = (e) => onValueChange(e.target.value);
 
         return (
-            <div className="option-row">
+            <div className="option-row is-editing">
                 <span className="option-keyword">{option.keyword}:</span>
                 {optionInfo.inputType === 'autocomplete' ? (
-                    <AutocompleteInput 
-                        suggestions={optionInfo.suggestions} 
-                        value={option.value} 
-                        onChange={onValueChange} 
-                        onStopEditing={handleBlur}
+                    <AutocompleteInput
+                        suggestions={optionInfo.suggestions}
+                        value={option.value}
+                        onChange={onValueChange}
+                        onStopEditing={onStopEditing}
+                        keyword={option.keyword}
                     />
                 ) : (
-                    <input 
-                        type="text" 
-                        className="option-value-input" 
-                        value={option.value} 
+                    <input
+                        type="text"
+                        className="option-value-input"
+                        value={option.value}
                         onChange={changeHandler}
                         onBlur={handleBlur}
-                        onKeyDown={handleKeyDown} 
-                        autoFocus 
+                        onKeyDown={handleEditKeyDown}
+                        autoFocus
                     />
                 )}
                 <span className="option-semicolon">;</span>
@@ -182,21 +156,37 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
         );
     }
 
+    const rowClassName = `option-row ${isSelected ? 'is-selected' : ''}`;
+
     return (
-        <div className="option-row" onClick={optionInfo.inputType !== 'flag' ? () => onStartEditing(option.keyword) : undefined}>
+        <div 
+            className={rowClassName} 
+            onClick={optionInfo.inputType !== 'flag' ? onStartEditing : undefined}
+            data-index={index}
+        >
             {optionInfo.inputType === 'flag' ? (
                 <span className="option-keyword">{option.keyword}</span>
             ) : (
                 <>
                     <span className="option-keyword">{option.keyword}:</span>
-                    {/* DEĞİŞİKLİK: format fonksiyonuna artık option nesnesinin tamamını gönderiyoruz. */}
                     <span className="option-value">{optionInfo.format(option)}</span>
                 </>
             )}
             <span className="option-semicolon">;</span>
+            
+            {/* YENİ: Silme butonu eklendi */}
+            <button 
+                className="delete-option-btn" 
+                onClick={(e) => {
+                    e.stopPropagation(); // Satırın düzenleme moduna geçmesini engelle
+                    onDelete();
+                }}
+                title="Bu seçeneği sil"
+            >
+                ×
+            </button>
         </div>
     );
 };
 
 export default OptionRow;
-

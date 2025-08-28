@@ -4,97 +4,166 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import OptionRow from './OptionRow';
 import AddOption from './AddOption';
+import { toast } from 'react-toastify';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
     const { updateRuleOptions, updateActiveTopic } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(null);
     const addOptionInputRef = useRef(null);
-    
+    const containerRef = useRef(null);
+
     useEffect(() => {
-        if (editingIndex === null) {
+        setTimeout(() => {
+            addOptionInputRef.current?.focus();
+        }, 0);
+    }, []);
+
+    useEffect(() => {
+        const activeIndex = editingIndex ?? selectedIndex;
+        if (activeIndex !== null) {
+            updateActiveTopic(session.ruleOptions[activeIndex]?.keyword);
+        } else {
             updateActiveTopic(null);
-            setTimeout(() => {
-                addOptionInputRef.current?.focus();
-            }, 0);
         }
-    }, [editingIndex, updateActiveTopic]);
-    
+    }, [editingIndex, selectedIndex, session.ruleOptions, updateActiveTopic]);
+
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                onNavigateBack();
+            if (editingIndex !== null || document.activeElement === addOptionInputRef.current) {
+                return;
+            }
+
+            const optionsCount = session.ruleOptions.length;
+            
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (optionsCount > 0) {
+                        setSelectedIndex(prev => (prev === null || prev >= optionsCount - 1) ? 0 : prev + 1);
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (optionsCount > 0) {
+                        setSelectedIndex(prev => (prev === null || prev <= 0) ? optionsCount - 1 : prev - 1);
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    setSelectedIndex(null);
+                    onNavigateBack();
+                    break;
+                case 'Enter':
+                    if (selectedIndex !== null) {
+                        e.preventDefault();
+                        setEditingIndex(selectedIndex);
+                    }
+                    break;
+                case 'Backspace':
+                case 'Delete':
+                    if (selectedIndex !== null) {
+                        e.preventDefault();
+                        handleDeleteOption(selectedIndex);
+                    }
+                    break;
+                default:
+                    break;
             }
         };
 
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [onNavigateBack]);
+        const container = containerRef.current;
+        container?.addEventListener('keydown', handleKeyDown);
+        return () => container?.removeEventListener('keydown', handleKeyDown);
 
-    // BU FONKSİYON ÇOK ÖNEMLİ
+    }, [editingIndex, selectedIndex, session.ruleOptions, onNavigateBack]);
+
+    useEffect(() => {
+        if (selectedIndex !== null && editingIndex === null && containerRef.current) {
+            const row = containerRef.current.querySelector(`.option-row[data-index="${selectedIndex}"]`);
+            row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }, [selectedIndex, editingIndex]);
+
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
         const targetOption = updatedOptions[index];
-
         if (targetOption) {
-            // ContentEditor'dan gelen veri bir nesnedir ({ value, modifiers, format })
-            // Diğer inputlardan gelen veri ise bir string'dir.
-            // Bu kontrol, iki durumu da doğru şekilde yönetmemizi sağlar.
             if (typeof newValue === 'object' && newValue !== null && newValue.hasOwnProperty('modifiers')) {
-                targetOption.value = newValue.value;
-                targetOption.modifiers = newValue.modifiers; // Modifiers'ı burada güncelliyoruz
-                // DEĞİŞİKLİK: Format bilgisini de güncelliyoruz
-                if (newValue.hasOwnProperty('format')) {
-                    targetOption.format = newValue.format;
-                }
+                Object.assign(targetOption, newValue);
             } else {
-                targetOption.value = newValue; // Diğer seçeneklerin sadece değerini güncelliyoruz
+                targetOption.value = newValue;
             }
             updateRuleOptions(session.id, updatedOptions);
         }
     };
-    
-    const handleStartEditing = (keyword, index) => {
+
+    const handleStartEditing = (index) => {
+        setSelectedIndex(index);
         setEditingIndex(index);
-        updateActiveTopic(keyword);
     };
 
-    const handleDeleteLastOption = () => {
-        if (session.ruleOptions.length > 0) {
-            const newRuleOptions = session.ruleOptions.slice(0, -1);
-            updateRuleOptions(session.id, newRuleOptions);
+    const handleStopEditing = () => {
+        const lastEditingIndex = editingIndex;
+        setEditingIndex(null);
+        setSelectedIndex(lastEditingIndex);
+        setTimeout(() => addOptionInputRef.current?.focus(), 0);
+    };
+
+    const handleDeleteOption = (indexToDelete) => {
+        const newRuleOptions = session.ruleOptions.filter((_, i) => i !== indexToDelete);
+        updateRuleOptions(session.id, newRuleOptions);
+        toast.info('Seçenek silindi.');
+
+        if (newRuleOptions.length === 0) {
+            setSelectedIndex(null);
+            addOptionInputRef.current?.focus();
+        } else if (indexToDelete >= newRuleOptions.length) {
+            setSelectedIndex(newRuleOptions.length - 1);
+        } else {
+            setSelectedIndex(indexToDelete);
         }
     };
     
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
-        handleStartEditing(newOption.keyword, newRuleOptions.length - 1);
+        handleStartEditing(newRuleOptions.length - 1);
     };
-    
-    const handleStopEditing = () => { 
-        setEditingIndex(null); 
+
+    const handleNavigateToList = () => {
+        const lastIndex = session.ruleOptions.length - 1;
+        if (lastIndex >= 0) {
+            setSelectedIndex(lastIndex);
+            containerRef.current?.focus();
+        }
     };
-    
+
     return (
-        <div className="options-builder">
+        <div ref={containerRef} tabIndex={-1} className="options-builder">
             <div className="added-options-list">
                 {session.ruleOptions.map((option, index) => (
                     <OptionRow 
                         key={option.id}
-                        option={option} 
+                        option={option}
+                        index={index}
+                        isSelected={index === selectedIndex && editingIndex === null}
                         isEditing={index === editingIndex} 
-                        onStartEditing={(keyword) => handleStartEditing(keyword, index)}
+                        onStartEditing={() => handleStartEditing(index)}
                         onStopEditing={handleStopEditing} 
-                        onValueChange={(newValue) => handleValueChange(index, newValue)} 
+                        onValueChange={(newValue) => handleValueChange(index, newValue)}
+                        onDelete={() => handleDeleteOption(index)}
                     />
                 ))}
             </div>
             <AddOption 
                 ref={addOptionInputRef} 
                 onOptionAdd={handleAddOption} 
-                onDeleteLastOption={handleDeleteLastOption} 
+                onDeleteLastOption={() => session.ruleOptions.length > 0 && handleDeleteOption(session.ruleOptions.length - 1)} 
                 session={session}
+                onNavigateToList={handleNavigateToList}
+                onNavigateBack={onNavigateBack} // YENİ: Prop'u AddOption'a iletiyoruz
             />
         </div>
     );

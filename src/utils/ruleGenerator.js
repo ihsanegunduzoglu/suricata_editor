@@ -1,15 +1,6 @@
 // src/utils/ruleGenerator.js
 
-import { optionsDictionary, formatModifiersForDisplay } from "../data/optionsDictionary";
-
-// YENİ: ASCII metni Suricata'nın anlayacağı hex formatına çevirir
-const asciiToHex = (str) => {
-    if (!str) return '||';
-    const hex = Array.from(str)
-        .map(char => char.charCodeAt(0).toString(16).padStart(2, '0'))
-        .join(' ');
-    return `|${hex}|`;
-};
+import { optionsDictionary } from "../data/optionsDictionary";
 
 export const generateRuleString = (headerData, ruleOptions) => {
     const headerParts = [
@@ -26,37 +17,24 @@ export const generateRuleString = (headerData, ruleOptions) => {
 
     const optionsString = ruleOptions.map(option => {
         const optionInfo = optionsDictionary[option.keyword];
-        if (!optionInfo) return '';
+        if (!optionInfo) return null;
 
-        // DEĞİŞİKLİK: content seçeneği için özel formatlama mantığı
-        if (option.keyword === 'content') {
-            let valuePart;
-            const isAlreadyHex = /^\|.*\|$/.test(option.value);
-
-            if (option.format === 'hex') {
-                valuePart = isAlreadyHex ? option.value : asciiToHex(option.value);
-            } else { // 'ascii'
-                // ASCII formatta, metin içindeki tırnak işaretlerinden kaçınıyoruz
-                const escapedValue = option.value.replace(/"/g, '\\"');
-                valuePart = `"${escapedValue}"`;
-            }
-
-            const modifiersPart = formatModifiersForDisplay(option.modifiers);
-            return `${option.keyword}:${valuePart}${modifiersPart}`;
-        }
-        
         if (optionInfo.category === 'flag') {
             return option.keyword;
         }
-
-        if (option.value || String(option.value).trim() !== '') {
-            // content dışındaki diğer tüm keyword'ler için standart formatlama
-            const formattedValue = optionInfo.format(option.value, option.modifiers);
-            return `${option.keyword}:${formattedValue}`;
+        
+        if (option.value === undefined || option.value === null || String(option.value).trim() === '') {
+            return null;
         }
 
-        return '';
-    }).filter(part => part).join('; ');
+        // Her seçeneğin kendi format fonksiyonunu kullanarak metnini oluştur
+        const formattedValue = optionInfo.format(option);
+        
+        // ruleGenerator'ın ana görevi keyword ve değeri birleştirmektir.
+        // format() fonksiyonu sadece değeri formatlar.
+        return `${option.keyword}:${formattedValue}`;
+
+    }).filter(part => part !== null).join('; ');
 
     return `${headerString} (${optionsString};)`;
 };

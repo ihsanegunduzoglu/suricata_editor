@@ -323,39 +323,120 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-bottom: 2px solid var(--text-accent);
   background-color: var(--bg-suggestion-hover);
 }
+/* ==========================================================================
+   GÜZELLEŞTİRİLMİŞ CONTENT DEĞİŞTİRİCİ STİLLERİ
+   ========================================================================== */
+
 .modifiers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  padding: 0;
-}
-.modifier-item {
-  display: flex;
-  align-items: center;
-  background-color: var(--bg-hover);
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-.modifier-item label {
-  margin-right: 0.5rem;
-  color: var(--text-secondary);
-}
-.modifier-item input[type="number"],
-.modifier-item input[type="text"] {
-  background-color: transparent;
-  border: none;
-  color: var(--text-value);
-  width: 100%;
-  padding: 0;
-}
-.modifier-item input[type="number"]:focus,
-.modifier-item input[type="text"]:focus {
-  outline: none;
+  padding-right: 1.5rem; /* Kartın padding'i ile hizalamak için */
 }
 
+.modifier-item {
+  background-color: var(--bg-hover);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modifier-item:hover {
+  border-color: var(--text-accent);
+  background-color: rgba(0, 152, 255, 0.05);
+}
+
+.modifier-item label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Sayı giriş alanları için genel stil */
+.modifier-item input[type="number"] {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid var(--border-primary);
+  color: var(--text-value);
+  font-size: 1.1rem;
+  font-family: 'Consolas', 'Courier New', monospace;
+  padding: 0.25rem 0;
+  width: 100%;
+  transition: border-color 0.2s ease;
+  -moz-appearance: textfield;
+}
+.modifier-item input[type="number"]::-webkit-outer-spin-button,
+.modifier-item input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.modifier-item input[type="number"]:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+.modifier-item input[type="number"]::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+/* 'nocase' için Toggle Switch Stilleri */
+.modifier-item.modifier-toggle label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.modifier-item.modifier-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  background-color: var(--bg-input);
+  border-radius: 22px;
+  transition: background-color 0.3s;
+  border: 1px solid var(--border-primary);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.modifier-item.modifier-toggle input:checked + .toggle-switch {
+  background-color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+.modifier-item.modifier-toggle input:checked + .toggle-switch::after {
+  transform: translateX(18px);
+  background-color: white;
+}
 /* ==========================================================================
    ÖNERİ PENCERELERİ (SUGGESTIONS)
    ========================================================================== */
@@ -1084,4 +1165,76 @@ input:checked + .slider:before { transform: translateX(18px); }
     /* Metnin seçicinin altına girmemesi için sağdan boşluk */
     padding-right: 400px !important; 
     /* Ekstra alt boşluğu kaldırarak satır yüksekliğini normale döndür */
+}
+/* ==========================================================================
+   YENİ: SEÇENEK SİLME BUTONU STİLLERİ
+   ========================================================================== */
+
+/* Her satırı, içindeki butonu konumlandırabilmek için 'relative' yapıyoruz */
+.option-row {
+  position: relative;
+}
+
+/* Silme butonu ('x') için stil */
+.delete-option-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%); /* Dikey olarak tam ortala */
+  
+  /* Görünüm */
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem; /* 'x' karakterinin boyutu */
+  line-height: 1;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+
+  /* Başlangıçta gizli olsun */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, background-color 0.2s;
+}
+
+/* Satırın üzerine gelindiğinde silme butonunu görünür yap */
+.option-row:hover .delete-option-btn {
+  opacity: 0.6;
+  visibility: visible;
+}
+
+/* Butonun üzerine gelindiğinde daha belirgin yap */
+.delete-option-btn:hover {
+  opacity: 1;
+  background-color: var(--bg-hover);
+  color: #ff6b6b; /* Kırmızımsı bir renk */
+}
+
+/* ==========================================================================
+   KLAVYE İLE GEZİNME VE DÜZENLEME STİLLERİ
+   ========================================================================== */
+
+/* Klavye ile gezinirken seçilen satırın stili */
+.option-row.is-selected {
+  background-color: var(--text-accent) !important;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.option-row.is-selected .option-keyword,
+.option-row.is-selected .option-value,
+.option-row.is-selected .option-semicolon {
+  color: white !important;
+}
+
+/* Düzenleme modundaki satırın stili */
+.option-row.is-editing {
+  background-color: var(--bg-hover);
+}
+
+/* options-builder div'inin odaklandığında görünen mavi çerçeveyi kaldır */
+.options-builder:focus {
+  outline: none;
 }

@@ -23,6 +23,8 @@ const ThemeSwitcher = () => {
     );
 };
 
+
+
 const TopMenuBar = () => {
     const { 
         isRulesListVisible, 

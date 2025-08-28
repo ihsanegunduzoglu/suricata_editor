@@ -1,17 +1,4 @@
-/* ==========================================================================
-   Suricata Kural Editörü - Birleştirilmiş Ana Stil Dosyası
-   Açıklama: Bu dosya, iki ayrı stil dosyasının özelliklerini
-             hiçbir kural eksiltilmeden bir araya getirerek oluşturulmuştur.
-             Tema değiştirme, geliştirilmiş yerleşim ve detaylı bileşen
-             stillerini içermektedir.
-   ========================================================================== */
 
-
-/* ==========================================================================
-   TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
-   ========================================================================== */
-
-/* Tema sarmalayıcısı için temel ayarlar */
 .theme-wrapper {
   height: 100vh;
   display: flex;
@@ -22,7 +9,7 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Varsayılan: Koyu Tema */
+
 .theme-dark {
   --bg-main: #121212;
   --bg-panel: #1e1e1e;
@@ -116,7 +103,7 @@ body {
 }
 .dropdown-menu li:hover {
   background-color: var(--text-accent);
-  color: #fff; /* Açık ve Koyu temada okunurluk için sabit beyaz */
+  color: #fff; 
 }
 .theme-switcher { display: flex; align-items: center; gap: 0.5rem; }
 .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
@@ -138,7 +125,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .app-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); 
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
@@ -149,8 +136,8 @@ input:checked + .slider:before { transform: translateX(18px); }
 .main-content-area {
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Kendi içinde kaydırma için */
-  min-height: 0; /* Flexbox yükseklik hatasını önlemek için */
+  overflow-y: auto; 
+  min-height: 0;
   padding: 1.5rem;
 }
 .right-info-panel {
@@ -159,11 +146,9 @@ input:checked + .slider:before { transform: translateX(18px); }
   overflow-y: auto;
 }
 
-/* ==========================================================================
-   AKTİF KURAL EDİTÖRÜ
-   ========================================================================== */
+
 .active-editor-wrapper {
-  min-height: 350px;
+  min-height: 350px; 
   display: flex;
   flex-direction: column;
   flex-grow: 1; /* Esneklik için */
@@ -180,7 +165,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   flex-direction: column;
   flex: 1;
   min-width: 100px;
-  position: relative; /* Öneri menüleri için */
+  position: relative; 
 }
 .input-group label {
   color: var(--text-secondary);
@@ -192,7 +177,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   background-color: transparent;
   border: 1px solid var(--border-primary);
   color: var(--text-primary);
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem; 
   border-radius: 4px;
   font-size: 1.1rem;
   font-family: 'Consolas', 'Courier New', monospace;
@@ -212,23 +197,20 @@ input:checked + .slider:before { transform: translateX(18px); }
   margin-bottom: 1rem;
 }
 .closing-paren {
-  margin-top: auto; /* Kendisini en alta iter */
+  margin-top: auto;
   padding-bottom: 0.5rem;
 }
 
-/* ==========================================================================
-   OPTIONS & CONTENT BÖLÜMLERİ
-   ========================================================================== */
 .options-view-container {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; 
   position: relative;
 }
 .options-builder {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; 
 }
 .added-options-list {
   flex-grow: 1;
@@ -315,7 +297,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .content-value-row .option-value-input {
   background-color: var(--bg-panel);
-  border-radius: 4px;
+    border-radius: 4px;
   padding: 0.5rem;
   border-bottom: 2px solid transparent;
 }
@@ -381,11 +363,11 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .suggestions-list,
 .add-option-list {
-  position: absolute;
+  position: absolute;   
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 200;
+  z-index: 200;         
   background-color: var(--bg-input);
   border: 1px solid var(--border-primary);
   border-radius: 0 0 4px 4px;
@@ -397,7 +379,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   box-shadow: 0 8px 16px var(--shadow-color);
 }
 
-.suggestions-list li,
+.suggestions-list li, 
 .add-option-list li {
   font-size: 1.1rem;
   color: var(--text-primary);
@@ -406,11 +388,11 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-bottom: 1px solid var(--border-primary);
 }
 
-.suggestions-list li:last-child,
+.suggestions-list li:last-child, 
 .add-option-list li:last-child {
   border-bottom: none;
 }
-.suggestions-list li:hover,
+.suggestions-list li:hover, 
 .add-option-list li:hover {
   background-color: var(--bg-suggestion-hover);
 }
@@ -446,42 +428,11 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-radius: 10px;
   border: 2px solid var(--bg-main);
 }
-.export-button {
-  position: sticky; /* Kaydırma alanına göre yapışkan */
-  top: 1rem;
-  float: right; /* Sağa yaslamak için */
-  z-index: 10;
-  font-size: 1.5rem;
-  width: 50px;
-  height: 50px;
-  background: transparent;
-  color: #dcdcdc;
-  border: 1px solid #4a4a4a;
-  border-radius: 10%;
-  box-shadow: 0 4px 8px var(--shadow-color);
-  transition: all 0.2s ease-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin-top: 1rem;
-}
-.export-button:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 12px var(--shadow-color);
-  background: linear-gradient(145deg, #4a4a4a, #3c3c3c);
-  color: #fff;
-}
-.export-button:active {
-  transform: translateY(1px) scale(1.0);
-  box-shadow: 0 2px 4px var(--shadow-color);
-  transition: all 0.1s ease-in;
-}
 .finalized-rule-container {
   background-color: transparent;
   border: 1px solid var(--border-primary);
   border-radius: 4px;
-  padding: 0;
+  padding: 0; 
   position: relative;
   transition: all 0.2s ease-in-out;
   margin-bottom: 1.5rem;
@@ -628,25 +579,34 @@ input:checked + .slider:before { transform: translateX(18px); }
   margin: 0;
 }
 
+.rules-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-bottom: .5rem;
+  background-color: transparent;
+  padding: .5rem 0;
+}
 .export-button, .import-button, .select-all-button {
-  position: absolute; /* Sayfadaki diğer elemanlardan bağımsız, sabit konum */
-  top: 1rem;       /* Ekranın üstünden boşluk */
-  right: 1.50rem;      /* Ekranın solundan boşluk */
-  z-index: 1000;   /* Diğer tüm elemanların üzerinde görünmesi için */
-  float: right; 
-  /* Boyut ve görünüm ayarları */
-  font-size: 1.5rem; /* İkonu büyütelim */
-  width: 50px;       /* Genişlik */
-  height: 50px;      /* Yükseklik */
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
   border-radius: 12px;
   background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  
-  /* Mevcut toolbar-button stilini bozmamak için bazı eklemeler */
   background-color: #2a2d2e;
   border: 1px solid #4a4a4a;
   color: #dcdcdc;
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
 .validation-item {
   display: flex;
   align-items: center;
@@ -662,22 +622,14 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-color: var(--accent-color);
 }
 
-/* Import butonunu export'un soluna yerleştir */
-.import-button {
-  right: calc(1.50rem + 50px + 0.5rem);
-}
 
-/* Select all butonunu import'un soluna yerleştir */
-.select-all-button {
-  right: calc(1.50rem + 50px + 0.5rem + 50px + 0.5rem);
-}
 
 .rules-scroll-wrapper {
   overflow-y: auto; /* Kaydırma çubuğu artık burada */
   flex-grow: 1;     /* Mevcut alanı doldurur */
   padding-right: 10px; /* Kaydırma çubuğu için boşluk */
-
   padding-top: 20px;
+}
 
 .validation-item.error {
   background-color: rgba(255, 100, 100, 0.1);
@@ -803,7 +755,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   text-align: right;
   margin-top: 1rem;
   padding-top: 1rem;
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
   border-top: 1px dashed var(--border-primary);
 }
 
@@ -898,12 +850,12 @@ input:checked + .slider:before { transform: translateX(18px); }
    Bilgi Paneli Vurgu Stili (Gelişmiş)
    ========================================================================== */
 
-/* Efektlerin yumuşak olması için tüm liste elemanlarına geçiş efekti ekle */
+
 .info-options-list li {
   transition: all 0.3s ease-in-out;
 }
 
-/* Listede bir vurgu aktif olduğunda, vurgulanmamış olanları geri plana çek */
+
 .info-options-list.has-highlight li:not(.is-highlighted) {
   opacity: 0.4;
   transform: scale(0.98);
@@ -933,7 +885,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-right: 0.75rem; /* Butonlar arasına boşluk koyar */
+  margin-right: 0.75rem; 
   transition: all 0.2s ease;
 }
 
@@ -949,7 +901,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .content-editor-main-row {
   display: flex;
   align-items: center;
-  gap: 1.5rem; /* Input ile format seçici arasına boşluk koyar */
+  gap: 1.5rem; 
   margin-bottom: 0.5rem;
 }
 
@@ -983,7 +935,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .format-options input[type="radio"] {
   margin-right: 0.4rem;
-  /* Tarayıcı varsayılan stillerini daha modern bir görünümle değiştirelim */
+
   appearance: none;
   -webkit-appearance: none;
   width: 16px;

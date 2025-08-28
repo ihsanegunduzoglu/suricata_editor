@@ -123,19 +123,7 @@ export const RuleProvider = ({ children }) => {
     const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
-    const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
-
-    const toggleRulesList = () => {
-        setIsRulesListVisible(prev => !prev);
-    };
-
-    const toggleInfoPanel = () => {
-        setIsInfoPanelVisible(prev => !prev);
-    };
-
-    const toggleTheme = () => {
-        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-    };
+    const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
     const appendImportedRules = (specs) => {
         if (!Array.isArray(specs) || specs.length === 0) return;

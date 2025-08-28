@@ -7,7 +7,7 @@ import FinalizedRule from './FinalizedRule';
 import { toast } from 'react-toastify';
 import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
-import ValidationPanel from './ValidationPanel'; // YENİ: ValidationPanel'i import et
+import ValidationPanel from './ValidationPanel'; 
 
 const Workbench = () => {
     const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection } = useRule();
@@ -17,15 +17,19 @@ const Workbench = () => {
     const allSelected = selectedRuleIds.length > 0 && selectedRuleIds.length === finalizedSessions.length;
 
     const handleExport = () => {
-        const source = selectedRuleIds.length > 0
-            ? finalizedSessions.filter(s => selectedRuleIds.includes(s.id))
-            : finalizedSessions;
+       
+        if (selectedRuleIds.length === 0) {
+            toast.warn('Lütfen önce en az bir kural seçin.');
+            return;
+        }
+
+        const source = finalizedSessions.filter(s => selectedRuleIds.includes(s.id));
         const finalizedRules = source
             .map(session => session.ruleString)
             .join('\n\n');
 
         if (!finalizedRules || finalizedRules.length === 0) {
-            toast.warn('Dışa aktarılacak tamamlanmış bir kural bulunmuyor.');
+            toast.warn('Dışa aktarılacak kural bulunmuyor.');
             return;
         }
 
@@ -33,7 +37,7 @@ const Workbench = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = selectedRuleIds.length > 0 ? 'selected.rules' : 'custom.rules';
+        a.download = 'selected.rules';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -84,27 +88,29 @@ const Workbench = () => {
 
                     {isRulesListVisible && (
                         <div className="finalized-rules-list">
-                            <button 
-                                onClick={handleExport} 
-                                className="toolbar-button export-button"
-                                title="Kuralları .rules dosyası olarak indir"
-                            >
-                                ⇩
-                            </button>
-                            <button 
-                                onClick={handleImportClick}
-                                className="toolbar-button import-button"
-                                title=".rules dosyasından içe aktar"
-                            >
-                                ⇧
-                            </button>
-                            <button 
-                                onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
-                                className="toolbar-button select-all-button"
-                                title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
-                            >
-                                ✓
-                            </button>
+                            <div className="rules-toolbar">
+                                <button 
+                                    onClick={handleExport} 
+                                    className="toolbar-button export-button"
+                                    title="Kuralları .rules dosyası olarak indir"
+                                >
+                                    ⇩
+                                </button>
+                                <button 
+                                    onClick={handleImportClick}
+                                    className="toolbar-button import-button"
+                                    title=".rules dosyasından içe aktar"
+                                >
+                                    ⇧
+                                </button>
+                                <button 
+                                    onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
+                                    className="toolbar-button select-all-button"
+                                    title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
+                                >
+                                    ✓
+                                </button>
+                            </div>
                             <input type="file" ref={fileInputRef} accept=".rules,.txt" style={{ display: 'none' }} onChange={handleImportFile} />
                             <div className="rules-scroll-wrapper"> 
                                 {finalizedSessions.slice().reverse().map(session => (

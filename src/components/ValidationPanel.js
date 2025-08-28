@@ -1,12 +1,10 @@
 // src/components/ValidationPanel.js
-
 import React from 'react';
 import { useRule } from '../context/RuleContext';
+import { AlertTriangle, XCircle } from 'lucide-react';
 
 const ValidationPanel = () => {
     const { validationErrors } = useRule();
-
-    // Eğer gösterilecek bir hata veya uyarı yoksa, hiçbir şey gösterme.
     if (!validationErrors || validationErrors.length === 0) {
         return null;
     }
@@ -17,7 +15,7 @@ const ValidationPanel = () => {
                 {validationErrors.map((error) => (
                     <li key={error.id} className={`validation-item ${error.type}`}>
                         <span className="validation-icon">
-                            {error.type === 'error' ? '✖' : '⚠️'}
+                            {error.type === 'error' ? <XCircle size={16} /> : <AlertTriangle size={16} />}
                         </span>
                         <span className="validation-message">
                             {error.message}
@@ -29,4 +27,4 @@ const ValidationPanel = () => {
     );
 };
 
-export default ValidationPanel; 
+export default ValidationPanel;

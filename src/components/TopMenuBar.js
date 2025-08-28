@@ -1,15 +1,14 @@
 // src/components/TopMenuBar.js
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useRule } from '../context/RuleContext';
+import { Moon, Sun } from 'lucide-react';
 
 const ThemeSwitcher = () => {
     const { theme, toggleTheme } = useRule();
     const isLightMode = theme === 'light';
-
     return (
         <div className="theme-switcher">
-            <span role="img" aria-label="dark mode icon">🌙</span>
+            <Moon size={18} />
             <label className="switch">
                 <input 
                     type="checkbox" 
@@ -18,21 +17,13 @@ const ThemeSwitcher = () => {
                 />
                 <span className="slider round"></span>
             </label>
-            <span role="img" aria-label="light mode icon">☀️</span>
+            <Sun size={18} />
         </div>
     );
 };
 
-
-
 const TopMenuBar = () => {
-    const { 
-        isRulesListVisible, 
-        toggleRulesList, 
-        isInfoPanelVisible, 
-        toggleInfoPanel 
-    } = useRule();
-
+    const { isRulesListVisible, toggleRulesList, isInfoPanelVisible, toggleInfoPanel } = useRule();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -47,7 +38,7 @@ const TopMenuBar = () => {
     }, []);
 
     return (
-        <nav className="top-menu-bar">
+        <nav className="top-menu-bar glass-effect">
             <div className="menu-left">
                 <div className="menu-item" ref={menuRef}>
                     <button onClick={() => setIsMenuOpen(!isMenuOpen)}>Görünüm</button>

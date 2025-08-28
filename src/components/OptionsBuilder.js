@@ -23,7 +23,17 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
         if (activeIndex !== null) {
-            updateActiveTopic(session.ruleOptions[activeIndex]?.keyword);
+            const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
+            
+            // DÜZELTME: Sadece basit seçenekler için genel bilgi paneli güncellemesi yap.
+            // 'content' ve 'metadata' gibi kendi içlerinde özel vurgulama mantığı olan
+            // bileşenler için bu useEffect'in devreye girmesini engelle.
+            if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
+                updateActiveTopic(activeKeyword);
+            } else if (!activeKeyword) {
+                // Eğer hiçbir şey seçili değilse temizle
+                updateActiveTopic(null);
+            }
         } else {
             updateActiveTopic(null);
         }
@@ -163,7 +173,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                 onDeleteLastOption={() => session.ruleOptions.length > 0 && handleDeleteOption(session.ruleOptions.length - 1)} 
                 session={session}
                 onNavigateToList={handleNavigateToList}
-                onNavigateBack={onNavigateBack} // YENİ: Prop'u AddOption'a iletiyoruz
+                onNavigateBack={onNavigateBack}
             />
         </div>
     );

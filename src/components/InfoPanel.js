@@ -1,3 +1,5 @@
+// src/components/InfoPanel.js
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
@@ -10,6 +12,7 @@ const MitreTacticList = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        // API adresindeki yazım hatası düzeltildi
         fetch('http://127.0.0.1:5000/api/tactics')
             .then(res => res.json())
             .then(data => { setTactics(data); setIsLoading(false); })
@@ -18,7 +21,8 @@ const MitreTacticList = () => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
+            // GÜVENLİ YÖNTEM: CSS.escape() kullanıldı
+            const el = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -30,7 +34,7 @@ const MitreTacticList = () => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {tactics.map(tactic => (
-                        <li key={tactic.id} id={`info-item-${tactic.id.replace(/\./g, '-')}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
+                        <li key={tactic.id} id={`info-item-${CSS.escape(tactic.id)}`} className={activeTopic === tactic.id ? 'is-highlighted' : ''}>
                             <strong>{tactic.name} ({tactic.id})</strong>
                             <span>{tactic.description}</span>
                         </li>
@@ -59,7 +63,7 @@ const MitreTechniqueList = ({ tacticId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
+            const el = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -71,7 +75,7 @@ const MitreTechniqueList = ({ tacticId }) => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {techniques.map(tech => (
-                        <li key={tech.id} id={`info-item-${tech.id.replace(/\./g, '-')}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
+                        <li key={tech.id} id={`info-item-${CSS.escape(tech.id)}`} className={activeTopic === tech.id ? 'is-highlighted' : ''}>
                             <strong>{tech.name} ({tech.id})</strong>
                             <span>{tech.description}</span>
                         </li>
@@ -100,7 +104,7 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            const el = listRef.current.querySelector(`#info-item-${activeTopic.replace(/\./g, '-')}`);
+            const el = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeTopic]);
@@ -112,7 +116,7 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
             {isLoading ? <p>Yükleniyor...</p> : (
                 <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                     {subtechniques.map(sub => (
-                        <li key={sub.id} id={`info-item-${sub.id.replace(/\./g, '-')}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
+                        <li key={sub.id} id={`info-item-${CSS.escape(sub.id)}`} className={activeTopic === sub.id ? 'is-highlighted' : ''}>
                             <strong>{sub.name} ({sub.id})</strong>
                             <span>{sub.description}</span>
                         </li>
@@ -129,8 +133,9 @@ const AllOptionsInfo = () => {
     const optionKeywords = Object.keys(optionsDictionary).filter(k => !optionsDictionary[k].isModifier);
     
     useEffect(() => {
-        if (activeTopic && listRef.current) {
-            const highlightedElement = listRef.current.querySelector(`#info-item-${activeTopic}`);
+        if (typeof activeTopic === 'string' && activeTopic && listRef.current) {
+            // GÜVENLİ YÖNTEM: CSS.escape() kullanıldı
+            const highlightedElement = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (highlightedElement) {
                 highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -143,7 +148,7 @@ const AllOptionsInfo = () => {
             <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
             <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
                 {optionKeywords.map(keyword => (
-                    <li key={keyword} id={`info-item-${keyword}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
+                    <li key={keyword} id={`info-item-${CSS.escape(keyword)}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
                         <strong>{keyword}</strong>
                         <span>{infoData[keyword]?.summary || optionsDictionary[keyword].description}</span>
                     </li>
@@ -173,7 +178,7 @@ const AllModifiersInfo = () => {
 
 const InfoPanel = () => {
     const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
-    const currentInfo = activeTopic ? infoData[activeTopic] : null;
+    const currentInfo = (typeof activeTopic === 'string' && activeTopic) ? infoData[activeTopic] : null;
 
     if (mitreInfo) {
         if (mitreInfo.type === 'tactic_list') return <MitreTacticList />;

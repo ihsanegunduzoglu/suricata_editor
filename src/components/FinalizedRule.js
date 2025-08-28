@@ -1,12 +1,11 @@
 // src/components/FinalizedRule.js
-
 import React from 'react';
 import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
 
-// YENİ: Kural seçimi için proplar eklendi: isSelected, onToggleSelect
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) => {
     const { deleteRule, duplicateRule, startEditingRule, cancelEditing, theme } = useRule();
     
@@ -14,24 +13,16 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
         navigator.clipboard.writeText(session.ruleString);
         toast.success('Kural panoya kopyalandı!');
     };
-
     const handleEditToggle = () => {
-        if (isBeingEdited) {
-            cancelEditing();
-        } else {
-            startEditingRule(session.id);
-        }
+        if (isBeingEdited) { cancelEditing(); } else { startEditingRule(session.id); }
     };
 
     const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
-
-    // YENİ: Seçili olma durumuna göre ek bir class
     const containerClassName = `finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''} ${isSelected ? 'is-selected' : ''}`;
 
     return (
         <div className={containerClassName}>
             <div className="rule-actions">
-                {/* YENİ: Kural seçimi için checkbox */}
                 <input 
                     type="checkbox" 
                     className="rule-selection-checkbox"
@@ -39,43 +30,25 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
                     onChange={onToggleSelect}
                     title="Bu kuralı seç"
                 />
-                <button 
-                    className="rule-action-btn" 
-                    title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"}
-                    onClick={handleEditToggle}
-                >
-                    {isBeingEdited ? '↩️' : '✏️'}
+                <button className="rule-action-btn" title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} onClick={handleEditToggle}>
+                    {isBeingEdited ? <Undo2 size={16} /> : <Pencil size={16} />}
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Sil"
-                    onClick={() => deleteRule(session.id)}
-                    disabled={isBeingEdited}
-                >
-                    ✖
+                <button className="rule-action-btn" title="Sil" onClick={() => deleteRule(session.id)} disabled={isBeingEdited}>
+                    <Trash2 size={16} />
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Panoya Kopyala"
-                    onClick={handleCopyToClipboard}
-                    disabled={isBeingEdited}
-                >
-                    📋
+                <button className="rule-action-btn" title="Panoya Kopyala" onClick={handleCopyToClipboard} disabled={isBeingEdited}>
+                    <Copy size={16} />
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Çoğalt"
-                    onClick={() => duplicateRule(session)}
-                    disabled={isBeingEdited}
-                >
-                    ➕
+                <button className="rule-action-btn" title="Çoğalt" onClick={() => duplicateRule(session)} disabled={isBeingEdited}>
+                    <PlusSquare size={16} />
                 </button>
             </div>
             <SyntaxHighlighter 
                 language="bash" 
                 style={syntaxTheme}
-                customStyle={{ margin: 0, padding: '1.5em 1.5em 1.5em 3.5em' }} // YENİ: Checkbox için solda boşluk
-                codeTagProps={{ style: { fontSize: '1rem', fontFamily: "'Consolas', 'Courier New', monospace" } }}
+                // DEĞİŞİKLİK: Soldaki padding artık yok, butonlar dışarı taşacağı için metin tam hizalı olacak.
+                customStyle={{ margin: 0, padding: '1.5em', backgroundColor: 'transparent' }}
+                codeTagProps={{ style: { fontSize: '1rem', fontFamily: "'Fira Code', 'Consolas', monospace" } }}
                 wrapLines={true}
                 wrapLongLines={true}
             >

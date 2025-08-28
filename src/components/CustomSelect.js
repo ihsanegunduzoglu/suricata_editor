@@ -1,3 +1,5 @@
+// src/components/CustomSelect.js
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useRule } from '../context/RuleContext';
 
@@ -36,11 +38,12 @@ const CustomSelect = ({ options, value, onChange, placeholder, disabled }) => {
                 <span className="custom-select-arrow">▼</span>
             </button>
             {isOpen && (
-                <ul className="custom-select-options" onMouseLeave={() => updateActiveTopic(null)}>
+                <ul className="custom-select-options" onMouseLeave={() => updateActiveTopic('metadata')}>
                     {options.map(option => (
                         <li 
                             key={option.id}
                             onClick={() => handleSelect(option.id)}
+                            // DÜZELTME: Eksik olan onMouseEnter olayı buraya geri eklendi.
                             onMouseEnter={() => updateActiveTopic(option.id)}
                         >
                             {option.name} ({option.id})

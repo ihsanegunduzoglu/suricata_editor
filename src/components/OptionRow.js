@@ -67,14 +67,8 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
         const separator = currentValue.trim() === '' ? '' : ', ';
         onValueChange(currentValue + separator + mappingString);
         
-        // DEĞİŞİKLİK: "Bitti" butonunun yaptığı işlev buraya eklendi
-        updateMitreInfo(null); // Bilgi panelini sıfırla
-
+        updateMitreInfo(null);
         onStopEditing();
-    };
-    const handleDoneClick = () => {
-        updateMitreInfo(null); // Bilgi panelini sıfırla
-        onStopEditing();      // Editörü kapat
     };
 
     return (
@@ -114,8 +108,6 @@ const MetadataEditor = ({ option, onValueChange, onStopEditing, handleKeyDown })
     );
 };
 
-
-// OptionRow bileşeninin geri kalanı aynı kalacak
 const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueChange }) => {
     const optionInfo = optionsDictionary[option.keyword];
     
@@ -146,7 +138,9 @@ const OptionRow = ({ option, isEditing, onStartEditing, onStopEditing, onValueCh
             return (
                 <ContentEditor 
                     option={option} 
-                    onValueChange={(value, modifiers) => onValueChange({ value, modifiers })} 
+                    // DÜZELTME BURADA: ContentEditor'dan gelen yeni nesneyi
+                    // doğrudan bir üst bileşene iletiyoruz.
+                    onValueChange={onValueChange} 
                     onStopEditing={onStopEditing} 
                 />
             );

@@ -21,11 +21,18 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
 
     const handleModifierChange = (modifierKey, modifierValue) => {
         const newModifiers = { ...(option.modifiers || {}), [modifierKey]: modifierValue };
-        onValueChange(option.value, newModifiers);
+        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
+        onValueChange({ value: option.value, modifiers: newModifiers, format: option.format });
     };
     
     const handleMainValueChange = (e) => {
-        onValueChange(e.target.value, option.modifiers);
+        // DEĞİŞİKLİK: onValueChange artık format bilgisini de içeren bir nesne bekliyor
+        onValueChange({ value: e.target.value, modifiers: option.modifiers, format: option.format });
+    };
+
+    // YENİ: Format seçimi değiştiğinde çağrılacak fonksiyon
+    const handleFormatChange = (newFormat) => {
+        onValueChange({ value: option.value, modifiers: option.modifiers, format: newFormat });
     };
     
     const handleMainValueKeyDown = (e) => {
@@ -89,18 +96,44 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                 }
             }}
         >
-            <div className="content-value-row">
-                <span className="option-keyword">{option.keyword}:</span>
-                <input
-                    ref={valueInputRef}
-                    type="text"
-                    className="option-value-input"
-                    value={option.value}
-                    onChange={handleMainValueChange}
-                    onKeyDown={handleMainValueKeyDown}
-                    placeholder=""
-                    autoFocus
-                />
+            <div className="content-editor-main-row">
+                <div className="content-value-row">
+                    <span className="option-keyword">{option.keyword}:</span>
+                    <input
+                        ref={valueInputRef}
+                        type="text"
+                        className="option-value-input"
+                        value={option.value}
+                        onChange={handleMainValueChange}
+                        onKeyDown={handleMainValueKeyDown}
+                        placeholder="Örn: 'evil.exe' veya '|FF D8 FF E0|'"
+                        autoFocus
+                    />
+                </div>
+                {/* YENİ: Format Seçim Alanı */}
+                <div className="content-format-selector">
+                    <span className="format-label">Format:</span>
+                    <div className="format-options">
+                        <label>
+                            <input 
+                                type="radio" 
+                                name={`format-${option.id}`} 
+                                value="ascii" 
+                                checked={option.format === 'ascii'} 
+                                onChange={() => handleFormatChange('ascii')}
+                            /> ASCII
+                        </label>
+                        <label>
+                            <input 
+                                type="radio" 
+                                name={`format-${option.id}`} 
+                                value="hex" 
+                                checked={option.format === 'hex'} 
+                                onChange={() => handleFormatChange('hex')}
+                            /> Hex
+                        </label>
+                    </div>
+                </div>
             </div>
             
             {isValueConfirmed && (
@@ -109,18 +142,18 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                         <div className="modifier-item">
                             <input 
                                 type="checkbox" 
-                                id={`nocase-${option.value}`} 
+                                id={`nocase-${option.id}`} 
                                 checked={!!option.modifiers?.nocase} 
                                 onChange={(e) => handleModifierChange('nocase', e.target.checked)} 
                                 onFocus={() => updateActiveTopic('nocase')}
                             />
-                            <label htmlFor={`nocase-${option.value}`}>nocase</label>
+                            <label htmlFor={`nocase-${option.id}`}>nocase</label>
                         </div>
                         <div className="modifier-item">
-                            <label htmlFor={`depth-${option.value}`}>depth:</label>
+                            <label htmlFor={`depth-${option.id}`}>depth:</label>
                             <input 
                                 type="number" 
-                                id={`depth-${option.value}`} 
+                                id={`depth-${option.id}`} 
                                 ref={modifierInputs.depth} 
                                 value={option.modifiers?.depth || ''}
                                 onChange={(e) => handleModifierChange('depth', e.target.value)}
@@ -129,10 +162,10 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                             />
                         </div>
                         <div className="modifier-item">
-                            <label htmlFor={`offset-${option.value}`}>offset:</label>
+                            <label htmlFor={`offset-${option.id}`}>offset:</label>
                             <input 
                                 type="number" 
-                                id={`offset-${option.value}`} 
+                                id={`offset-${option.id}`} 
                                 ref={modifierInputs.offset} 
                                 value={option.modifiers?.offset || ''}
                                 onChange={(e) => handleModifierChange('offset', e.target.value)}
@@ -154,9 +187,7 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                                 updateActiveTopic(null); // Spesifik konuyu temizle
                             }}
                             onBlur={() => {
-                                // Gecikmeli onBlur, listedeki bir öğeye tıklamak için zaman tanır
                                 setTimeout(() => {
-                                    // Sadece odak başka bir yere kaybolduysa paneli kapat
                                     if (!commandInputRef.current?.parentElement?.contains(document.activeElement)) {
                                         updateModifierInfoActive(false);
                                     }

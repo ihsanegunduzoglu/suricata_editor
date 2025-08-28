@@ -24,14 +24,9 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         const activeIndex = editingIndex ?? selectedIndex;
         if (activeIndex !== null) {
             const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
-            
-            // DÜZELTME: Sadece basit seçenekler için genel bilgi paneli güncellemesi yap.
-            // 'content' ve 'metadata' gibi kendi içlerinde özel vurgulama mantığı olan
-            // bileşenler için bu useEffect'in devreye girmesini engelle.
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
                 updateActiveTopic(activeKeyword);
             } else if (!activeKeyword) {
-                // Eğer hiçbir şey seçili değilse temizle
                 updateActiveTopic(null);
             }
         } else {
@@ -51,7 +46,13 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                 case 'ArrowDown':
                     e.preventDefault();
                     if (optionsCount > 0) {
-                        setSelectedIndex(prev => (prev === null || prev >= optionsCount - 1) ? 0 : prev + 1);
+                        // DÜZELTME: Listenin sonundaysa, arama kutusuna odaklan
+                        if (selectedIndex === optionsCount - 1) {
+                            setSelectedIndex(null);
+                            addOptionInputRef.current?.focus();
+                        } else {
+                            setSelectedIndex(prev => (prev === null ? 0 : prev + 1));
+                        }
                     }
                     break;
                 case 'ArrowUp':

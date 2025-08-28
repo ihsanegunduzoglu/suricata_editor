@@ -16,11 +16,15 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=3001&& react-scripts start",
+    "dev": "concurrently -n CLIENT,API -c green,magenta \"npm run start\" \"npm --prefix server run dev\"",
+    "server": "npm --prefix server run start",
+    "server:dev": "npm --prefix server run dev",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "proxy": "http://localhost:4100",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -38,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

@@ -1,6 +1,6 @@
 // src/components/Workbench.js
 
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
@@ -10,12 +10,17 @@ import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel'; // YENİ: ValidationPanel'i import et
 
 const Workbench = () => {
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible } = useRule();
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection } = useRule();
     const activeSession = ruleSessions.find(session => session.status === 'editing');
-    const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
+    const finalizedSessions = useMemo(() => ruleSessions.filter(session => session.status === 'finalized'), [ruleSessions]);
+    const fileInputRef = useRef(null);
+    const allSelected = selectedRuleIds.length > 0 && selectedRuleIds.length === finalizedSessions.length;
 
     const handleExport = () => {
-        const finalizedRules = finalizedSessions
+        const source = selectedRuleIds.length > 0
+            ? finalizedSessions.filter(s => selectedRuleIds.includes(s.id))
+            : finalizedSessions;
+        const finalizedRules = source
             .map(session => session.ruleString)
             .join('\n\n');
 
@@ -28,11 +33,34 @@ const Workbench = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'custom.rules';
+        a.download = selectedRuleIds.length > 0 ? 'selected.rules' : 'custom.rules';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    };
+    
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImportFile = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            const form = new FormData();
+            form.append('file', file);
+            const res = await fetch('/rules/parse', { method: 'POST', body: form });
+            if (!res.ok) throw new Error('Sunucu hatası');
+            const data = await res.json();
+            if (!data || !Array.isArray(data.rules)) throw new Error('Geçersiz yanıt');
+            appendImportedRules(data.rules);
+        } catch (err) {
+            toast.error('İçe aktarma başarısız: ' + (err?.message || 'Bilinmeyen hata'));
+        } finally {
+            // aynı dosyayı tekrar seçebilmek için inputu sıfırla
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
     
     const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
@@ -63,11 +91,28 @@ const Workbench = () => {
                             >
                                 ⇩
                             </button>
+                            <button 
+                                onClick={handleImportClick}
+                                className="toolbar-button import-button"
+                                title=".rules dosyasından içe aktar"
+                            >
+                                ⇧
+                            </button>
+                            <button 
+                                onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
+                                className="toolbar-button select-all-button"
+                                title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
+                            >
+                                ✓
+                            </button>
+                            <input type="file" ref={fileInputRef} accept=".rules,.txt" style={{ display: 'none' }} onChange={handleImportFile} />
                             <div className="rules-scroll-wrapper"> 
-                                {finalizedSessions.reverse().map(session => (
+                                {finalizedSessions.slice().reverse().map(session => (
                                     <FinalizedRule 
                                         key={session.id} 
                                         session={session} 
+                                        isSelected={selectedRuleIds.includes(session.id)}
+                                        onToggleSelected={() => toggleRuleSelected(session.id)}
                                         isBeingEdited={session.id === editingSourceId}
                                     />
                                 ))}

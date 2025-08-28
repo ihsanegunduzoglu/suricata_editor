@@ -31,12 +31,12 @@ const AutocompleteInput = ({ value, onChange, onStopEditing, suggestions }) => {
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
                 setShowSuggestions(false);
-                onStopEditing();
+                // Bilgi paneli seçimini korumak için artık activeTopic temizlenmiyor
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onStopEditing]);
+    }, []);
 
     return (
         <div className="autocomplete-container" ref={containerRef} onMouseLeave={() => updateActiveTopic(null)}>

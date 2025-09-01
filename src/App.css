@@ -94,6 +94,9 @@ body {
 /* ==========================================================================
    2. ANA YERLEŞİM (WORKBENCH & AYARLANABİLİR PANELLER)
    ========================================================================== */
+/* ==========================================================================
+   2. ANA YERLEŞİM (WORKBENCH) - DÜZELTİLMİŞ YAPI
+   ========================================================================== */
 
 .app-container {
   display: flex;
@@ -102,11 +105,35 @@ body {
   overflow: hidden;
 }
 
-.app-layout-resizable {
-  flex-grow: 1 !important;
-  gap: var(--space-md) !important;
-  padding: var(--space-md) !important;
-  overflow: hidden !important;
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  flex-grow: 1;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  overflow: hidden;
+}
+.app-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+/* ANA DEĞİŞİKLİK BURADA: Artık her sütun kendi kaydırmasını yönetiyor */
+.main-content-area, .right-info-panel {
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Kendi dikey kaydırma çubuğuna sahip olacak */
+  padding: var(--space-lg);
+}
+
+.right-info-panel {
+  background-color: var(--bg-panel); /* Bu stilin kalması önemli */
+  border-left: 1px solid var(--border-primary);
+}
+
+/* Kural yazma alanının kendi içinde kaymasını engelliyoruz */
+.active-editor-container {
+  flex-shrink: 0; /* Bu, küçülmesini engeller ve içeriğe göre büyümesini sağlar */
 }
 
 /* Panelleri ayıran tutamaç (handle) için stil */

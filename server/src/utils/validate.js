@@ -19,6 +19,12 @@ function parse(rule) {
     });
   return { header, options };
 }
+function parsereader(reader){
+  const p=reader.split(/\s+/);
+  if (reader.length<8){
+    return 
+  }
+}
 
 function parseHeader(header) {
   const p = header.split(/\s+/);
@@ -48,6 +54,7 @@ function validate(rule) {
   if (protocol && protocol !== 'http') {
     for (const kw of keywords) {
       if (HTTP_ONLY.has(kw)) errors.push(`${kw} sadece HTTP protokolünde kullanılabilir.`);
+    
     }
   }
 

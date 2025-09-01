@@ -44,25 +44,23 @@
 }
 
 .theme-light {
-  --bg-main: #f0f2f5;
-  --bg-panel: rgba(255, 255, 255, 0.5);
-  --bg-panel-solid: #ffffff;
+  --bg-main: #dcd6d6;
+  --bg-panel: #ffffff;
   --bg-input: #ffffff;
   --bg-hover: rgba(0, 0, 0, 0.05);
   --bg-suggestion-hover: #e0e0e0;
   --bg-code: #e8e8e8;
   
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-keyword: #9b229b;
-  --text-value: #b85a3c;
-  --text-accent: #007acc;
+  --text-primary: #1e1e1e;
+  --text-secondary: #2a2a2a;
+  --text-keyword: #6a1b9a;
+  --text-value: #d35400;
+  --text-accent: #0077ff;
   
-  --border-primary: #e5e7eb;
-  --border-accent: #374151;
+  --border-primary: #c8c8c8;
+  --border-accent: #333333;
   --border-left-accent: var(--text-accent);
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --danger-color: #e53e3e;
 }
 
 html {
@@ -733,7 +731,19 @@ input:checked + .slider:before { transform: translateX(18px); }
 .finalized-rule-container.is-selected {
   border-left: 4px solid var(--text-accent);
 }
-
+/* Light tema için finalize kutuları daha belirgin olsun */
+.theme-light .finalized-rule-container {
+  background-color: #f5f5f5;
+  border-color: #bdbdbd;
+}
+.theme-light .finalized-rule-container:hover {
+  border-color: #9e9e9e;
+  background-color: #efefef;
+}
+.theme-light .finalized-rule-container.is-being-edited {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 12px rgba(0, 119, 255, 0.25);
+}
 .rule-actions {
   position: absolute;
   top: -18px;
@@ -1008,7 +1018,6 @@ input:checked + .slider:before { transform: translateX(18px); }
 /* ==========================================================================
    11. DENETİM (VALIDATION) PANELİ
    ========================================================================== */
-
 .validation-panel {
   padding: 0.5rem 0;
   margin-top: 1rem;
@@ -1021,31 +1030,92 @@ input:checked + .slider:before { transform: translateX(18px); }
   margin: 0;
 }
 
+.rules-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-bottom: .5rem;
+  background-color: transparent;
+  padding: .5rem 0;
+}
+.export-button, .import-button, .select-all-button, .delete-button {
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #3c3c3c, #2a2d2e);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  background-color: #2a2d2e;
+  border: 1px solid #4a4a4a;
+  color: #dcdcdc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
 .validation-item {
   display: flex;
   align-items: center;
-  padding: var(--space-sm);
-  margin-bottom: var(--space-sm);
-  border-radius: var(--radius);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
   font-size: 0.9rem;
-  border-left: 3px solid;
+}
+
+.export-button:hover, .import-button:hover, .select-all-button:hover, .delete-button:hover {
+  background-color: #3c3c3c;
+  color: var(--text-color);
+  border-color: var(--accent-color);
+}
+
+/* Light tema: buton kontrastını arttır */
+.theme-light .export-button,
+.theme-light .import-button,
+.theme-light .select-all-button,
+.theme-light .delete-button {
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  border-color: #bdbdbd;
+  color: #2a2a2a;
+}
+.theme-light .export-button:hover,
+.theme-light .import-button:hover,
+.theme-light .select-all-button:hover,
+.theme-light .delete-button:hover {
+  background-color: #e6e6e6;
+}
+
+
+
+.rules-scroll-wrapper {
+  overflow-y: auto; /* Kaydırma çubuğu artık burada */
+  flex-grow: 1;     /* Mevcut alanı doldurur */
+  padding-right: 10px; /* Kaydırma çubuğu için boşluk */
+  padding-top: 20px;
 }
 
 .validation-item.error {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #fca5a5;
-  border-left-color: #ef4444;
+  background-color: rgba(255, 100, 100, 0.1);
+  color: #ffc4c4;
 }
 
 .validation-item.warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #fcd34d;
-  border-left-color: #f59e0b;
+  background-color: rgba(255, 220, 100, 0.1);
+  color: #ffe8a8;
 }
 
-.validation-icon { margin-right: var(--space-sm); font-size: 1rem; }
-.validation-message { flex-grow: 1; }
+.validation-icon {
+  margin-right: 0.75rem;
+  font-size: 1rem;
+}
 
+.validation-message {
+  flex-grow: 1;
+}
 
 /* ==========================================================================
    12. MITRE ATT&CK EDİTÖRÜ

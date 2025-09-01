@@ -13,7 +13,7 @@ const RuleInputBox = React.forwardRef(({ label, value, onChange, onFocus, onBlur
         value={value} 
         onChange={onChange} 
         onFocus={onFocus} 
-        onScroll={onpagehide} 
+        onBlur={onBlur} 
         onKeyDown={onKeyDown} 
         placeholder="..." 
     />

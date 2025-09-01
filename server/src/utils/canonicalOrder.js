@@ -25,6 +25,9 @@ function orderOptions(options) {
       buckets.delete(key);
     }
   }
+
+
+
   const remaining = Array.from(buckets.keys()).sort();
   for (const key of remaining) {
     for (const it of buckets.get(key)) ordered.push(it);

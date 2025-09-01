@@ -27,7 +27,6 @@ function parseSingleRule(line) {
   if (parts.length < 7) return null;
   const [Action, Protocol, srcIp, srcPort, Direction, dstIp, dstPort] = parts;
 
-
   const ruleOptions = [];
   let lastContent = null;
   for (const item of parsed.options) {
@@ -78,7 +77,6 @@ function parseSingleRule(line) {
   };
 }
 
-
 function parseFileToSpecs(content) {
   const lines = content.split(/\r?\n/);
   const rules = [];
@@ -90,4 +88,5 @@ function parseFileToSpecs(content) {
 }
 
 module.exports = { parseRuleString, parseSingleRule, parseFileToSpecs };
+
 

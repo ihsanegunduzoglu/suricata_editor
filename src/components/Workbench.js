@@ -13,9 +13,7 @@ import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
-
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection, deleteRulesByIds } = useRule();
-
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, selectedRuleIds, setSelectedRuleIds, importRules, updateRuleOptions } = useRule();
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
     const fileInputRef = useRef(null);
@@ -60,38 +58,25 @@ const Workbench = () => {
         URL.revokeObjectURL(url);
     };
 
- const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleBulkDelete = () => {
-        if (selectedRuleIds.length === 0) {
-            toast.warn('Lütfen önce silmek için en az bir kural seçin.');
-            return;
+    const handleImportClick = () => { fileInputRef.current?.click(); };
+    const handleImportFile = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => { importRules(e.target.result); };
+            reader.readAsText(file);
         }
-        deleteRulesByIds(selectedRuleIds);
+        event.target.value = null;
     };
-
-    const handleImportFile = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        try {
-            const form = new FormData();
-            form.append('file', file);
-            const res = await fetch('/rules/parse', { method: 'POST', body: form });
-            if (!res.ok) throw new Error('Sunucu hatası');
-            const data = await res.json();
-            if (!data || !Array.isArray(data.rules)) throw new Error('Geçersiz yanıt');
-            appendImportedRules(data.rules);
-        } catch (err) {
-            toast.error('İçe aktarma başarısız: ' + (err?.message || 'Bilinmeyen hata'));
-        } finally {
-            // aynı dosyayı tekrar seçebilmek için inputu sıfırla
-            if (fileInputRef.current) fileInputRef.current.value = '';
-        }
+    const clearSelection = () => { setSelectedRuleIds(new Set()); };
+    const selectAllFinalized = () => { setSelectedRuleIds(new Set(finalizedRuleIds)); };
+    const handleToggleSelect = (ruleId) => {
+        setSelectedRuleIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(ruleId)) { newSet.delete(ruleId); } else { newSet.add(ruleId); }
+            return newSet;
+        });
     };
-    
-    const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
     
     return (
         <div className="app-container">
@@ -135,63 +120,20 @@ const Workbench = () => {
                             </div>
                         )}
                     </div>
-                   {isRulesListVisible && (
-                        <div className="finalized-rules-list">
-                            <div className="rules-toolbar">
-                                <button 
-                                    onClick={handleExport} 
-                                    className="toolbar-button export-button"
-                                    title="Kuralları .rules dosyası olarak indir"
-                                >
-                                    ⇩
-                                </button>
-                                <button 
-                                    onClick={handleImportClick}
-                                    className="toolbar-button import-button"
-                                    title=".rules dosyasından içe aktar"
-                                >
-                                    ⇧
-                                </button>
-                                <button
-                                    onClick={handleBulkDelete}
-                                    className="toolbar-button delete-button"
-                                    title="Seçilen kuralları sil"
-                                >
-                                    🗑
-                                </button>
-                                <button 
-                                    onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
-                                    className="toolbar-button select-all-button"
-                                    title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
-                                >
-                                    ✓
-                                </button>
-                            </div>
-                            <input type="file" ref={fileInputRef} accept=".rules,.txt" style={{ display: 'none' }} onChange={handleImportFile} />
-                            <div className="rules-scroll-wrapper"> 
-                                {finalizedSessions.slice().reverse().map(session => (
-                                    <FinalizedRule 
-                                        key={session.id} 
-                                        session={session} 
-                                        isSelected={selectedRuleIds.includes(session.id)}
-                                        onToggleSelected={() => toggleRuleSelected(session.id)}
-                                        isBeingEdited={session.id === editingSourceId}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                </Panel>
+                
+                <PanelResizeHandle className="resize-handle" />
 
                 {isInfoPanelVisible && (
-                    <div className="right-info-panel">
-                        <InfoPanel />
-                    </div>
+                    <Panel defaultSize={35} minSize={20}>
+                        <div className="right-info-panel glass-effect">
+                            <InfoPanel />
+                        </div>
+                    </Panel>
                 )}
-            </div>
+            </PanelGroup>
         </div>
     );
 };
-
 
 export default Workbench;

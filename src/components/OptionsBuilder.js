@@ -7,7 +7,7 @@ import AddOption from './AddOption';
 import { toast } from 'react-toastify';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
-    const { updateRuleOptions, updateActiveTopic, optionFocusRequest, clearOptionFocusRequest } = useRule();
+    const { updateRuleOptions, updateActiveTopic } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -96,25 +96,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     }, [selectedIndex, editingIndex]);
-
-
-    // Dışarıdan gelen option odak isteğini uygula
-    useEffect(() => {
-        if (!optionFocusRequest) return;
-        const { keyword, index } = optionFocusRequest;
-        let targetIndex = index;
-        if (typeof targetIndex !== 'number') {
-            targetIndex = session.ruleOptions.findIndex(o => o.keyword === keyword);
-        }
-        if (targetIndex >= 0) {
-            setEditingIndex(targetIndex);
-            updateActiveTopic(keyword);
-        }
-        clearOptionFocusRequest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [optionFocusRequest]);
-
-    // BU FONKSİYON ÇOK ÖNEMLİ
 
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];

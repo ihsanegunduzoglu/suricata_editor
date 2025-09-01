@@ -1370,3 +1370,45 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-color: var(--text-accent);
   box-shadow: 0 0 0 2px var(--text-accent);
 }
+
+/* ==========================================================================
+   YENİ: BİLGİ PANELİ ARAMA KUTUSU STİLLERİ
+   ========================================================================== */
+
+.info-panel-search-box {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+.info-panel-search-box .search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-md);
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.info-panel-search-box input {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md) var(--space-sm) 40px; /* İkon için soldan boşluk */
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.info-panel-search-box input:focus {
+  outline: none;
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 2px var(--text-accent);
+}
+
+.info-panel-search-box input:focus + .search-icon {
+  color: var(--text-accent);
+  opacity: 1;
+}

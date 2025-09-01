@@ -5,7 +5,9 @@ import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 import PayloadVisualizer from './PayloadVisualizer';
+import { Search } from 'lucide-react'; // Arama ikonu import edildi
 
+// ... MitreTacticList, MitreTechniqueList, MitreSubtechniqueList bileşenleri aynı kalacak ...
 const MitreTacticList = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -126,10 +128,20 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
     );
 };
 
+
+// DEĞİŞİKLİK: Arama kutusu ve filtreleme mantığı eklendi
 const AllOptionsInfo = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState(''); // Arama terimini tutan state
+    
     const optionKeywords = Object.keys(optionsDictionary).filter(k => !optionsDictionary[k].isModifier);
+
+    // Arama terimine göre listeyi filtrele
+    const filteredKeywords = optionKeywords.filter(keyword => 
+        keyword.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (optionsDictionary[keyword].description.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
     
     useEffect(() => {
         if (typeof activeTopic === 'string' && activeTopic && listRef.current) {
@@ -141,11 +153,22 @@ const AllOptionsInfo = () => {
     }, [activeTopic]);
 
     return (
-        <div className="info-panel-content all-options-info">
+        <div className="all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
-            <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
+            
+            {/* YENİ: Arama Kutusu */}
+            <div className="info-panel-search-box">
+                <Search size={18} className="search-icon" />
+                <input 
+                    type="text"
+                    placeholder="Seçeneklerde ara..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
             <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
-                {optionKeywords.map(keyword => (
+                {filteredKeywords.map(keyword => (
                     <li key={keyword} id={`info-item-${CSS.escape(keyword)}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
                         <strong>{keyword}</strong>
                         <span>{infoData[keyword]?.summary || optionsDictionary[keyword].description}</span>
@@ -174,6 +197,8 @@ const AllModifiersInfo = () => {
     );
 };
 
+
+// ... InfoView ve InfoPanel bileşenleri aynı kalacak ...
 const InfoView = () => {
     const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
     const currentInfo = (typeof activeTopic === 'string' && activeTopic) ? infoData[activeTopic] : null;
@@ -234,5 +259,6 @@ const InfoPanel = () => {
         </div>
     );
 };
+
 
 export default InfoPanel;

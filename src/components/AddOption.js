@@ -11,7 +11,6 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
     const [isFocused, setIsFocused] = useState(false);
     const debounceTimeout = useRef(null);
 
-    // DEĞİŞİKLİK: 'protocol' değişkeni eklendi ve useMemo'nun bağımlılıklarına dahil edildi.
     const protocol = session.headerData.Protocol;
     const availableOptions = useMemo(() => {
         const addedKeywords = new Set(session.ruleOptions.map(o => o.keyword));
@@ -19,13 +18,12 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
             const optionInfo = optionsDictionary[keyword];
             if (optionInfo.isModifier) return false;
             if (optionInfo.allowMultiple === false && addedKeywords.has(keyword)) return false;
-            // YENİ: Protokol bağımlılığı kontrolü geri eklendi.
             if (optionInfo.dependsOnProtocol && optionInfo.dependsOnProtocol !== protocol?.toLowerCase()) {
                 return false;
             }
             return true;
         });
-    }, [session.ruleOptions, protocol]); // 'protocol' bağımlılık olarak eklendi
+    }, [session.ruleOptions, protocol]);
     
     const filteredOptions = useMemo(() => {
         return searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
@@ -68,17 +66,14 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
             }
             return;
         }
-        
         if (e.key === 'Backspace' && e.target.value === '') {
             e.preventDefault();
             onDeleteLastOption();
         }
-
         if (e.key === 'ArrowUp') {
             e.preventDefault();
             onNavigateToList();
         }
-
         if (e.key === 'Escape') {
             e.preventDefault();
             onNavigateBack();
@@ -96,7 +91,11 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown} 
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                // DEĞİŞİKLİK: Odaktan çıkınca Bilgi Panelini temizliyoruz
+                onBlur={() => {
+                    setIsFocused(false);
+                    updateActiveTopic(null);
+                }}
             />
             {searchTerm && (
                 <ul className="add-option-list">

@@ -15,7 +15,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
         if (editingIndex === null && !selectedIndex) {
              setTimeout(() => {
                 addOptionInputRef.current?.focus();
@@ -23,15 +22,16 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         }
     }, [editingIndex, selectedIndex]);
 
+    // BİLGİ PANELİ GÜNCELLEME - DÜZELTİLDİ
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
+        // DEĞİŞİKLİK: Bu useEffect artık sadece listede bir öğe seçiliyse çalışıyor.
+        // Diğer durumlarda (örneğin arama kutusu aktifken) bilgi paneline karışmıyor.
         if (activeIndex !== null) {
             const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
                 updateActiveTopic(activeKeyword);
             }
-        } else {
-             updateActiveTopic(null);
         }
     }, [editingIndex, selectedIndex, session.ruleOptions, updateActiveTopic]);
 
@@ -132,8 +132,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
-        
-        // DÜZELTME: Yeni eklenen seçeneği otomatik olarak düzenleme moduna alan satır geri eklendi.
         handleStartEditing(newRuleOptions.length - 1);
     };
 

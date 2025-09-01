@@ -38,6 +38,7 @@ function canonicalFormat(rule) {
   return `${parsed.header} (${optionsText};)`;
 }
 
+
 function allocateSid() {
   const sid = allocateNextSid();
   return { sid };

@@ -44,6 +44,8 @@ export const RuleProvider = ({ children }) => {
     const [selectedRuleIds, setSelectedRuleIds] = useState([]);
 
     const [mitreInfo, setMitreInfo] = useState(null);
+    const [headerFocusRequest, setHeaderFocusRequest] = useState(null);
+    const [optionFocusRequest, setOptionFocusRequest] = useState(null);
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
@@ -109,12 +111,35 @@ export const RuleProvider = ({ children }) => {
         toast.info('Kural silindi.');
     };
     
+    const deleteRulesByIds = (ids) => {
+        if (!Array.isArray(ids) || ids.length === 0) return;
+        setRuleSessions(prev => prev.filter(s => !(s.status === 'finalized' && ids.includes(s.id))));
+        setSelectedRuleIds(prev => prev.filter(id => !ids.includes(id)));
+        toast.info(`${ids.length} kural silindi.`);
+    };
+    
     const duplicateRule = (sessionToDuplicate) => {
-        if (!activeSession) return;
-        const duplicatedDataToEditor = { ...activeSession, headerData: { ...sessionToDuplicate.headerData }, ruleOptions: [...sessionToDuplicate.ruleOptions] };
-        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? duplicatedDataToEditor : s));
-        setEditingSourceId(null);
-        toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
+        if (!sessionToDuplicate) return;
+        const clonedHeader = { ...sessionToDuplicate.headerData };
+        const clonedOptions = (sessionToDuplicate.ruleOptions || []).map(opt => ({
+            ...opt,
+            modifiers: opt.modifiers ? { ...opt.modifiers } : undefined,
+        }));
+        const newId = uuidv4();
+        const newRuleString = generateRuleString(clonedHeader, clonedOptions);
+        const duplicatedFinalized = {
+            id: newId,
+            status: 'finalized',
+            headerData: clonedHeader,
+            ruleOptions: clonedOptions,
+            ruleString: newRuleString,
+        };
+        setRuleSessions(prev => {
+            const finalized = prev.filter(s => s.status === 'finalized');
+            const editing = prev.find(s => s.status === 'editing') || createNewSession();
+            return [...finalized, duplicatedFinalized, editing];
+        });
+        toast.success('Kural başarıyla çoğaltıldı.');
     };
 
     const updateActiveTopic = (topic) => setActiveTopic(topic);
@@ -124,6 +149,20 @@ export const RuleProvider = ({ children }) => {
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+
+    const focusHeaderField = (label, forceOpenSuggestions = false, initialValue = undefined) => {
+        setOptionsViewActive(false);
+        setHeaderFocusRequest({ label, forceOpen: !!forceOpenSuggestions, value: initialValue });
+    };
+
+    const clearHeaderFocusRequest = () => setHeaderFocusRequest(null);
+
+    const focusOption = (keyword, expandDetails = false, preferredIndex = null) => {
+        setOptionsViewActive(true);
+        setOptionFocusRequest({ keyword, expandDetails: !!expandDetails, index: preferredIndex });
+    };
+
+    const clearOptionFocusRequest = () => setOptionFocusRequest(null);
 
     const appendImportedRules = (specs) => {
         if (!Array.isArray(specs) || specs.length === 0) return;
@@ -167,12 +206,18 @@ export const RuleProvider = ({ children }) => {
         isInfoPanelVisible,
         theme,
         selectedRuleIds,
+        headerFocusRequest,
+        optionFocusRequest,
         updateActiveTopic,
         updateOptionsViewActive,
         updateModifierInfoActive, // YENİ
         toggleRulesList,
         toggleInfoPanel,
         toggleTheme,
+        focusHeaderField,
+        clearHeaderFocusRequest,
+        focusOption,
+        clearOptionFocusRequest,
         appendImportedRules,
         toggleRuleSelected,
         selectAllFinalized,
@@ -184,6 +229,7 @@ export const RuleProvider = ({ children }) => {
         updateRuleOptions,
         finalizeRule,
         deleteRule,
+        deleteRulesByIds,
         duplicateRule,
         startEditingRule,
         cancelEditing,

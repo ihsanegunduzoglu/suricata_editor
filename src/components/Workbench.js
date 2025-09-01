@@ -10,7 +10,7 @@ import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel'; 
 
 const Workbench = () => {
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection } = useRule();
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection, deleteRulesByIds } = useRule();
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = useMemo(() => ruleSessions.filter(session => session.status === 'finalized'), [ruleSessions]);
     const fileInputRef = useRef(null);
@@ -46,6 +46,14 @@ const Workbench = () => {
     
     const handleImportClick = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleBulkDelete = () => {
+        if (selectedRuleIds.length === 0) {
+            toast.warn('Lütfen önce silmek için en az bir kural seçin.');
+            return;
+        }
+        deleteRulesByIds(selectedRuleIds);
     };
 
     const handleImportFile = async (e) => {
@@ -102,6 +110,13 @@ const Workbench = () => {
                                     title=".rules dosyasından içe aktar"
                                 >
                                     ⇧
+                                </button>
+                                <button
+                                    onClick={handleBulkDelete}
+                                    className="toolbar-button delete-button"
+                                    title="Seçilen kuralları sil"
+                                >
+                                    🗑
                                 </button>
                                 <button 
                                     onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}

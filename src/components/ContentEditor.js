@@ -6,7 +6,7 @@ import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 
 const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
-    const { updateActiveTopic, updateModifierInfoActive } = useRule();
+    const { updateActiveTopic, updateModifierInfoActive, optionFocusRequest } = useRule();
     const [command, setCommand] = useState('');
     const [isValueConfirmed, setIsValueConfirmed] = useState(false);
     const commandInputRef = useRef(null);
@@ -85,6 +85,18 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
             setCommand('');
         }
     };
+
+    // Dışarıdan gelen "expandDetails" isteği varsa, content için ana değeri onaylayıp modifier alanlarını göster
+    useEffect(() => {
+        if (!optionFocusRequest) return;
+        if (optionFocusRequest.keyword !== 'content') return;
+        if (optionFocusRequest.expandDetails && !isValueConfirmed) {
+            setIsValueConfirmed(true);
+            setTimeout(() => {
+                commandInputRef.current?.focus();
+            }, 0);
+        }
+    }, [optionFocusRequest, isValueConfirmed]);
 
     return (
         <div 

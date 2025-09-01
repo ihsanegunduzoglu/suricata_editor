@@ -6,7 +6,7 @@ import OptionRow from './OptionRow';
 import AddOption from './AddOption';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
-    const { updateRuleOptions, updateActiveTopic } = useRule();
+    const { updateRuleOptions, updateActiveTopic, optionFocusRequest, clearOptionFocusRequest } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
     const addOptionInputRef = useRef(null);
@@ -30,6 +30,22 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [onNavigateBack]);
+
+    // Dışarıdan gelen option odak isteğini uygula
+    useEffect(() => {
+        if (!optionFocusRequest) return;
+        const { keyword, index } = optionFocusRequest;
+        let targetIndex = index;
+        if (typeof targetIndex !== 'number') {
+            targetIndex = session.ruleOptions.findIndex(o => o.keyword === keyword);
+        }
+        if (targetIndex >= 0) {
+            setEditingIndex(targetIndex);
+            updateActiveTopic(keyword);
+        }
+        clearOptionFocusRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [optionFocusRequest]);
 
     // BU FONKSİYON ÇOK ÖNEMLİ
     const handleValueChange = (index, newValue) => {

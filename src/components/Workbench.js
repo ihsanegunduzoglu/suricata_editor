@@ -10,8 +10,6 @@ import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
 import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
-
-// YENİ: react-resizable-panels kütüphanesinden bileşenleri import ediyoruz
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
@@ -80,13 +78,12 @@ const Workbench = () => {
         });
     };
     
-    // DEĞİŞİKLİK: Eski .app-layout yapısı yerine PanelGroup kullanıyoruz
     return (
         <div className="app-container">
             <TopMenuBar />
             <PanelGroup direction="horizontal" className="app-layout-resizable">
-                {/* Sol Panel: Ana İçerik */}
-                <Panel defaultSize={65} minSize={30}>
+                {/* DEĞİŞİKLİK BURADA: minSize değeri eklendi */}
+                <Panel defaultSize={65} minSize={50}>
                     <div className="main-content-area glass-effect">
                         <div className="active-editor-container">
                             {activeSession ? (
@@ -125,10 +122,8 @@ const Workbench = () => {
                     </div>
                 </Panel>
                 
-                {/* Paneller Arası Ayırıcı */}
                 <PanelResizeHandle className="resize-handle" />
 
-                {/* Sağ Panel: Bilgi Paneli (Eğer görünürse) */}
                 {isInfoPanelVisible && (
                     <Panel defaultSize={35} minSize={20}>
                         <div className="right-info-panel glass-effect">

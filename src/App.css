@@ -199,13 +199,12 @@ input:checked + .slider:before { transform: translateX(18px); }
 .active-editor-container, .active-editor-wrapper {
   padding-bottom: var(--space-lg) !important;
   border-bottom: 1px solid var(--border-primary) !important;
-  position: relative !important;
-  z-index: 2 !important;
   /* YENİ: Minimum yükseklik eklendi */
   min-height: 350px !important; 
   /* YENİ: İçeriğin bu minimum yüksekliği doldurmasını sağlamak için */
   display: flex !important;
   flex-direction: column !important;
+  flex-shrink: 0 !important;
 }
 
 .editor-row {
@@ -595,9 +594,8 @@ input:checked + .slider:before { transform: translateX(18px); }
 .finalized-rules-list { 
   display: flex !important; 
   flex-direction: column !important; 
-  flex-grow: 1 !important; 
+  /* flex-grow: 1 !important; */
   position: relative !important;
-  z-index: 1 !important; /* Bu bölüm altta kalacak */
   min-height: 400px; /* Listenin tamamen ezilip küçülmesini engeller */
 }
 
@@ -607,22 +605,23 @@ input:checked + .slider:before { transform: translateX(18px); }
     right: var(--space-lg);
     z-index: 10;
     display: flex;
-    gap: var(--space-sm);
-    padding: var(--space-sm);
+    gap: var(--space-xs);
+    padding: var(--space-xs);
     background-color: var(--bg-panel-solid);
     border: 1px solid var(--border-primary);
-    border-radius: var(--radius);
+    border-radius: 6px;
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 .rules-toolbar button {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-md);
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
     background-color: transparent;
     border: 1px solid transparent;
     color: var(--text-secondary);
-    border-radius: var(--radius);
+    border-radius: 6px;
+    font-size: 0.9rem;
     font-family: var(--font-sans);
     font-weight: 500;
     cursor: pointer;
@@ -634,10 +633,8 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 .rules-scroll-wrapper { 
-  flex-grow: 1; 
-  overflow-y: auto; 
   padding-right: var(--space-sm);
-  padding-top: 60px; /* Toolbar'a yer açmak için */
+  padding-top: 45px; /* Toolbar'a yer açmak için */
 }
 
 .finalized-rule-container {

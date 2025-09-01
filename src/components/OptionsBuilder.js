@@ -15,12 +15,10 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        if (!session.ruleOptions.some(o => o.value === '')) {
-            setTimeout(() => {
-                addOptionInputRef.current?.focus();
-            }, 0);
-        }
-    }, [session.ruleOptions.length]);
+        setTimeout(() => {
+            addOptionInputRef.current?.focus();
+        }, 0);
+    }, []);
 
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
@@ -36,7 +34,9 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (editingIndex !== null || document.activeElement === addOptionInputRef.current) return;
+            if (editingIndex !== null || document.activeElement === addOptionInputRef.current) {
+                return;
+            }
 
             const optionsCount = session.ruleOptions.length;
             
@@ -84,6 +84,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         const container = containerRef.current;
         container?.addEventListener('keydown', handleKeyDown);
         return () => container?.removeEventListener('keydown', handleKeyDown);
+
     }, [editingIndex, selectedIndex, session.ruleOptions, onNavigateBack]);
 
     useEffect(() => {
@@ -113,29 +114,24 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
 
     const handleStopEditing = () => {
         setEditingIndex(null);
-        setSelectedIndex(null); // Vurguyu temizle
+        setSelectedIndex(null);
         setTimeout(() => addOptionInputRef.current?.focus(), 0);
     };
 
+    // DEĞİŞİKLİK BURADA: Fonksiyon basitleştirildi.
     const handleDeleteOption = (indexToDelete) => {
         const newRuleOptions = session.ruleOptions.filter((_, i) => i !== indexToDelete);
         updateRuleOptions(session.id, newRuleOptions);
         toast.info('Seçenek silindi.');
 
-        if (newRuleOptions.length === 0) {
-            setSelectedIndex(null);
-            addOptionInputRef.current?.focus();
-        } else if (indexToDelete >= newRuleOptions.length) {
-            setSelectedIndex(newRuleOptions.length - 1);
-        } else {
-            setSelectedIndex(indexToDelete);
-        }
+        // Her durumda seçimi temizle ve arama kutusuna odaklan.
+        setSelectedIndex(null);
+        addOptionInputRef.current?.focus();
     };
     
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
-        handleStartEditing(newRuleOptions.length - 1);
     };
 
     const handleNavigateToList = () => {

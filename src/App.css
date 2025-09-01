@@ -998,3 +998,41 @@ input:checked + .slider:before { transform: translateX(18px); }
 .custom-select-options li:hover {
   background-color: var(--bg-suggestion-hover);
 }
+
+/* ==========================================================================
+   YENİ: GERİ DÖN BUTONU VURGUSU VE ANİMASYONU (MAVİ VERSİYON)
+   ========================================================================== */
+
+/* Düzenleme modundayken "Geri Dön" butonunun stili */
+.is-editing-active-btn {
+  background-color: var(--text-accent) !important; /* Mavi vurgu */
+  color: white !important;
+  border-color: var(--text-accent) !important;
+  box-shadow: 0 0 10px rgba(56, 157, 255, 0.5) !important; /* Mavi parlama */
+  transform: scale(1.05);
+}
+
+/* Hover efekti */
+.is-editing-active-btn:hover {
+  background-color: #5baeff !important; /* Hafif daha açık mavi */
+  box-shadow: 0 0 15px rgba(56, 157, 255, 0.7) !important;
+  transform: scale(1.1);
+}
+
+/* Nabız efekti için Keyframe animasyonu */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 157, 255, 0.7); /* Mavi parlama */
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(56, 157, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 157, 255, 0);
+  }
+}
+
+/* Animasyonu butona uygula */
+.pulse-animation {
+  animation: pulse 2s infinite;
+}

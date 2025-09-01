@@ -1,4 +1,5 @@
 // src/components/FinalizedRule.js
+
 import React from 'react';
 import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
@@ -30,7 +31,11 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
                     onChange={onToggleSelect}
                     title="Bu kuralı seç"
                 />
-                <button className="rule-action-btn" title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} onClick={handleEditToggle}>
+                <button 
+                    className={`rule-action-btn ${isBeingEdited ? 'is-editing-active-btn pulse-animation' : ''}`} // BURASI DEĞİŞTİ
+                    title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} 
+                    onClick={handleEditToggle}
+                >
                     {isBeingEdited ? <Undo2 size={16} /> : <Pencil size={16} />}
                 </button>
                 <button className="rule-action-btn" title="Sil" onClick={() => deleteRule(session.id)} disabled={isBeingEdited}>
@@ -46,7 +51,6 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
             <SyntaxHighlighter 
                 language="bash" 
                 style={syntaxTheme}
-                // DEĞİŞİKLİK: Soldaki padding artık yok, butonlar dışarı taşacağı için metin tam hizalı olacak.
                 customStyle={{ margin: 0, padding: '1.5em', backgroundColor: 'transparent' }}
                 codeTagProps={{ style: { fontSize: '1rem', fontFamily: "'Fira Code', 'Consolas', monospace" } }}
                 wrapLines={true}

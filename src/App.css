@@ -122,11 +122,11 @@ body {
 }
 
 .main-content-area {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl);
-  padding: var(--space-lg);
-  overflow-y: auto; /* Bütün alan için TEK kaydırma çubuğu */
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-xl) !important;
+  padding: var(--space-lg) !important;
+  overflow-y: auto !important; /* Bütün alan için TEK kaydırma çubuğu */
 }
 
 .right-info-panel {
@@ -197,15 +197,15 @@ input:checked + .slider:before { transform: translateX(18px); }
    4. AKTİF KURAL EDİTÖRÜ
    ========================================================================== */
 .active-editor-container, .active-editor-wrapper {
-  padding-bottom: var(--space-lg);
-  border-bottom: 1px solid var(--border-primary);
-  position: relative;
-  z-index: 2;
+  padding-bottom: var(--space-lg) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  position: relative !important;
+  z-index: 2 !important;
   /* YENİ: Minimum yükseklik eklendi */
-  min-height: 350px; 
+  min-height: 350px !important; 
   /* YENİ: İçeriğin bu minimum yüksekliği doldurmasını sağlamak için */
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .editor-row {
@@ -593,11 +593,11 @@ input:checked + .slider:before { transform: translateX(18px); }
    ========================================================================== */
 
 .finalized-rules-list { 
-  display: flex; 
-  flex-direction: column; 
-  flex-grow: 1; 
-  position: relative;
-  z-index: 1; /* Bu bölüm altta kalacak */
+  display: flex !important; 
+  flex-direction: column !important; 
+  flex-grow: 1 !important; 
+  position: relative !important;
+  z-index: 1 !important; /* Bu bölüm altta kalacak */
   min-height: 400px; /* Listenin tamamen ezilip küçülmesini engeller */
 }
 

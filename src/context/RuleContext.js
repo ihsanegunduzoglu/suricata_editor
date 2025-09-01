@@ -37,15 +37,18 @@ export const RuleProvider = ({ children }) => {
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
-    const [modifierInfoActive, setModifierInfoActive] = useState(false); // YENİ STATE
+    const [modifierInfoActive, setModifierInfoActive] = useState(false);
     const [isRulesListVisible, setIsRulesListVisible] = useState(true);
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
-    const [selectedRuleIds, setSelectedRuleIds] = useState([]);
-
     const [mitreInfo, setMitreInfo] = useState(null);
+
+    // Senin eklediğin focus istekleri
     const [headerFocusRequest, setHeaderFocusRequest] = useState(null);
     const [optionFocusRequest, setOptionFocusRequest] = useState(null);
+
+    // DİZİ olarak tutuyoruz (Workbench'le uyumlu)
+    const [selectedRuleIds, setSelectedRuleIds] = useState([]);
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
@@ -76,6 +79,7 @@ export const RuleProvider = ({ children }) => {
         setEditingSourceId(null);
         updateOptionsViewActive(false);
         setMitreInfo(null);
+        setSelectedRuleIds([]); // dizi
     };
     
     const finalizeRule = (editorSessionId) => {
@@ -108,16 +112,18 @@ export const RuleProvider = ({ children }) => {
 
     const deleteRule = (sessionId) => {
         setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
+        setSelectedRuleIds(prev => prev.filter(id => id !== sessionId)); // dizi
         toast.info('Kural silindi.');
     };
     
     const deleteRulesByIds = (ids) => {
         if (!Array.isArray(ids) || ids.length === 0) return;
         setRuleSessions(prev => prev.filter(s => !(s.status === 'finalized' && ids.includes(s.id))));
-        setSelectedRuleIds(prev => prev.filter(id => !ids.includes(id)));
+        setSelectedRuleIds(prev => prev.filter(id => !ids.includes(id))); // dizi
         toast.info(`${ids.length} kural silindi.`);
     };
     
+    // Çoğalt: finalized kural olarak ekle (senin davranışın)
     const duplicateRule = (sessionToDuplicate) => {
         if (!sessionToDuplicate) return;
         const clonedHeader = { ...sessionToDuplicate.headerData };
@@ -141,6 +147,29 @@ export const RuleProvider = ({ children }) => {
         });
         toast.success('Kural başarıyla çoğaltıldı.');
     };
+    
+    // Metinden import
+    const importRules = (rulesString) => {
+        const lines = rulesString.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
+        if (lines.length === 0) {
+            toast.warn('İçe aktarılacak geçerli kural bulunamadı.');
+            return;
+        }
+        const newSessions = lines.map(line => ({
+            id: uuidv4(),
+            status: 'finalized',
+            ruleString: line.trim(),
+            headerData: {},
+            ruleOptions: [],
+        }));
+        
+        setRuleSessions(prev => {
+            const editing = prev.find(s => s.status === 'editing');
+            const finalized = prev.filter(s => s.status === 'finalized');
+            return [editing, ...newSessions, ...finalized];
+        });
+        toast.success(`${newSessions.length} kural başarıyla içe aktarıldı.`);
+    };
 
     const updateActiveTopic = (topic) => setActiveTopic(topic);
     const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
@@ -150,20 +179,20 @@ export const RuleProvider = ({ children }) => {
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
+    // Focus yardımcıları
     const focusHeaderField = (label, forceOpenSuggestions = false, initialValue = undefined) => {
         setOptionsViewActive(false);
         setHeaderFocusRequest({ label, forceOpen: !!forceOpenSuggestions, value: initialValue });
     };
-
     const clearHeaderFocusRequest = () => setHeaderFocusRequest(null);
 
     const focusOption = (keyword, expandDetails = false, preferredIndex = null) => {
         setOptionsViewActive(true);
         setOptionFocusRequest({ keyword, expandDetails: !!expandDetails, index: preferredIndex });
     };
-
     const clearOptionFocusRequest = () => setOptionFocusRequest(null);
 
+    // Sunucudan parse edilen kuralların eklenmesi
     const appendImportedRules = (specs) => {
         if (!Array.isArray(specs) || specs.length === 0) return;
         const newFinalized = specs.map(spec => {
@@ -182,18 +211,16 @@ export const RuleProvider = ({ children }) => {
         toast.success(`${specs.length} kural içe aktarıldı.`);
     };
 
+    // Dizi tabanlı seçim yardımcıları (Workbench ile uyumlu)
     const toggleRuleSelected = (ruleId) => {
-        setSelectedRuleIds(prev => prev.includes(ruleId)
-            ? prev.filter(id => id !== ruleId)
-            : [...prev, ruleId]
-        );
+        setSelectedRuleIds(prev => (
+            prev.includes(ruleId) ? prev.filter(id => id !== ruleId) : [...prev, ruleId]
+        ));
     };
-
     const selectAllFinalized = () => {
         const allFinalizedIds = ruleSessions.filter(s => s.status === 'finalized').map(s => s.id);
         setSelectedRuleIds(allFinalizedIds);
     };
-
     const clearSelection = () => setSelectedRuleIds([]);
 
     const value = {
@@ -201,30 +228,41 @@ export const RuleProvider = ({ children }) => {
         editingSourceId,
         activeTopic,
         optionsViewActive,
-        modifierInfoActive, // YENİ
+        modifierInfoActive,
         isRulesListVisible,
         isInfoPanelVisible,
         theme,
+
         selectedRuleIds,
+        setSelectedRuleIds,   // Workbench kullanıyor
+
         headerFocusRequest,
         optionFocusRequest,
+
+        activeSession,
+        mitreInfo,
+
+        importRules,
+        updateMitreInfo,
+
         updateActiveTopic,
         updateOptionsViewActive,
-        updateModifierInfoActive, // YENİ
+        updateModifierInfoActive,
         toggleRulesList,
         toggleInfoPanel,
         toggleTheme,
+
         focusHeaderField,
         clearHeaderFocusRequest,
         focusOption,
         clearOptionFocusRequest,
+
         appendImportedRules,
+
         toggleRuleSelected,
         selectAllFinalized,
-        clearSelection,        
-        activeSession,
-        mitreInfo,
-        updateMitreInfo,
+        clearSelection,
+
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,

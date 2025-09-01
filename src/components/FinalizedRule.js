@@ -4,8 +4,8 @@ import React from 'react';
 import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// YENİ: Koyu ve Açık mod için iki farklı stil import ediyoruz
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
 
 // DEĞİŞİKLİK: isBeingEdited prop'unu alıyoruz
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected }) => {
@@ -17,61 +17,41 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
         navigator.clipboard.writeText(session.ruleString);
         toast.success('Kural panoya kopyalandı!');
     };
-
     const handleEditToggle = () => {
-        if (isBeingEdited) {
-            cancelEditing();
-        } else {
-            startEditingRule(session.id);
-        }
+        if (isBeingEdited) { cancelEditing(); } else { startEditingRule(session.id); }
     };
 
-    // YENİ: Tema durumuna göre doğru renklendirme stilini seçiyoruz
     const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
+    const containerClassName = `finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''} ${isSelected ? 'is-selected' : ''}`;
 
     return (
-        <div className={`finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''}`}>
+        <div className={containerClassName}>
             <div className="rule-actions">
+                <input 
+                    type="checkbox" 
+                    className="rule-selection-checkbox"
+                    checked={isSelected}
+                    onChange={onToggleSelect}
+                    title="Bu kuralı seç"
+                />
                 <button 
-                    className="rule-action-btn" 
-                    title={isSelected ? "Seçimi kaldır" : "Seç"}
-                    onClick={onToggleSelected}
-                >
-                    {isSelected ? '✓' : ''}
-                </button>
-                <button 
-                    className="rule-action-btn" 
-                    title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"}
+                    className={`rule-action-btn ${isBeingEdited ? 'is-editing-active-btn pulse-animation' : ''}`} // BURASI DEĞİŞTİ
+                    title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} 
                     onClick={handleEditToggle}
                 >
-                    {isBeingEdited ? '↩️' : '✏️'}
+                    {isBeingEdited ? <Undo2 size={16} /> : <Pencil size={16} />}
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Sil"
-                    onClick={() => deleteRule(session.id)}
-                    disabled={isBeingEdited}
-                >
-                    ✖
+                <button className="rule-action-btn" title="Sil" onClick={() => deleteRule(session.id)} disabled={isBeingEdited}>
+                    <Trash2 size={16} />
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Panoya Kopyala"
-                    onClick={handleCopyToClipboard}
-                    disabled={isBeingEdited}
-                >
-                    📋
+                <button className="rule-action-btn" title="Panoya Kopyala" onClick={handleCopyToClipboard} disabled={isBeingEdited}>
+                    <Copy size={16} />
                 </button>
-                <button 
-                    className="rule-action-btn" 
-                    title="Çoğalt"
-                    onClick={() => duplicateRule(session)}
-                    disabled={isBeingEdited}
-                >
-                    ➕
+                <button className="rule-action-btn" title="Çoğalt" onClick={() => duplicateRule(session)} disabled={isBeingEdited}>
+                    <PlusSquare size={16} />
                 </button>
             </div>
-            {(() => {
+ {(() => {
                 const text = session.ruleString || '';
                 const m = text.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(->|<->)\s+(\S+)\s+(\S+)\s*\(/);
                 if (!m) {
@@ -155,5 +135,6 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
         </div>
     );
 };
+
 
 export default FinalizedRule;

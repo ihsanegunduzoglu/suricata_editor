@@ -9,9 +9,10 @@ import { toast } from 'react-toastify';
 import { validateHeaderField } from '../utils/ruleValidator';
 
 const HeaderEditor = ({ session }) => {
+
     // DEĞİŞİKLİK: 'cancelEditing' fonksiyonunu context'ten alıyoruz.
     const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, headerFocusRequest, clearHeaderFocusRequest } = useRule();
-    
+
     const [activeInput, setActiveInput] = useState(null);
     const [forceOpenSuggestionsFlag, setForceOpenSuggestionsFlag] = useState(false);
 
@@ -101,16 +102,15 @@ const HeaderEditor = ({ session }) => {
             }
         }
         
-        // DEĞİŞİKLİK: Escape tuşu için özel kontrol ekledik.
+        // DEĞİŞİKLİK BURADA: Escape tuşu mantığı geri getirildi.
         if (e.key === 'Escape') {
             e.preventDefault();
-            // Eğer ilk kutudaysak (currentIndex === 0) VE kutu boşsa...
-            if (currentIndex === 0 && e.target.value === '') {
-                // Kural oluşturmayı/düzenlemeyi iptal et.
+            // Sadece ilk kutuda olup olmadığını kontrol et. Dolu veya boş olması fark etmez.
+            if (currentIndex === 0) {
                 cancelEditing();
                 toast.info("Kural işlemi iptal edildi.");
             } else {
-                // Diğer tüm durumlarda bir önceki alana git.
+                // İlk kutu değilse, bir öncekine git.
                 moveToPrevField(currentIndex);
             }
         }
@@ -125,6 +125,7 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
+                updateActiveTopic(null);
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);

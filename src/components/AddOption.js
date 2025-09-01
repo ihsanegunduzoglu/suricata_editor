@@ -1,32 +1,50 @@
 // src/components/AddOption.js
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
-const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }, ref) => {
+const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, onNavigateToList, onNavigateBack }, ref) => {
     const { finalizeRule, updateActiveTopic } = useRule();
-    const protocol = session.headerData.Protocol;
-    const ruleOptions = session.ruleOptions;
-
     const [searchTerm, setSearchTerm] = useState('');
-    
+    const [isFocused, setIsFocused] = useState(false);
+    const debounceTimeout = useRef(null);
+
+    // DEĞİŞİKLİK: 'protocol' değişkeni eklendi ve useMemo'nun bağımlılıklarına dahil edildi.
+    const protocol = session.headerData.Protocol;
     const availableOptions = useMemo(() => {
-        const addedKeywords = new Set(ruleOptions.map(o => o.keyword));
+        const addedKeywords = new Set(session.ruleOptions.map(o => o.keyword));
         return Object.keys(optionsDictionary).filter(keyword => {
             const optionInfo = optionsDictionary[keyword];
             if (optionInfo.isModifier) return false;
             if (optionInfo.allowMultiple === false && addedKeywords.has(keyword)) return false;
-            if (optionInfo.dependsOn && !addedKeywords.has(optionInfo.dependsOn)) return false;
+            // YENİ: Protokol bağımlılığı kontrolü geri eklendi.
             if (optionInfo.dependsOnProtocol && optionInfo.dependsOnProtocol !== protocol?.toLowerCase()) {
                 return false;
             }
             return true;
         });
-    }, [ruleOptions, protocol]);
+    }, [session.ruleOptions, protocol]); // 'protocol' bağımlılık olarak eklendi
     
-    const handleAdd = (keyword) => {
+    const filteredOptions = useMemo(() => {
+        return searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
+    }, [searchTerm, availableOptions]);
+
+    useEffect(() => {
+        if (!isFocused) return;
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        debounceTimeout.current = setTimeout(() => {
+            if (searchTerm && filteredOptions.length > 0) {
+                updateActiveTopic(filteredOptions[0]);
+            } else {
+                updateActiveTopic(null);
+            }
+        }, 200);
+        return () => { if (debounceTimeout.current) clearTimeout(debounceTimeout.current); };
+    }, [searchTerm, filteredOptions, updateActiveTopic, isFocused]);
+
+    const handleAdd = (keyword) => { 
         const newOption = { 
             id: uuidv4(), 
             keyword: keyword, 
@@ -34,7 +52,6 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
         };
         if (keyword === 'content') { 
             newOption.modifiers = { nocase: false, depth: '', offset: '' };
-            // DEĞİŞİKLİK: content'e varsayılan formatı ekliyoruz
             newOption.format = 'ascii'; 
         }
         onOptionAdd(newOption);
@@ -42,39 +59,47 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session }
     };
     
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && e.target.value === '') {
+        if (e.key === 'Enter') {
             e.preventDefault();
-            finalizeRule(session.id);
+            if (e.target.value === '') {
+                finalizeRule(session.id);
+            } else if (filteredOptions.length > 0) {
+                handleAdd(filteredOptions[0]);
+            }
             return;
-        }
-
-        if (e.key === 'Enter' && filteredOptions.length > 0) {
-            e.preventDefault();
-            handleAdd(filteredOptions[0]);
         }
         
         if (e.key === 'Backspace' && e.target.value === '') {
             e.preventDefault();
             onDeleteLastOption();
         }
+
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            onNavigateToList();
+        }
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            onNavigateBack();
+        }
     };
     
-    const filteredOptions = searchTerm ? availableOptions.filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) : [];
-
     return (
-        <div className="add-option-container"> {/* Bilgi panelini sabit tutmak için otomatik temizleme kaldırıldı */}
-
+        <div className="add-option-container">
             <input 
-                ref={ref} type="text" className="add-option-search" 
-                placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet/güncelle)" 
+                ref={ref} 
+                type="text" 
+                className="add-option-search" 
+                placeholder="+ Seçenek ekle veya ara... (Boşken Enter ile kuralı kaydet)" 
                 value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
+                onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown} 
-
-                onFocus={() => updateActiveTopic(null)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
             />
             {searchTerm && (
-                <ul className="add-option-list" onMouseLeave={() => updateActiveTopic(null)}>
+                <ul className="add-option-list">
                     {filteredOptions.map(keyword => (
                         <li 
                             key={keyword} 

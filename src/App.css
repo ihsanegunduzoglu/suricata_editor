@@ -1,36 +1,48 @@
+/* ==========================================================================
+   1. TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
+   ========================================================================== */
 
-.theme-wrapper {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: background-color 0.3s, color 0.3s;
+:root {
+  /* Font Aileleri */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', 'Courier New', monospace;
+
+  /* Boşluk (Spacing) Sistemi */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  
+  /* Köşe Yuvarlaklığı */
+  --radius: 8px;
+
+  /* Geçiş Animasyonu */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-
 .theme-dark {
-  --bg-main: #121212;
-  --bg-panel: #1e1e1e;
+  --bg-main: #111014;
+  --bg-panel: rgba(28, 27, 34, 0.6);
+  --bg-panel-solid: #1c1b22;
   --bg-input: #2a2d2e;
   --bg-hover: rgba(255, 255, 255, 0.08);
   --bg-suggestion-hover: #3c3c3c;
   --bg-code: rgba(0, 0, 0, 0.3);
 
   --text-primary: #e0e0e0;
-  --text-secondary: #aaaaaa;
+  --text-secondary: #a0a0a0;
   --text-keyword: #c586c0;
   --text-value: #ce9178;
-  --text-accent: #0098ff;
+  --text-accent: #389dff;
 
-  --border-primary: #333333;
+  --border-primary: rgba(255, 255, 255, 0.1);
   --border-accent: var(--text-accent);
   --border-left-accent: var(--text-accent);
   --shadow-color: rgba(0, 0, 0, 0.4);
+  --danger-color: #ff6b6b;
 }
 
-/* Açık Tema */
 .theme-light {
   --bg-main: #dcd6d6;
   --bg-panel: #ffffff;
@@ -51,7 +63,6 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Temel HTML ve Body stilleri */
 html {
   scroll-padding-bottom: 20vh;
   scroll-behavior: smooth;
@@ -61,32 +72,121 @@ body {
   margin: 0;
 }
 
+.theme-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.glass-effect {
+  background-color: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+}
+
+
 /* ==========================================================================
-   ÜST MENÜ ÇUBUĞU
+   2. ANA YERLEŞİM (WORKBENCH & AYARLANABİLİR PANELLER)
    ========================================================================== */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-layout-resizable {
+  flex-grow: 1 !important;
+  gap: var(--space-md) !important;
+  padding: var(--space-md) !important;
+  overflow: hidden !important;
+}
+
+/* Panelleri ayıran tutamaç (handle) için stil */
+.resize-handle {
+  width: var(--space-md);
+  position: relative;
+  outline: none;
+  background-clip: padding-box;
+  background-color: transparent;
+}
+
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+  transition: var(--transition-fast);
+}
+
+.resize-handle:hover::before,
+.resize-handle[data-resize-handle-state="drag"]::before {
+  background-color: var(--text-accent);
+}
+
+/* Ana İçerik ve Sağ Bilgi Paneli için ortak stiller */
+.main-content-area, .right-info-panel {
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.main-content-area {
+  gap: var(--space-xl) !important;
+  padding: var(--space-lg) !important;
+  overflow-y: auto !important;
+}
+
+.right-info-panel {
+  padding: var(--space-lg);
+  overflow-y: auto;
+}
+
+
+/* ==========================================================================
+   3. ÜST MENÜ ÇUBUĞU
+   ========================================================================== */
+
 .top-menu-bar {
   background-color: var(--bg-panel);
-  padding: 0 1rem;
+  padding: 0 var(--space-md);
   flex-shrink: 0;
   border-bottom: 1px solid var(--border-primary);
   z-index: 2000;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: var(--radius);
 }
+
 .menu-left { flex-grow: 1; }
 .menu-right { flex-shrink: 0; }
 .menu-item { position: relative; display: inline-block; }
+
 .menu-item > button {
   background: none; border: none;
   color: var(--text-secondary);
   padding: 0.5rem 1rem;
   cursor: pointer; font-size: 0.9rem;
 }
+
 .menu-item > button:hover {
   background-color: var(--bg-suggestion-hover);
   color: var(--text-primary);
 }
+
 .dropdown-menu {
   position: absolute; top: 100%; left: 0;
   background-color: var(--bg-input);
@@ -96,15 +196,18 @@ body {
   padding: 0.5rem 0; margin: 2px 0 0 0;
   min-width: 200px; z-index: 1000;
 }
+
 .dropdown-menu li {
   color: var(--text-primary);
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
+
 .dropdown-menu li:hover {
   background-color: var(--text-accent);
   color: #fff; 
 }
+
 .theme-switcher { display: flex; align-items: center; gap: 0.5rem; }
 .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -115,87 +218,77 @@ input:checked + .slider:before { transform: translateX(18px); }
 .slider.round { border-radius: 22px; }
 .slider.round:before { border-radius: 50%; }
 
-/* ==========================================================================
-   ANA YERLEŞİM (WORKBENCH)
-   ========================================================================== */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-.app-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); 
-  height: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-.app-layout.single-column {
-  grid-template-columns: 1fr;
-}
-.main-content-area {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto; 
-  min-height: 0;
-  padding: 1.5rem;
-}
-.right-info-panel {
-  background-color: var(--bg-panel);
-  border-left: 1px solid var(--border-primary);
-  overflow-y: auto;
-}
 
+/* ==========================================================================
+   4. AKTİF KURAL EDİTÖRÜ (ESNEK YAPI DÜZELTMESİ)
+   ========================================================================== */
+
+.active-editor-container {
+  overflow-y: auto !important; /* İçerik taşarsa kendi içinde kaydır */
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  padding-right: var(--space-sm); /* Kaydırma çubuğu için yer */
+}
 
 .active-editor-wrapper {
-  min-height: 350px; 
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Esneklik için */
-  border-bottom: 1px solid var(--border-primary);
+  flex-grow: 1;
 }
+
 .editor-row {
   display: flex;
+  flex-wrap: nowrap; 
   align-items: flex-end;
-  gap: 1rem;
+  gap: var(--space-md);
   width: 100%;
 }
+
 .input-group {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 100px;
+  flex-grow: 1;
+  flex-shrink: 1; /* Kutuların küçülmesine izin verir */
+  min-width: 80px; /* Çok fazla küçülmelerini engeller */
   position: relative; 
 }
+
 .input-group label {
   color: var(--text-secondary);
   font-size: 0.8rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-sm);
   text-transform: uppercase;
+  font-weight: 500;
 }
+
 .input-group input {
-  background-color: transparent;
+  background-color: var(--bg-input);
   border: 1px solid var(--border-primary);
   color: var(--text-primary);
-  padding: 0.5rem 0.75rem; 
-  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius);
   font-size: 1.1rem;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: var(--font-mono);
   text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .input-group input:focus {
   outline: none;
   border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px var(--text-accent);
 }
+
 .final-header-text {
   font-size: 1.2rem;
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-all;
-  margin: 0;
+  margin: 0 0 1rem 0;
   padding: 0 0.5rem;
-  margin-bottom: 1rem;
 }
+
 .closing-paren {
   margin-top: auto;
   padding-bottom: 0.5rem;
@@ -207,15 +300,28 @@ input:checked + .slider:before { transform: translateX(18px); }
   flex-grow: 1; 
   position: relative;
 }
+
 .options-builder {
   display: flex;
   flex-direction: column;
   flex-grow: 1; 
 }
+
+.options-builder:focus {
+  outline: none;
+}
+
 .added-options-list {
   flex-grow: 1;
 }
+
+
+/* ==========================================================================
+   5. SEÇENEK (OPTION) SATIRLARI VE DÜZENLEME
+   ========================================================================== */
+
 .option-row {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 0.25rem 0.5rem;
@@ -224,126 +330,73 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-radius: 3px;
   margin: 2px 0;
 }
+
 .option-row:hover {
   background-color: var(--bg-hover);
 }
-.option-keyword {
-  color: var(--text-keyword);
-  margin-right: 0.5rem;
-}
-.option-value {
-  color: var(--text-value);
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-.option-semicolon {
-  color: var(--text-primary);
-  margin-left: 0.25rem;
-}
-.option-value-input {
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  color: var(--text-value);
-  font-family: inherit;
-  font-size: inherit;
-  padding: 0;
-  margin-top: 0.20rem;
-  border-bottom: 1px solid var(--text-accent);
-}
-.option-value-input:focus {
-  outline: none;
-}
-.autocomplete-container {
-  position: relative;
-  flex-grow: 1;
-}
 
-/* App.css */
-
-.option-row-editing-card {
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0.5rem 0;
-  
-  /* Tekrar şık bir kart görünümü veriyoruz */
-  background-color: var(--bg-panel);
-  border: 1px solid var(--border-primary);
-  border-radius: 6px;
-  padding-left: 1.5rem;
-  padding-top: 0.5rem;
-  box-shadow: 0 4px 12px var(--shadow-color);
-
-  /* İsteğe bağlı: Yumuşak açılma animasyonu */
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Animasyon tanımı (eğer daha önce eklemediysen) */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.content-value-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-.content-value-row .option-value-input {
-  background-color: var(--bg-panel);
-    border-radius: 4px;
-  padding: 0.5rem;
-  border-bottom: 2px solid transparent;
-}
-.content-value-row .option-value-input:focus {
-  border-bottom: 2px solid var(--text-accent);
-  background-color: var(--bg-suggestion-hover);
-}
-.modifiers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 0;
-}
-.modifier-item {
-  display: flex;
-  align-items: center;
-  background-color: var(--bg-hover);
-  padding: 0.5rem 0.75rem;
+.option-row.is-selected {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
   border-radius: 4px;
-  font-size: 0.9rem;
+  cursor: pointer;
+  border-left: 3px solid var(--text-accent);
+  padding-left: calc(0.5rem - 3px);
 }
-.modifier-item label {
-  margin-right: 0.5rem;
-  color: var(--text-secondary);
+
+.option-row.is-selected .option-keyword,
+.option-row.is-selected .option-value,
+.option-row.is-selected .option-semicolon {
+  color: var(--text-primary) !important;
 }
-.modifier-item input[type="number"],
-.modifier-item input[type="text"] {
-  background-color: transparent;
+
+.option-row.is-editing {
+  background-color: var(--bg-hover);
+}
+
+.option-keyword { color: var(--text-keyword); margin-right: 0.5rem; }
+.option-value { color: var(--text-value); white-space: pre-wrap; word-break: break-all; }
+.option-semicolon { color: var(--text-primary); margin-left: 0.25rem; }
+
+.delete-option-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: transparent;
   border: none;
-  color: var(--text-value);
-  width: 100%;
-  padding: 0;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, background-color 0.2s;
 }
-.modifier-item input[type="number"]:focus,
-.modifier-item input[type="text"]:focus {
-  outline: none;
+
+.option-row:hover .delete-option-btn {
+  opacity: 0.6;
+  visibility: visible;
 }
+
+.delete-option-btn:hover {
+  opacity: 1;
+  background-color: var(--bg-hover);
+  color: var(--danger-color);
+}
+
 
 /* ==========================================================================
-   ÖNERİ PENCERELERİ (SUGGESTIONS)
+   6. OTOMATİK TAMAMLAMA VE ÖNERİ PENCERELERİ
    ========================================================================== */
+
+.autocomplete-container,
 .add-option-container {
   position: relative;
 }
+
 .add-option-search {
   width: 100%;
   background-color: transparent;
@@ -356,11 +409,13 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-family: inherit;
   box-sizing: border-box;
 }
+
 .add-option-search:focus {
   outline: none;
   border-top-style: solid;
   border-top-color: var(--text-accent);
 }
+
 .suggestions-list,
 .add-option-list {
   position: absolute;   
@@ -392,59 +447,290 @@ input:checked + .slider:before { transform: translateX(18px); }
 .add-option-list li:last-child {
   border-bottom: none;
 }
+
 .suggestions-list li:hover, 
 .add-option-list li:hover {
   background-color: var(--bg-suggestion-hover);
 }
+
 .option-description {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin-left: 0.5rem;
 }
 
+
 /* ==========================================================================
-   FİNALİZE EDİLMİŞ KURALLAR
+   7. CONTENT DEĞER EDİTÖRÜ VE DEĞİŞTİRİCİLER
    ========================================================================== */
-.rules-scroll-wrapper {
-  overflow-y: auto;
-  flex-grow: 1;
-  padding-right: 10px;
-  padding-top: 20px;
-}
-.finalized-rule-container .rule-select {
-  position: absolute;
-  top: -12px;
-  right: 75px; /* export/import butonlarının altında kalmayacak şekilde */
-  z-index: 20;
-}
-.finalized-rules-list::-webkit-scrollbar {
-  width: 8px;
-}
-.rules-scroll-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-.rules-scroll-wrapper::-webkit-scrollbar-thumb {
-  background-color: #333;
-  border-radius: 10px;
-  border: 2px solid var(--bg-main);
-}
-.finalized-rule-container {
-  background-color: transparent;
+
+.option-row-editing-card {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.5rem 0;
+  background-color: var(--bg-panel);
   border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  padding: 0; 
-  position: relative;
-  transition: all 0.2s ease-in-out;
-  margin-bottom: 1.5rem;
-}
-.finalized-rule-container:hover {
-  border-color: #555;
-}
-.finalized-rule-container.is-being-edited {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 10px var(--shadow-color);
+  border-radius: 6px;
+  padding: 0.5rem 1.5rem 0 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  animation: fadeIn 0.3s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content-value-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.input-with-format-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.option-value-input {
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+  color: var(--text-value);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0.5rem;
+  margin-top: 0.20rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px;
+  padding-right: 150px !important; /* Format seçiciye ve PV butonuna yer aç */
+}
+
+.option-value-input:focus {
+  outline: none;
+  border-bottom: 2px solid var(--text-accent);
+  background-color: var(--bg-suggestion-hover);
+}
+
+.content-format-inline-selector {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  user-select: none;
+  z-index: 10;
+}
+
+.format-option-inline {
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.format-option-inline:hover:not(.active) {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.format-option-inline.active {
+  background-color: transparent;
+  box-shadow: none;
+  color: #FFFFFF;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.format-divider-inline {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  opacity: 0.4;
+}
+
+.modifiers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.modifier-item {
+  background-color: var(--bg-hover);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modifier-item:hover {
+  border-color: var(--text-accent);
+  background-color: rgba(0, 152, 255, 0.05);
+}
+
+.modifier-item label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.modifier-item input[type="number"] {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid var(--border-primary);
+  color: var(--text-value);
+  font-size: 1.1rem;
+  font-family: var(--font-mono);
+  padding: 0.25rem 0;
+  width: 100%;
+  transition: border-color 0.2s ease;
+  -moz-appearance: textfield;
+}
+
+.modifier-item input[type="number"]::-webkit-outer-spin-button,
+.modifier-item input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.modifier-item input[type="number"]:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+.modifier-item input[type="number"]::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+.modifier-item.modifier-toggle label {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; cursor: pointer; margin-bottom: 0;
+}
+
+.modifier-item.modifier-toggle input[type="checkbox"] { display: none; }
+
+.toggle-switch {
+  position: relative; display: inline-block;
+  width: 40px; height: 22px;
+  background-color: var(--bg-input);
+  border-radius: 22px;
+  transition: background-color 0.3s;
+  border: 1px solid var(--border-primary);
+}
+
+.toggle-switch::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background-color: var(--text-secondary);
+  top: 2px; left: 2px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.modifier-item.modifier-toggle input:checked + .toggle-switch {
+  background-color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+.modifier-item.modifier-toggle input:checked + .toggle-switch::after {
+  transform: translateX(18px);
+  background-color: white;
+}
+
+
+/* ==========================================================================
+   8. FİNALİZE EDİLMİŞ KURALLAR LİSTESİ
+   ========================================================================== */
+
+.finalized-rules-list { 
+  display: flex !important; 
+  flex-direction: column !important; 
+  position: relative !important;
+  min-height: 400px;
+}
+
+.rules-toolbar {
+    position: absolute;
+    top: -10px;
+    right: var(--space-lg);
+    z-index: 10;
+    display: flex;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+    background-color: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.rules-toolbar button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.rules-toolbar button:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.rules-scroll-wrapper { 
+  padding-right: var(--space-sm);
+  padding-top: 45px; /* Toolbar'a yer açmak için */
+}
+
+.finalized-rule-container {
+  position: relative;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-lg);
+  margin-top: var(--space-xl);
+  transition: var(--transition-fast);
+  background-color: var(--bg-panel-solid);
+}
+
+.finalized-rule-container:hover {
+  border-color: var(--text-secondary);
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.finalized-rule-container.is-being-edited {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 10px var(--text-accent);
+}
+
+.finalized-rule-container.is-selected {
+  border-left: 4px solid var(--text-accent);
+}
 /* Light tema için finalize kutuları daha belirgin olsun */
 .theme-light .finalized-rule-container {
   background-color: #f5f5f5;
@@ -460,31 +746,46 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 .rule-actions {
   position: absolute;
-  top: -10px;
-  left: 15px;
-  display: flex;
-  gap: 0.5rem;
+  top: -18px;
+  left: var(--space-md);
   z-index: 20;
-}
-.rule-action-btn {
-  background-color: #121212;
-  color: var(--text-secondary);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  border-radius: var(--radius);
+  background-color: var(--bg-panel-solid);
   border: 1px solid var(--border-primary);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  opacity: 1;
+}
+
+.rule-selection-checkbox { 
+  cursor: pointer;
+  margin-right: var(--space-xs);
+}
+
+.rule-action-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
   border-radius: 4px;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-fast);
 }
-.rule-action-btn:hover:not(:disabled) {
-  background-color: #3c3c3c;
-  color: var(--text-primary);
-  border-color: var(--text-accent);
+
+.rule-action-btn:hover:not(:disabled) { 
+  background-color: var(--bg-hover); 
+  color: var(--text-primary); 
+  transform: scale(1.1); 
 }
+
 .rule-action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -492,36 +793,36 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 
 /* ==========================================================================
-   BİLGİ PANELİ (GELİŞTİRİLMİŞ)
+   9. SAĞ BİLGİ PANELİ (GENEL)
    ========================================================================== */
-.panel-placeholder {
-  padding: 1.5rem;
-  text-align: center;
-  color: var(--text-secondary);
-}
+
 .info-panel-content, .all-options-info {
   padding: 1.5rem;
 }
+
 .info-panel-content h3, .all-options-info h3 {
   margin-top: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 1.5rem;
   border-bottom: 2px solid var(--border-primary);
   padding-bottom: 0.75rem;
   margin-bottom: 1.5rem;
 }
+
 .info-panel-content p, .all-options-info p {
   line-height: 1.6;
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
   font-size: 0.95rem;
 }
+
 .info-options-list {
   list-style: none;
   padding: 0;
-  margin-top: 1rem;
+  margin: 1rem 0 0 0;
   padding-top: 0.5rem;
 }
+
 .info-options-list li {
   background-color: var(--bg-hover);
   padding: 0.75rem 1rem;
@@ -530,31 +831,48 @@ input:checked + .slider:before { transform: translateX(18px); }
   display: flex;
   flex-direction: column;
   border-left: 4px solid var(--text-secondary);
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease-in-out;
 }
-.info-options-list li:hover {
-  background-color: rgba(255, 255, 255, 0.08); /* Koyu tema için özel hover */
-}
+
 .theme-light .info-options-list li:hover {
-    background-color: rgba(0, 0, 0, 0.08); /* Açık tema için özel hover */
+    background-color: rgba(0, 0, 0, 0.08);
 }
+
+.theme-dark .info-options-list li:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
 .info-options-list li strong {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
+
 .info-options-list li span {
   color: var(--text-secondary);
   font-size: 0.85rem;
 }
+
+.info-options-list.has-highlight li:not(.is-highlighted) {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+.info-options-list li.is-highlighted {
+  border-left-color: var(--text-accent);
+  transform: scale(1.03);
+  opacity: 1;
+  box-shadow: 0 0 15px -3px var(--text-accent); 
+}
+
 .info-summary {
   font-size: 1.1rem;
   color: var(--text-primary);
   margin-bottom: 2rem;
 }
-.info-block {
-  margin-bottom: 1.5rem;
-}
+
+.info-block { margin-bottom: 1.5rem; }
+
 .info-block h4 {
   color: var(--text-secondary);
   font-weight: bold;
@@ -564,6 +882,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .info-code {
   background-color: var(--bg-code);
   padding: 1rem;
@@ -571,16 +890,134 @@ input:checked + .slider:before { transform: translateX(18px); }
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
 .info-code code {
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   color: var(--text-value);
 }
 
+
 /* ==========================================================================
-   DENETİM PANELİ STİLLERİ
+   10. SAĞ BİLGİ PANELİ (SEKMELİ YAPI VE PAYLOAD ANALİZİ)
    ========================================================================== */
 
+.info-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.info-panel-tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-primary);
+  margin: -24px -24px 16px -24px;
+  padding: 0 var(--space-lg);
+}
+
+.tab-button {
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.tab-button:hover { color: var(--text-primary); }
+.tab-button.active { color: var(--text-accent); border-bottom-color: var(--text-accent); }
+.info-panel-body { flex-grow: 1; overflow-y: auto; min-height: 0; padding-right: var(--space-sm); }
+.panel-placeholder { padding: 1.5rem; text-align: center; color: var(--text-secondary); }
+
+/* Payload Analiz Paneli */
+.payload-visualizer-panel { display: flex; flex-direction: column; height: 100%; }
+.pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); flex-grow: 1; overflow: hidden; height: 100%; }
+.pv-inputs, .pv-results { display: flex; flex-direction: column; gap: var(--space-lg); overflow-y: auto; padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-xs); }
+.pv-section { display: flex; flex-direction: column; }
+.pv-section-header { display: flex; justify-content: space-between; align-items: center; }
+.pv-section-header label { margin-bottom: 0; }
+.pv-section label {
+  font-weight: 500; color: var(--text-secondary); margin-bottom: var(--space-sm);
+  font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* Panel içindeki tüm metin giriş alanları için ortak stil */
+.payload-visualizer-panel textarea, 
+.payload-visualizer-panel input[type="text"] {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--radius) !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.9rem !important;
+  transition: var(--transition-fast) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.payload-visualizer-panel textarea { resize: vertical; min-height: 100px; }
+.payload-visualizer-panel textarea:focus, 
+.payload-visualizer-panel input[type="text"]:focus {
+  outline: none !important;
+  border-color: var(--text-accent) !important;
+  box-shadow: 0 0 0 2px var(--text-accent) !important;
+}
+
+.pv-matchers-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-matcher-item { display: flex; align-items: center; gap: var(--space-sm); }
+.pv-matcher-item > span { color: var(--text-secondary); }
+.pv-matcher-action-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: var(--space-xs); transition: var(--transition-fast); }
+.pv-matcher-action-btn:hover:not(:disabled) { color: var(--danger-color); }
+.pv-matcher-action-btn:disabled { opacity: 0.3; }
+.pv-add-matcher-btn {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md); background-color: transparent;
+  border: 1px dashed var(--border-primary); color: var(--text-secondary);
+  border-radius: var(--radius); font-weight: 500; cursor: pointer;
+  transition: var(--transition-fast); margin-top: var(--space-sm);
+}
+.pv-add-matcher-btn:hover { border-style: solid; border-color: var(--text-accent); color: var(--text-accent); }
+
+.pv-analyze-btn {
+    padding: var(--space-md); background-color: var(--text-accent);
+    border: none; color: white; font-size: 1rem; font-weight: 600;
+    border-radius: var(--radius); cursor: pointer; transition: var(--transition-fast);
+    margin-top: var(--space-lg);
+}
+.pv-analyze-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+.pv-visualization {
+  background-color: var(--bg-code); padding: var(--space-md);
+  border-radius: var(--radius); white-space: pre-wrap; word-break: break-all;
+  font-family: var(--font-mono); color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+}
+.pv-viz-match { color: var(--text-value); font-weight: bold; }
+.pv-copy-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0.5; transition: var(--transition-fast); }
+.pv-copy-btn:hover { opacity: 1; color: var(--text-accent); }
+
+.pv-calculations { display: flex; flex-direction: column; gap: var(--space-md); }
+.pv-calc-item { background-color: var(--bg-hover); padding: var(--space-md); border-radius: var(--radius); border-left: 3px solid var(--text-accent); }
+.pv-calc-header { font-family: var(--font-mono); margin-bottom: var(--space-sm); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-primary); }
+.pv-calc-values { margin-top: var(--space-sm); display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-calc-value { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); color: var(--text-value); }
+.pv-calc-value button { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0.5; transition: var(--transition-fast); }
+.pv-calc-value:hover button { opacity: 1; }
+.pv-calc-value button:hover { color: var(--text-accent); }
+
+.pv-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); border: 2px dashed var(--border-primary); border-radius: var(--radius); text-align: center; padding: var(--space-md); }
+.pv-placeholder p { margin-top: var(--space-md); }
+.pv-error { color: var(--danger-color); background-color: rgba(255,107,107, 0.1); border-color: var(--danger-color); border: 2px dashed; border-radius: var(--radius); padding: var(--space-md); text-align: center; }
+
+
+/* ==========================================================================
+   11. DENETİM (VALIDATION) PANELİ
+   ========================================================================== */
 .validation-panel {
   padding: 0.5rem 0;
   margin-top: 1rem;
@@ -681,25 +1118,60 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 /* ==========================================================================
-   MITRE ATT&CK Editör Stilleri
+   12. MITRE ATT&CK EDİTÖRÜ
    ========================================================================== */
 
-/* Editörün ana kartı */
+.metadata-toolbar {
+  text-align: right;
+  margin: 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-primary);
+}
+
+.mitre-toggle-btn, .mitre-done-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.mitre-toggle-btn {
+  color: var(--text-accent);
+  margin-right: 1rem;
+}
+
+.mitre-toggle-btn:hover {
+  background-color: var(--text-accent);
+  border-color: var(--text-accent);
+  color: #ffffff;
+}
+
+.mitre-done-btn {
+  color: var(--text-secondary);
+  margin-right: 0.75rem; 
+}
+
+.mitre-done-btn:hover {
+  background-color: var(--bg-suggestion-hover);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
 .mitre-editor-card {
   background-color: var(--bg-hover);
   border: 1px solid var(--border-primary);
   border-radius: 6px;
   padding: 1rem 1.5rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  margin-right: 1rem;
+  margin: 1rem 1rem 1rem 0;
   animation: fadeIn 0.3s ease-out;
 }
 
-/* "MITRE ATT&CK Eşlemesi Ekle" başlığı */
 .mitre-editor-card h4 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.5rem 0;
   color: var(--text-accent);
   border-bottom: 1px solid var(--border-primary);
   padding-bottom: 1rem;
@@ -710,17 +1182,15 @@ input:checked + .slider:before { transform: translateX(18px); }
   align-items: center;
 }
 
-/* Seçim kutularını (dropdown) içeren kapsayıcı */
 .mitre-selectors {
   display: flex;
-  gap: 1rem; /* Kutular arası boşluk */
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-/* Her bir seçim kutusu (select) */
 .mitre-selectors select {
-  flex-grow: 1; /* Boşluğu dolduracak şekilde esne */
-  width: 33%; /* Eşit genişlikte başlamaları için */
+  flex-grow: 1;
+  width: 33%;
   background-color: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-primary);
@@ -744,10 +1214,9 @@ input:checked + .slider:before { transform: translateX(18px); }
   background-color: var(--bg-hover);
 }
 
-/* "Eşlemeyi Ekle" butonu */
 .mitre-add-btn {
-  display: block; /* Butonun tam genişlik kaplamasını engeller */
-  margin-left: auto; /* Sağa yaslamak için */
+  display: block;
+  margin-left: auto;
   padding: 0.6rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -760,7 +1229,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 .mitre-add-btn:hover:not(:disabled) {
-  background-color: #007acc; /* Hover rengini biraz daha belirgin yapalım */
+  background-color: #007acc;
 }
 
 .mitre-add-btn:disabled {
@@ -768,7 +1237,6 @@ input:checked + .slider:before { transform: translateX(18px); }
   cursor: not-allowed;
 }
 
-/* Yükleniyor... yazısı */
 .loader {
   color: var(--text-secondary);
   font-style: italic;
@@ -776,51 +1244,13 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-weight: normal;
 }
 
-/* ==========================================================================
-   MITRE Buton ve Araç Çubuğu Stilleri
-   ========================================================================== */
-
-/* "MITRE ATT&CK Ekle" butonunu içeren araç çubuğu */
-.metadata-toolbar {
-  text-align: right;
-  margin-top: 1rem;
-  padding-top: 1rem;
-    margin-bottom: 1rem;
-  border-top: 1px dashed var(--border-primary);
-}
-
-/* "MITRE ATT&CK Ekle" / "Gizle" butonu */
-.mitre-toggle-btn {
-  background-color: transparent;
-  color: var(--text-accent);
-  border: 1px solid var(--border-primary);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  margin-right: 1rem;
-}
-
-.mitre-toggle-btn:hover {
-  background-color: var(--text-accent);
-  border-color: var(--text-accent);
-  color: #ffffff;
-}
-/* ==========================================================================
-   Özel Seçim Menüsü (Custom Select) Stilleri
-   ========================================================================== */
-
 .custom-select-container {
   position: relative;
   width: 33%;
   flex-grow: 1;
 }
 
-.custom-select-container.disabled {
-  opacity: 0.5;
-}
+.custom-select-container.disabled { opacity: 0.5; }
 
 .custom-select-display {
   width: 100%;
@@ -851,8 +1281,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .custom-select-options {
   position: absolute;
   top: 105%;
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   z-index: 1000;
   background-color: var(--bg-input);
   border: 1px solid var(--border-primary);
@@ -876,124 +1305,138 @@ input:checked + .slider:before { transform: translateX(18px); }
   background-color: var(--bg-suggestion-hover);
 }
 
-/* ==========================================================================
-   Bilgi Paneli Vurgu Stili (Gelişmiş)
-   ========================================================================== */
-
-
-.info-options-list li {
-  transition: all 0.3s ease-in-out;
-}
-
-
-.info-options-list.has-highlight li:not(.is-highlighted) {
-  opacity: 0.4;
-  transform: scale(0.98);
-}
-
-/* Yeni "parlama" efekti */
-.info-options-list li.is-highlighted {
-  background-color: var(--bg-hover);
-  border-left-color: var(--text-accent);
-  border-left-width: 4px;
-  transform: scale(1.03); /* Vurgulanınca hafifçe büyüsün */
-  opacity: 1; /* Tamamen görünür olsun */
-  /* Kenar parlaması için box-shadow kullanıyoruz */
-  box-shadow: 0 0 15px -3px var(--text-accent); 
-}
 
 /* ==========================================================================
-   MITRE "Bitti" Butonu Stili
+   13. ÇEŞİTLİ BİLEŞEN VE ANİMASYONLAR
    ========================================================================== */
 
-.mitre-done-btn {
-  background-color: var(--bg-hover);
+/* "Geri Dön" butonu vurgusu */
+.is-editing-active-btn {
+  background-color: var(--text-accent) !important;
+  color: white !important;
+  border-color: var(--text-accent) !important;
+  box-shadow: 0 0 10px rgba(56, 157, 255, 0.5) !important;
+  transform: scale(1.05);
+}
+
+.is-editing-active-btn:hover {
+  background-color: #5baeff !important;
+  box-shadow: 0 0 15px rgba(56, 157, 255, 0.7) !important;
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(56, 157, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0); }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+/* Payload Visualizer açma butonu */
+.pv-open-btn {
+  background: transparent;
+  border: none;
   color: var(--text-secondary);
-  border: 1px solid var(--border-primary);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
+  padding: 0;
+  margin-right: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: var(--transition-fast);
+}
+
+.pv-open-btn:hover {
+  opacity: 1;
+  color: var(--text-accent);
+}
+
+
+/* ==========================================================================
+   14. PAYLOAD VISUALIZER MODAL PENCERESİ
+   ========================================================================== */
+
+.pv-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.pv-modal {
+  width: 90%;
+  max-width: 1200px;
+  height: 80%;
+  max-height: 800px;
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  /* Not: Bu pencereye .glass-effect class'ı eklenirse cam gibi görünür. */
+}
+
+.pv-close-btn {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: 50%;
+  transition: var(--transition-fast);
+}
+
+.pv-close-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.pv-modal h3 {
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
   font-weight: 600;
-  margin-right: 0.75rem; 
-  transition: all 0.2s ease;
 }
 
-.mitre-done-btn:hover {
-  background-color: var(--bg-suggestion-hover);
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
-}
-
-/* ==========================================================================
-   YENİ: CONTENT EDİTÖRÜ FORMAT SEÇİCİ STİLLERİ
-   ========================================================================== */
-.content-editor-main-row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem; 
-  margin-bottom: 0.5rem;
-}
-
-.content-format-selector {
-  display: flex;
-  align-items: center;
-  background-color: var(--bg-hover);
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  flex-shrink: 0; /* Küçülmesini engeller */
-}
-
-.format-label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-right: 1rem;
-}
-
-.format-options {
-  display: flex;
-  gap: 1rem;
-}
-
-.format-options label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.format-options input[type="radio"] {
-  margin-right: 0.4rem;
-
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+/* Modal içindeki text ve input alanları (Paneldekiyle aynı stili kullanıyor) */
+.pv-modal textarea, .pv-modal input[type="text"] {
+  background-color: var(--bg-input);
   border: 1px solid var(--border-primary);
-  border-radius: 50%;
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pv-modal textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.pv-modal textarea:focus, .pv-modal input[type="text"]:focus {
   outline: none;
-  cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.format-options input[type="radio"]:checked {
-  background-color: var(--text-accent);
   border-color: var(--text-accent);
-}
-
-.format-options input[type="radio"]:before {
-  content: '';
-  display: block;
-  width: 8px;
-  height: 8px;
-  margin: 3px;
-  border-radius: 50%;
-  background-color: white;
-  transform: scale(0);
-  transition: transform 0.2s;
-}
-
-.format-options input[type="radio"]:checked:before {
-  transform: scale(1);
+  box-shadow: 0 0 0 2px var(--text-accent);
 }

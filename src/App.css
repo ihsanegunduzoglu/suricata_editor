@@ -102,16 +102,67 @@ body {
   overflow: hidden;
 }
 
-.app-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  flex-grow: 1;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  overflow: hidden;
+/* ==========================================================================
+   2. ANA YERLEŞİM (YENİ: AYARLANABİLİR PANELLER)
+   ========================================================================== */
+
+.app-layout-resizable {
+  flex-grow: 1 !important;
+  gap: var(--space-md) !important;
+  padding: var(--space-md) !important;
+  overflow: hidden !important;
 }
-.app-layout.single-column {
-  grid-template-columns: 1fr;
+
+/* Panelleri ayıran tutamaç (handle) için stil */
+.resize-handle {
+  width: var(--space-md);
+  position: relative;
+  outline: none;
+  background-clip: padding-box;
+  background-color: transparent;
+}
+
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+  transition: var(--transition-fast);
+}
+
+.resize-handle:hover::before,
+.resize-handle[data-resize-handle-state="drag"]::before {
+  background-color: var(--text-accent);
+}
+
+/* Diğer Yerleşim Stilleri... */
+.main-content-area, .right-info-panel {
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%; /* Panelin içini tamamen doldurması için */
+}
+
+.main-content-area {
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  gap: var(--space-xl) !important;
+  padding: var(--space-lg) !important;
+  overflow: hidden !important;
+}
+.active-editor-container {
+  overflow-y: visible !important;
+  min-height: 350px;
+}
+.right-info-panel {
+  padding: var(--space-lg);
+  overflow-y: auto;
 }
 
 .main-content-area, .right-info-panel {
@@ -453,7 +504,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   margin-top: 0.20rem;
   border-bottom: 2px solid transparent;
   border-radius: 4px;
-  padding-right: 120px !important; /* Format seçiciye yer aç */
+  padding-right: 150px !important; /* Format seçiciye ve PV butonuna yer aç */
 }
 .option-value-input:focus {
   outline: none;
@@ -1035,4 +1086,368 @@ input:checked + .slider:before { transform: translateX(18px); }
 /* Animasyonu butona uygula */
 .pulse-animation {
   animation: pulse 2s infinite;
+}
+
+/* ==========================================================================
+   YENİ: PAYLOAD VISUALIZER PENCERE STİLLERİ (GELİŞTİRİLMİŞ)
+   ========================================================================== */
+
+.pv-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.pv-modal {
+  width: 90%;
+  max-width: 1200px;
+  height: 80%;
+  max-height: 800px;
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.pv-close-btn {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: 50%;
+  transition: var(--transition-fast);
+}
+.pv-close-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.pv-modal h3 {
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.pv-inputs, .pv-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  overflow-y: auto;
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-xs);
+}
+
+.pv-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.pv-section label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pv-modal textarea, .pv-modal input[type="text"] {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+}
+.pv-modal textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.pv-modal textarea:focus, .pv-modal input[type="text"]:focus {
+  outline: none;
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 2px var(--text-accent);
+}
+
+.pv-matchers-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-matcher-item { display: flex; align-items: center; gap: var(--space-sm); }
+.pv-matcher-item > span { color: var(--text-secondary); }
+.pv-matcher-action-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: var(--space-xs); transition: var(--transition-fast); }
+.pv-matcher-action-btn:hover:not(:disabled) { color: var(--danger-color); }
+.pv-matcher-action-btn:disabled { opacity: 0.3; }
+
+.pv-add-matcher-btn {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md); background-color: transparent;
+  border: 1px dashed var(--border-primary); color: var(--text-secondary);
+  border-radius: var(--radius); font-weight: 500; cursor: pointer;
+  transition: var(--transition-fast); margin-top: var(--space-sm);
+}
+.pv-add-matcher-btn:hover { border-style: solid; border-color: var(--text-accent); color: var(--text-accent); }
+
+.pv-analyze-btn {
+    padding: var(--space-md); background-color: var(--text-accent);
+    border: none; color: white; font-size: 1rem; font-weight: 600;
+    border-radius: var(--radius); cursor: pointer; transition: var(--transition-fast);
+    margin-top: auto; /* En alta sabitler */
+}
+.pv-analyze-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+.pv-visualization {
+  background-color: var(--bg-code); padding: var(--space-md);
+  border-radius: var(--radius); white-space: pre-wrap; word-break: break-all;
+  font-family: var(--font-mono); color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+}
+
+.pv-calculations { display: flex; flex-direction: column; gap: var(--space-md); }
+.pv-calc-item { background-color: var(--bg-hover); padding: var(--space-md); border-radius: var(--radius); border-left: 3px solid var(--text-accent); }
+.pv-calc-header { font-family: var(--font-mono); margin-bottom: var(--space-sm); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-primary); }
+.pv-calc-values { margin-top: var(--space-sm); display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-calc-value { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); color: var(--text-value); }
+.pv-calc-value button { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0.5; transition: var(--transition-fast); }
+.pv-calc-value:hover button { opacity: 1; }
+.pv-calc-value button:hover { color: var(--text-accent); }
+
+.pv-placeholder, .pv-error { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); border: 2px dashed var(--border-primary); border-radius: var(--radius); text-align: center; padding: var(--space-md); }
+.pv-error { color: var(--danger-color); background-color: rgba(255,107,107, 0.1); border-color: var(--danger-color); }
+
+/* ==========================================================================
+   YENİ: PAYLOAD VISUALIZER AÇMA BUTONU STİLİ
+   ========================================================================== */
+
+/* Payload analiz aracını açan buton */
+.pv-open-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  margin-right: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: var(--transition-fast);
+}
+
+.pv-open-btn:hover {
+  opacity: 1;
+  color: var(--text-accent);
+}
+
+/* ==========================================================================
+   BİLGİ PANELİ SEKME VE PAYLOAD ANALİZ STİLLERİ
+   ========================================================================== */
+
+.info-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.info-panel-tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-primary);
+  margin: -24px -24px 16px -24px; /* Panelin padding'ini sıfırlar */
+  padding: 0 var(--space-lg);
+}
+
+.tab-button {
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.tab-button:hover {
+  color: var(--text-primary);
+}
+
+.tab-button.active {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
+}
+
+.info-panel-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.payload-visualizer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ==========================================================================
+   BİLGİ PANELİ SEKME VE PAYLOAD ANALİZ STİLLERİ (GELİŞTİRİLMİŞ)
+   ========================================================================== */
+
+.info-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.info-panel-tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-primary);
+  margin: -24px -24px 16px -24px;
+  padding: 0 var(--space-lg);
+}
+
+.tab-button {
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+.tab-button:hover { color: var(--text-primary); }
+.tab-button.active { color: var(--text-accent); border-bottom-color: var(--text-accent); }
+.info-panel-body { flex-grow: 1; overflow-y: auto; min-height: 0; padding-right: var(--space-sm); }
+
+.payload-visualizer-panel { display: flex; flex-direction: column; height: 100%; }
+.pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); flex-grow: 1; overflow: hidden; height: 100%; }
+.pv-inputs, .pv-results { display: flex; flex-direction: column; gap: var(--space-lg); overflow-y: auto; padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-xs); }
+.pv-section { display: flex; flex-direction: column; }
+.pv-section-header { display: flex; justify-content: space-between; align-items: center; }
+.pv-section-header label { margin-bottom: 0; }
+.pv-section label {
+  font-weight: 500; color: var(--text-secondary); margin-bottom: var(--space-sm);
+  font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pv-modal textarea, .pv-modal input[type="text"] {
+  background-color: var(--bg-input); border: 1px solid var(--border-primary);
+  border-radius: var(--radius); padding: var(--space-sm) var(--space-md);
+  color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem;
+  transition: var(--transition-fast); width: 100%; box-sizing: border-box;
+}
+.pv-modal textarea { resize: vertical; min-height: 100px; }
+.pv-modal textarea:focus, .pv-modal input[type="text"]:focus {
+  outline: none; border-color: var(--text-accent); box-shadow: 0 0 0 2px var(--text-accent);
+}
+.pv-matchers-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-matcher-item { display: flex; align-items: center; gap: var(--space-sm); }
+.pv-matcher-item > span { color: var(--text-secondary); }
+.pv-matcher-action-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: var(--space-xs); transition: var(--transition-fast); }
+.pv-matcher-action-btn:hover:not(:disabled) { color: var(--danger-color); }
+.pv-matcher-action-btn:disabled { opacity: 0.3; }
+.pv-add-matcher-btn {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md); background-color: transparent;
+  border: 1px dashed var(--border-primary); color: var(--text-secondary);
+  border-radius: var(--radius); font-weight: 500; cursor: pointer;
+  transition: var(--transition-fast); margin-top: var(--space-sm);
+}
+.pv-add-matcher-btn:hover { border-style: solid; border-color: var(--text-accent); color: var(--text-accent); }
+.pv-analyze-btn {
+    padding: var(--space-md); background-color: var(--text-accent);
+    border: none; color: white; font-size: 1rem; font-weight: 600;
+    border-radius: var(--radius); cursor: pointer; transition: var(--transition-fast);
+    margin-top: auto;
+}
+.pv-analyze-btn:hover { opacity: 0.9; transform: scale(1.02); }
+.pv-visualization {
+  background-color: var(--bg-code); padding: var(--space-md);
+  border-radius: var(--radius); white-space: pre-wrap; word-break: break-all;
+  font-family: var(--font-mono); color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+}
+.pv-viz-match {
+  color: var(--text-value);
+  font-weight: bold;
+}
+.pv-copy-btn {
+  background: transparent; border: none; color: var(--text-secondary);
+  cursor: pointer; opacity: 0.5; transition: var(--transition-fast);
+}
+.pv-copy-btn:hover { opacity: 1; color: var(--text-accent); }
+.pv-calculations { display: flex; flex-direction: column; gap: var(--space-md); }
+.pv-calc-item { background-color: var(--bg-hover); padding: var(--space-md); border-radius: var(--radius); border-left: 3px solid var(--text-accent); }
+.pv-calc-header { font-family: var(--font-mono); margin-bottom: var(--space-sm); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border-primary); }
+.pv-calc-values { margin-top: var(--space-sm); display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-calc-value { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); color: var(--text-value); }
+.pv-calc-value button { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0.5; transition: var(--transition-fast); }
+.pv-calc-value:hover button { opacity: 1; }
+.pv-calc-value button:hover { color: var(--text-accent); }
+.pv-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); border: 2px dashed var(--border-primary); border-radius: var(--radius); text-align: center; padding: var(--space-md); }
+.pv-placeholder p { margin-top: var(--space-md); }
+.pv-error { color: var(--danger-color); background-color: rgba(255,107,107, 0.1); border-color: var(--danger-color); border: 2px dashed; border-radius: var(--radius); padding: var(--space-md); text-align: center; }
+
+/* ==========================================================================
+   PAYLOAD ANALİZ PANELİ INPUT STİLLERİ (DÜZELTİLMİŞ)
+   ========================================================================== */
+
+/* Payload Analiz panelindeki tüm metin giriş alanları için ortak stil */
+.payload-visualizer-panel textarea, 
+.payload-visualizer-panel input[type="text"] {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--radius) !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.9rem !important;
+  transition: var(--transition-fast) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Büyük metin alanı için ek stiller */
+.payload-visualizer-panel textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Odaklanma (focus) efekti */
+.payload-visualizer-panel textarea:focus, 
+.payload-visualizer-panel input[type="text"]:focus {
+  outline: none !important;
+  border-color: var(--text-accent) !important;
+  box-shadow: 0 0 0 2px var(--text-accent) !important;
 }

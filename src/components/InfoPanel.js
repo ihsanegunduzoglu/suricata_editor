@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
+import PayloadVisualizer from './PayloadVisualizer';
 
 const MitreTacticList = () => {
     const { activeTopic } = useRule();
@@ -12,7 +13,6 @@ const MitreTacticList = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // API adresindeki yazım hatası düzeltildi
         fetch('http://127.0.0.1:5000/api/tactics')
             .then(res => res.json())
             .then(data => { setTactics(data); setIsLoading(false); })
@@ -21,7 +21,6 @@ const MitreTacticList = () => {
 
     useEffect(() => {
         if (activeTopic && listRef.current) {
-            // GÜVENLİ YÖNTEM: CSS.escape() kullanıldı
             const el = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -134,7 +133,6 @@ const AllOptionsInfo = () => {
     
     useEffect(() => {
         if (typeof activeTopic === 'string' && activeTopic && listRef.current) {
-            // GÜVENLİ YÖNTEM: CSS.escape() kullanıldı
             const highlightedElement = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (highlightedElement) {
                 highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -143,7 +141,7 @@ const AllOptionsInfo = () => {
     }, [activeTopic]);
 
     return (
-        <div className="all-options-info">
+        <div className="info-panel-content all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
             <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
             <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
@@ -161,7 +159,7 @@ const AllOptionsInfo = () => {
 const AllModifiersInfo = () => {
     const modifierKeywords = Object.keys(optionsDictionary).filter(k => optionsDictionary[k].isModifier);
     return (
-        <div className="all-options-info">
+        <div className="info-panel-content all-options-info">
             <h3>"content" Değiştiricileri</h3>
             <p>"content" anahtar kelimesinin davranışını değiştiren tüm seçenekler:</p>
             <ul className="info-options-list">
@@ -176,7 +174,7 @@ const AllModifiersInfo = () => {
     );
 };
 
-const InfoPanel = () => {
+const InfoView = () => {
     const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
     const currentInfo = (typeof activeTopic === 'string' && activeTopic) ? infoData[activeTopic] : null;
 
@@ -206,6 +204,33 @@ const InfoPanel = () => {
         <div className="panel-placeholder">
             <h3>Bilgi Paneli</h3>
             <p>Kuralın bir bölümünü seçerek hakkında detaylı bilgi alabilirsiniz.</p>
+        </div>
+    );
+};
+
+const InfoPanel = () => {
+    const { infoPanelTab, setInfoPanelTab } = useRule();
+
+    return (
+        <div className="info-panel-container">
+            <div className="info-panel-tabs">
+                <button 
+                    className={`tab-button ${infoPanelTab === 'info' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('info')}
+                >
+                    Bilgi
+                </button>
+                <button 
+                    className={`tab-button ${infoPanelTab === 'payload' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('payload')}
+                >
+                    Payload Analiz
+                </button>
+            </div>
+            <div className="info-panel-body">
+                {infoPanelTab === 'info' && <InfoView />}
+                {infoPanelTab === 'payload' && <PayloadVisualizer />}
+            </div>
         </div>
     );
 };

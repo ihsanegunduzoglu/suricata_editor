@@ -1,5 +1,6 @@
 // src/components/Workbench.js
-import React, { useRef, useEffect } from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
@@ -7,8 +8,11 @@ import { toast } from 'react-toastify';
 import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
+import { optionsDictionary } from '../data/optionsDictionary';
 import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
-import { optionsDictionary } from '../data/optionsDictionary'; // Gerekli import geri eklendi
+
+// YENİ: react-resizable-panels kütüphanesinden bileşenleri import ediyoruz
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
     const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, selectedRuleIds, setSelectedRuleIds, importRules, updateRuleOptions } = useRule();
@@ -18,36 +22,25 @@ const Workbench = () => {
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
 
-    // YENİ: Protokol değişikliğini dinleyen ve uyumsuz seçenekleri temizleyen useEffect geri eklendi
     const prevProtocolRef = useRef();
     useEffect(() => {
         if (!activeSession) return;
         const currentProtocol = activeSession.headerData.Protocol;
-
-        // Sadece protokol gerçekten değiştiğinde ve bu ilk render olmadığında çalış
         if (prevProtocolRef.current && currentProtocol !== prevProtocolRef.current) {
             const originalOptions = activeSession.ruleOptions;
-            
             const cleanedOptions = originalOptions.filter(option => {
                 const optionInfo = optionsDictionary[option.keyword];
-                if (!optionInfo?.dependsOnProtocol) {
-                    return true; // Bağımlılık yoksa koru
-                }
-                return optionInfo.dependsOnProtocol === currentProtocol.toLowerCase(); // Varsa ve eşleşiyorsa koru
+                if (!optionInfo?.dependsOnProtocol) return true;
+                return optionInfo.dependsOnProtocol === currentProtocol.toLowerCase();
             });
-
             const removedCount = originalOptions.length - cleanedOptions.length;
             if (removedCount > 0) {
                 updateRuleOptions(activeSession.id, cleanedOptions);
-                // İsteğin üzerine eklenen bildirim
                 toast.warn(`${removedCount} adet seçenek, yeni protokolle uyumsuz olduğu için kaldırıldı.`);
             }
         }
-        // Mevcut protokolü, bir sonraki kontrol için referansta sakla
         prevProtocolRef.current = currentProtocol;
-
     }, [activeSession?.headerData.Protocol, activeSession?.id, activeSession?.ruleOptions, updateRuleOptions]);
-
 
     const handleExport = () => {
         const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.size === 0 || selectedRuleIds.has(session.id));
@@ -87,54 +80,63 @@ const Workbench = () => {
         });
     };
     
-    const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
-
+    // DEĞİŞİKLİK: Eski .app-layout yapısı yerine PanelGroup kullanıyoruz
     return (
         <div className="app-container">
             <TopMenuBar />
-            <div className={layoutClassName}>
-                <div className="main-content-area glass-effect">
-                    <div className="active-editor-container">
-                        {activeSession ? (
-                            <div className="active-editor-wrapper">
-                                <HeaderEditor key={activeSession.id} session={activeSession} />
-                            </div>
-                        ) : (
-                            <p>Yeni kural oluşturuluyor...</p>
-                        )}
-                        <ValidationPanel />
-                    </div>
-                    {isRulesListVisible && (
-                        <div className="finalized-rules-list">
-                            <div className="rules-toolbar">
-                                <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
-                                <button onClick={handleExport}><FileDown size={16}/> Export</button>
-                                <button onClick={allSelected ? clearSelection : selectAllFinalized}>
-                                    {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>}
-                                    {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
-                                </button>
-                            </div>
-                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
-                            <div className="rules-scroll-wrapper"> 
-                                {finalizedSessions.slice().reverse().map(session => (
-                                    <FinalizedRule 
-                                        key={session.id} 
-                                        session={session} 
-                                        isBeingEdited={session.id === editingSourceId}
-                                        isSelected={selectedRuleIds.has(session.id)}
-                                        onToggleSelect={() => handleToggleSelect(session.id)}
-                                    />
-                                ))}
-                            </div>
+            <PanelGroup direction="horizontal" className="app-layout-resizable">
+                {/* Sol Panel: Ana İçerik */}
+                <Panel defaultSize={65} minSize={30}>
+                    <div className="main-content-area glass-effect">
+                        <div className="active-editor-container">
+                            {activeSession ? (
+                                <div className="active-editor-wrapper">
+                                    <HeaderEditor key={activeSession.id} session={activeSession} />
+                                </div>
+                            ) : (
+                                <p>Yeni kural oluşturuluyor...</p>
+                            )}
+                            <ValidationPanel />
                         </div>
-                    )}
-                </div>
-                {isInfoPanelVisible && (
-                    <div className="right-info-panel glass-effect">
-                        <InfoPanel />
+                        {isRulesListVisible && (
+                            <div className="finalized-rules-list">
+                                <div className="rules-toolbar">
+                                    <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
+                                    <button onClick={handleExport}><FileDown size={16}/> Export</button>
+                                    <button onClick={allSelected ? clearSelection : selectAllFinalized}>
+                                        {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>}
+                                        {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
+                                    </button>
+                                </div>
+                                <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
+                                <div className="rules-scroll-wrapper"> 
+                                    {finalizedSessions.slice().reverse().map(session => (
+                                        <FinalizedRule 
+                                            key={session.id} 
+                                            session={session} 
+                                            isBeingEdited={session.id === editingSourceId}
+                                            isSelected={selectedRuleIds.has(session.id)}
+                                            onToggleSelect={() => handleToggleSelect(session.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
+                </Panel>
+                
+                {/* Paneller Arası Ayırıcı */}
+                <PanelResizeHandle className="resize-handle" />
+
+                {/* Sağ Panel: Bilgi Paneli (Eğer görünürse) */}
+                {isInfoPanelVisible && (
+                    <Panel defaultSize={35} minSize={20}>
+                        <div className="right-info-panel glass-effect">
+                            <InfoPanel />
+                        </div>
+                    </Panel>
                 )}
-            </div>
+            </PanelGroup>
         </div>
     );
 };

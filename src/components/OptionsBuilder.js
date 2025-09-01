@@ -15,10 +15,13 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        setTimeout(() => {
-            addOptionInputRef.current?.focus();
-        }, 0);
-    }, []);
+        // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
+        if (editingIndex === null && !selectedIndex) {
+             setTimeout(() => {
+                addOptionInputRef.current?.focus();
+            }, 0);
+        }
+    }, [editingIndex, selectedIndex]);
 
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
@@ -118,13 +121,10 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         setTimeout(() => addOptionInputRef.current?.focus(), 0);
     };
 
-    // DEĞİŞİKLİK BURADA: Fonksiyon basitleştirildi.
     const handleDeleteOption = (indexToDelete) => {
         const newRuleOptions = session.ruleOptions.filter((_, i) => i !== indexToDelete);
         updateRuleOptions(session.id, newRuleOptions);
         toast.info('Seçenek silindi.');
-
-        // Her durumda seçimi temizle ve arama kutusuna odaklan.
         setSelectedIndex(null);
         addOptionInputRef.current?.focus();
     };
@@ -132,6 +132,9 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
+        
+        // DÜZELTME: Yeni eklenen seçeneği otomatik olarak düzenleme moduna alan satır geri eklendi.
+        handleStartEditing(newRuleOptions.length - 1);
     };
 
     const handleNavigateToList = () => {

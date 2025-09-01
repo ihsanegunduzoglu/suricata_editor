@@ -28,9 +28,7 @@ export const RuleProvider = ({ children }) => {
                     return [...finalizedOnly, createNewSession()];
                 }
             }
-        } catch (error) {
-            console.error("Kaydedilmiş kurallar okunurken bir hata oluştu:", error);
-        }
+        } catch (error) { console.error("Kaydedilmiş kurallar okunurken bir hata oluştu:", error); }
         return [createNewSession()];
     });
     
@@ -42,7 +40,8 @@ export const RuleProvider = ({ children }) => {
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
-    const [selectedRuleIds, setSelectedRuleIds] = useState(new Set()); // YENİ: Seçili kuralları tutan state
+    const [selectedRuleIds, setSelectedRuleIds] = useState(new Set());
+    const [infoPanelTab, setInfoPanelTab] = useState('info'); // 'info' veya 'payload'
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
@@ -73,21 +72,18 @@ export const RuleProvider = ({ children }) => {
         setEditingSourceId(null);
         updateOptionsViewActive(false);
         setMitreInfo(null);
-        setSelectedRuleIds(new Set()); // YENİ: Düzenleme iptal edilince seçimi temizle
+        setSelectedRuleIds(new Set());
     };
     
     const finalizeRule = (editorSessionId) => {
         const sessionToFinalize = ruleSessions.find(s => s.id === editorSessionId);
         if (!sessionToFinalize) return;
-
         const finalValidationError = validateRuleForFinalization(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
         if (finalValidationError) {
             toast.error(finalValidationError);
             return;
         }
-        
         const finalRuleString = generateRuleString(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
-        
         if (editingSourceId) {
             setRuleSessions(prev => prev.map(s => {
                 if (s.id === editingSourceId) { return { ...sessionToFinalize, id: editingSourceId, status: 'finalized', ruleString: finalRuleString }; }
@@ -106,12 +102,7 @@ export const RuleProvider = ({ children }) => {
 
     const deleteRule = (sessionId) => {
         setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
-        // YENİ: Silinen kural seçiliyse, seçim listesinden de kaldır
-        setSelectedRuleIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(sessionId);
-            return newSet;
-        });
+        setSelectedRuleIds(prev => { const newSet = new Set(prev); newSet.delete(sessionId); return newSet; });
         toast.info('Kural silindi.');
     };
     
@@ -120,25 +111,17 @@ export const RuleProvider = ({ children }) => {
         const duplicatedDataToEditor = { ...activeSession, headerData: { ...sessionToDuplicate.headerData }, ruleOptions: [...sessionToDuplicate.ruleOptions] };
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? duplicatedDataToEditor : s));
         setEditingSourceId(null);
-        setSelectedRuleIds(new Set()); // YENİ: Kural çoğaltılınca seçimi temizle
+        setSelectedRuleIds(new Set());
         toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
     };
     
-    // YENİ: Dışarıdan kural import etme fonksiyonu
     const importRules = (rulesString) => {
         const lines = rulesString.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
         if (lines.length === 0) {
             toast.warn('İçe aktarılacak geçerli kural bulunamadı.');
             return;
         }
-        const newSessions = lines.map(line => ({
-            id: uuidv4(),
-            status: 'finalized',
-            ruleString: line.trim(),
-            headerData: {}, // Not: Tam bir parser olmadan bu alanlar boş kalır
-            ruleOptions: [], // Not: Tam bir parser olmadan bu alanlar boş kalır
-        }));
-        
+        const newSessions = lines.map(line => ({ id: uuidv4(), status: 'finalized', ruleString: line.trim(), headerData: {}, ruleOptions: [] }));
         setRuleSessions(prev => {
             const editing = prev.find(s => s.status === 'editing');
             const finalized = prev.filter(s => s.status === 'finalized');
@@ -156,33 +139,14 @@ export const RuleProvider = ({ children }) => {
     const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
 
     const value = {
-        ruleSessions,
-        editingSourceId,
-        activeTopic,
-        optionsViewActive,
-        modifierInfoActive,
-        isRulesListVisible,
-        isInfoPanelVisible,
-        theme,
-        activeSession,
-        mitreInfo,
-        selectedRuleIds, // YENİ
-        setSelectedRuleIds, // YENİ
-        importRules, // YENİ
-        updateMitreInfo,
-        updateActiveTopic,
-        updateOptionsViewActive,
-        updateModifierInfoActive,
-        toggleRulesList,
-        toggleInfoPanel,
-        toggleTheme,
-        updateHeaderData,
-        updateRuleOptions,
-        finalizeRule,
-        deleteRule,
-        duplicateRule,
-        startEditingRule,
-        cancelEditing,
+        ruleSessions, editingSourceId, activeTopic, optionsViewActive,
+        modifierInfoActive, isRulesListVisible, isInfoPanelVisible, theme,
+        activeSession, mitreInfo, selectedRuleIds, setSelectedRuleIds,
+        importRules, infoPanelTab, setInfoPanelTab,
+        updateMitreInfo, updateActiveTopic, updateOptionsViewActive,
+        updateModifierInfoActive, toggleRulesList, toggleInfoPanel,
+        toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
+        deleteRule, duplicateRule, startEditingRule, cancelEditing,
     };
 
     return (

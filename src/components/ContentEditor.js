@@ -4,9 +4,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { optionsDictionary } from '../data/optionsDictionary';
 import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
+import { Pipette } from 'lucide-react';
 
 const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
-    const { updateActiveTopic, updateModifierInfoActive } = useRule();
+    const { updateActiveTopic, updateModifierInfoActive, setInfoPanelTab } = useRule();
     const [command, setCommand] = useState('');
     const [isValueConfirmed, setIsValueConfirmed] = useState(false);
     const commandInputRef = useRef(null);
@@ -19,10 +20,9 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
     const availableModifiers = useMemo(() => Object.keys(optionsDictionary).filter(k => optionsDictionary[k].isModifier), []);
     const filteredModifiers = command ? availableModifiers.filter(m => m.startsWith(command.toLowerCase())) : [];
 
-    // YENİ: Editörden çıkarken Bilgi Panelini sıfırlayan merkezi fonksiyon
     const handleStopEditing = () => {
-        updateModifierInfoActive(false); // Bilgi Panelini sıfırla
-        onStopEditing(); // Editörü kapat
+        updateModifierInfoActive(false);
+        onStopEditing();
     };
 
     const handleModifierChange = (modifierKey, modifierValue) => {
@@ -61,13 +61,13 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
         if (e.key === 'Escape') {
             e.preventDefault();
             e.stopPropagation();
-            handleStopEditing(); // DEĞİŞİKLİK: Sıfırlama fonksiyonunu çağır
+            handleStopEditing();
         }
     };
 
     const handleCommandKeyDown = (e) => {
         if (e.key === 'Escape' || (e.key === 'Enter' && command === '')) {
-            handleStopEditing(); // DEĞİŞİKLİK: Sıfırlama fonksiyonunu çağır
+            handleStopEditing();
             return;
         }
         if (e.key === 'Enter') {
@@ -102,6 +102,9 @@ const ContentEditor = ({ option, onValueChange, onStopEditing }) => {
                             autoFocus
                         />
                         <div className="content-format-inline-selector">
+                            <button onClick={() => setInfoPanelTab('payload')} className="pv-open-btn" title="Payload Analiz Aracını Aç">
+                                <Pipette size={16} />
+                            </button>
                             <span 
                                 className={`format-option-inline ${option.format === 'ascii' ? 'active' : ''}`}
                                 onClick={() => handleFormatChange('ascii')}

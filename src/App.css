@@ -982,9 +982,11 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-/* Panel içindeki tüm metin giriş alanları için ortak stil */
+/* Panel içindeki tüm metin giriş alanları için ortak stil (Regex Test paneli dahil edildi) */
 .payload-visualizer-panel textarea, 
-.payload-visualizer-panel input[type="text"] {
+.payload-visualizer-panel input[type="text"],
+.regex-tester-panel textarea,
+.regex-tester-panel input[type="text"] {
   background-color: var(--bg-input) !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--radius) !important;
@@ -996,9 +998,15 @@ input:checked + .slider:before { transform: translateX(18px); }
   width: 100% !important;
   box-sizing: border-box !important;
 }
-.payload-visualizer-panel textarea { resize: vertical; min-height: 100px; }
+.payload-visualizer-panel textarea,
+.regex-tester-panel textarea { 
+  resize: vertical; 
+  min-height: 100px; 
+}
 .payload-visualizer-panel textarea:focus, 
-.payload-visualizer-panel input[type="text"]:focus {
+.payload-visualizer-panel input[type="text"]:focus,
+.regex-tester-panel textarea:focus,
+.regex-tester-panel input[type="text"]:focus {
   outline: none !important;
   border-color: var(--text-accent) !important;
   box-shadow: 0 0 0 2px var(--text-accent) !important;

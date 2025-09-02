@@ -32,6 +32,17 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
+    // YENİ STATE: Kullanıcının kaydettiği şablonları tutar
+    const [userTemplates, setUserTemplates] = useState(() => {
+        try {
+            const savedTemplates = localStorage.getItem('suricataUserTemplates');
+            return savedTemplates ? JSON.parse(savedTemplates) : [];
+        } catch (error) {
+            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
+            return [];
+        }
+    });
+
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
@@ -41,13 +52,19 @@ export const RuleProvider = ({ children }) => {
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
     const [selectedRuleIds, setSelectedRuleIds] = useState(new Set());
-    const [infoPanelTab, setInfoPanelTab] = useState('info'); // 'info' veya 'payload'
+    const [infoPanelTab, setInfoPanelTab] = useState('info');
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
+
+    // YENİ useEffect: Kullanıcı şablonları değiştiğinde localStorage'ı günceller
+    useEffect(() => {
+        localStorage.setItem('suricataUserTemplates', JSON.stringify(userTemplates));
+    }, [userTemplates]);
+
 
     const updateHeaderData = (sessionId, newHeaderData) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, headerData: newHeaderData } : s));
@@ -130,31 +147,78 @@ export const RuleProvider = ({ children }) => {
         toast.success(`${newSessions.length} kural başarıyla içe aktarıldı.`);
     };
 
+    const applyTemplate = (templateData) => {
+        if (!activeSession) return;
+        const sessionWithTemplate = { 
+            ...activeSession, 
+            headerData: { ...templateData.headerData }, 
+            ruleOptions: [...templateData.ruleOptions] 
+        };
+        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? sessionWithTemplate : s));
+        setEditingSourceId(null);
+        updateOptionsViewActive(false);
+        setInfoPanelTab('info');
+        toast.info('Şablon kural editörüne yüklendi!');
+    };
+    
+    // YENİ FONKSİYONLAR
+    const saveUserTemplate = () => {
+        if (!activeSession || (!Object.values(activeSession.headerData).some(v => v) && activeSession.ruleOptions.length === 0)) {
+            toast.warn("Kaydedilecek bir şablon oluşturmak için önce editörü doldurun.");
+            return;
+        }
+        
+        const name = prompt("Şablon için bir ad girin:");
+        if (!name || name.trim() === '') {
+            toast.error("Geçerli bir şablon adı girmelisiniz.");
+            return;
+        }
+        
+        const description = prompt("Şablon için kısa bir açıklama girin (opsiyonel):");
+
+        const newTemplate = {
+            id: uuidv4(),
+            name,
+            description: description || "Kullanıcı tarafından oluşturulmuş şablon.",
+            isUserDefined: true,
+            data: {
+                headerData: { ...activeSession.headerData },
+                ruleOptions: JSON.parse(JSON.stringify(activeSession.ruleOptions)) // Derin kopya
+            }
+        };
+
+        setUserTemplates(prev => [...prev, newTemplate]);
+        toast.success(`"${name}" şablonu başarıyla kaydedildi!`);
+    };
+
+    const deleteUserTemplate = (templateId) => {
+        if (window.confirm("Bu şablonu silmek istediğinizden emin misiniz?")) {
+            setUserTemplates(prev => prev.filter(t => t.id !== templateId));
+            toast.info("Şablon silindi.");
+        }
+    };
+
+
     const updateActiveTopic = (topic) => setActiveTopic(topic);
     const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
     const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
     const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
+    const setInfoPanelVisibility = (isVisible) => setIsInfoPanelVisible(isVisible);
+    const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
 
-    // --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
-    const setInfoPanelVisibility = (isVisible) => {
-        setIsInfoPanelVisible(isVisible);
-    };
-    const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
-    // --- DEĞİŞİKLİK BURADA BİTİYOR ---
-
-
     const value = {
-        ruleSessions, editingSourceId, activeTopic, optionsViewActive,
+        ruleSessions, userTemplates, editingSourceId, activeTopic, optionsViewActive,
         modifierInfoActive, isRulesListVisible, isInfoPanelVisible, theme,
         activeSession, mitreInfo, selectedRuleIds, setSelectedRuleIds,
         importRules, infoPanelTab, setInfoPanelTab,
         updateMitreInfo, updateActiveTopic, updateOptionsViewActive,
         updateModifierInfoActive, toggleRulesList, toggleInfoPanel,
+        setInfoPanelVisibility,
         toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
         deleteRule, duplicateRule, startEditingRule, cancelEditing,
-        setInfoPanelVisibility, // Yeni fonksiyonu context'e ekledik
+        applyTemplate, saveUserTemplate, deleteUserTemplate,
     };
 
     return (

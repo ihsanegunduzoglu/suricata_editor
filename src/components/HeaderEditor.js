@@ -7,9 +7,10 @@ import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
 import { toast } from 'react-toastify';
 import { validateHeaderField } from '../utils/ruleValidator';
+import { BookmarkPlus } from 'lucide-react';
 
 const HeaderEditor = ({ session }) => {
-    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing } = useRule();
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, saveUserTemplate } = useRule();
     
     const [activeInput, setActiveInput] = useState(null);
 
@@ -53,11 +54,6 @@ const HeaderEditor = ({ session }) => {
         if (nextIndex < labels.length) {
             setTimeout(() => inputRefs.current[nextIndex]?.focus(), 0);
         } else {
-            const isHeaderComplete = Object.values(session.headerData).every(val => val && val.trim() !== '');
-            if (!isHeaderComplete) {
-                toast.warn('Lütfen devam etmeden önce tüm başlık alanlarını doldurun.');
-                return; 
-            }
             updateOptionsViewActive(true);
         }
     };
@@ -98,15 +94,12 @@ const HeaderEditor = ({ session }) => {
             }
         }
         
-        // DEĞİŞİKLİK BURADA: Escape tuşu mantığı geri getirildi.
         if (e.key === 'Escape') {
             e.preventDefault();
-            // Sadece ilk kutuda olup olmadığını kontrol et. Dolu veya boş olması fark etmez.
             if (currentIndex === 0) {
                 cancelEditing();
                 toast.info("Kural işlemi iptal edildi.");
             } else {
-                // İlk kutu değilse, bir öncekine git.
                 moveToPrevField(currentIndex);
             }
         }
@@ -147,11 +140,19 @@ const HeaderEditor = ({ session }) => {
         return (
             <div className="options-view-container">
                 <pre className="final-header-text">{finalHeaderString} (</pre>
+                
                 <OptionsBuilder 
                     session={session}
                     onNavigateBack={() => updateOptionsViewActive(false)}
                 />
-                <div className="final-header-text closing-paren">)</div>
+                
+                <div className="options-footer-bar">
+                    <div className="final-header-text closing-paren">)</div>
+                    <button className="action-btn-template" onClick={saveUserTemplate}>
+                        <BookmarkPlus size={16} />
+                        Şablon Olarak Kaydet
+                    </button>
+                </div>
             </div>
         );
     }

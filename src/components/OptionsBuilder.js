@@ -22,11 +22,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         }
     }, [editingIndex, selectedIndex]);
 
-    // BİLGİ PANELİ GÜNCELLEME - DÜZELTİLDİ
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
-        // DEĞİŞİKLİK: Bu useEffect artık sadece listede bir öğe seçiliyse çalışıyor.
-        // Diğer durumlarda (örneğin arama kutusu aktifken) bilgi paneline karışmıyor.
         if (activeIndex !== null) {
             const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
@@ -47,18 +44,30 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                 case 'ArrowDown':
                     e.preventDefault();
                     if (optionsCount > 0) {
-                        if (selectedIndex === optionsCount - 1) {
-                            setSelectedIndex(null);
-                            addOptionInputRef.current?.focus();
+                        if (selectedIndex === null) {
+                            setSelectedIndex(0);
+                        } 
+                        else if (selectedIndex < optionsCount - 1) {
+                            setSelectedIndex(prev => prev + 1);
                         } else {
-                            setSelectedIndex(prev => (prev === null ? 0 : prev + 1));
+                            containerRef.current?.focus();
                         }
                     }
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
                     if (optionsCount > 0) {
-                        setSelectedIndex(prev => (prev === null || prev <= 0) ? optionsCount - 1 : prev - 1);
+                         if (selectedIndex === 0) {
+                            containerRef.current?.focus();
+                            return; 
+                        }
+
+                        if (selectedIndex === null) {
+                            setSelectedIndex(optionsCount - 1);
+                        }
+                        else {
+                            setSelectedIndex(prev => prev - 1);
+                        }
                     }
                     break;
                 case 'Escape':

@@ -9,10 +9,11 @@ import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
-import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
+import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react'; // BookmarkPlus buradan kaldırıldı
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
+    // saveUserTemplate buradan kaldırıldı
     const {
         ruleSessions,
         editingSourceId,
@@ -22,7 +23,7 @@ const Workbench = () => {
         selectedRuleIds,
         setSelectedRuleIds,
         importRules,
-        updateRuleOptions
+        updateRuleOptions,
     } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
@@ -115,6 +116,9 @@ const Workbench = () => {
                             ) : (
                                 <p>Yeni kural oluşturuluyor...</p>
                             )}
+                            
+                            {/* ESKİ EYLEM ÇUBUĞU BURADAN SİLİNDİ */}
+
                             <ValidationPanel />
                         </div>
                         {isRulesListVisible && (
@@ -151,10 +155,7 @@ const Workbench = () => {
                     defaultSize={35}
                     minSize={15}
                     collapsible={true}
-                    // --- DEĞİŞİKLİK BURADA ---
-                    // Panelin tamamen gizlenmesi için bu değeri 0 yapıyoruz.
                     collapsedSize={0}
-                    // --- DEĞİŞİKLİK BİTTİ ---
                     order={2}
                     onCollapse={() => {
                         if (isInfoPanelVisible) {

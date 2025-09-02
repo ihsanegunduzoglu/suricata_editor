@@ -100,6 +100,21 @@ body {
   overflow: hidden;
 }
 
+/* Grid tabanlı ana yerleşim: sol içerik + sağ bilgi paneli */
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.app-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
 .app-layout-resizable {
   flex-grow: 1 !important;
   gap: var(--space-md) !important;
@@ -676,10 +691,10 @@ input:checked + .slider:before { transform: translateX(18px); }
     display: flex;
     gap: var(--space-xs);
     padding: var(--space-xs);
-    background-color: var(--bg-panel-solid);
-    border: 1px solid var(--border-primary);
+    background-color: transparent;
+    border: none;
     border-radius: 6px;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    box-shadow: none;
 }
 
 .rules-toolbar button {
@@ -687,8 +702,8 @@ input:checked + .slider:before { transform: translateX(18px); }
     align-items: center;
     gap: var(--space-xs);
     padding: var(--space-xs) var(--space-sm);
-    background-color: transparent;
-    border: 1px solid transparent;
+    background-color: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.12);
     color: var(--text-secondary);
     border-radius: 6px;
     font-size: 0.9rem;
@@ -698,10 +713,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     transition: var(--transition-fast);
 }
 
-.rules-toolbar button:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
-}
+.rules-toolbar button:hover { background-color: rgba(0,0,0,0.35); color: var(--text-primary); }
 
 .rules-scroll-wrapper { 
   padding-right: var(--space-sm);

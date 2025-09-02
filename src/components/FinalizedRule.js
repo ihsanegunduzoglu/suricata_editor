@@ -31,7 +31,7 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
                     type="checkbox" 
                     className="rule-selection-checkbox"
                     checked={isSelected}
-                    onChange={onToggleSelect}
+                    onChange={onToggleSelected}
                     title="Bu kuralı seç"
                 />
                 <button 

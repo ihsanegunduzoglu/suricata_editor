@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
 
+// editorRef prop'unu almayı bırak
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) => {
     const { deleteRule, duplicateRule, startEditingRule, cancelEditing, theme } = useRule();
     
@@ -14,8 +15,13 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
         navigator.clipboard.writeText(session.ruleString);
         toast.success('Kural panoya kopyalandı!');
     };
+    
     const handleEditToggle = () => {
-        if (isBeingEdited) { cancelEditing(); } else { startEditingRule(session.id); }
+        if (isBeingEdited) { 
+            cancelEditing(); 
+        } else { 
+            startEditingRule(session.id); // Sadece id'yi yolla
+        }
     };
 
     const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
@@ -32,7 +38,7 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
                     title="Bu kuralı seç"
                 />
                 <button 
-                    className={`rule-action-btn ${isBeingEdited ? 'is-editing-active-btn pulse-animation' : ''}`} // BURASI DEĞİŞTİ
+                    className={`rule-action-btn ${isBeingEdited ? 'is-editing-active-btn pulse-animation' : ''}`}
                     title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} 
                     onClick={handleEditToggle}
                 >

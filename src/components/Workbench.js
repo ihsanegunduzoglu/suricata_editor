@@ -9,11 +9,10 @@ import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
-import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react'; // BookmarkPlus buradan kaldırıldı
+import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
-    // saveUserTemplate buradan kaldırıldı
     const {
         ruleSessions,
         editingSourceId,
@@ -32,6 +31,38 @@ const Workbench = () => {
     const infoPanelRef = useRef(null);
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
+    
+    // YENİ REFLER
+    const mainContentRef = useRef(null); // Kaydırılacak ana panel
+    const activeEditorRef = useRef(null); // Kaydırılacak ve vurgulanacak hedef
+
+    // YENİ useEffect: Düzenleme başladığında kaydırma ve vurgu yapar
+    useEffect(() => {
+        if (editingSourceId && mainContentRef.current && activeEditorRef.current) {
+            const mainPanel = mainContentRef.current;
+            const editorElement = activeEditorRef.current;
+            
+            // 1. Kaydırma
+            const editorTopOffset = editorElement.offsetTop;
+            mainPanel.scrollTo({
+                top: editorTopOffset - 24, // 24px'lik bir üst boşluk bırak
+                behavior: 'smooth'
+            });
+
+            // 2. Vurgu animasyonunu yeniden tetikleme
+            editorElement.classList.remove('highlight-on-edit');
+            // Tarayıcının class'ın kaldırıldığını fark etmesi için küçük bir "hile"
+            void editorElement.offsetWidth; 
+            editorElement.classList.add('highlight-on-edit');
+            
+            // Animasyon bittikten sonra class'ı temizle ki tekrar tetiklenebilsin
+            const animationTimeout = setTimeout(() => {
+                editorElement.classList.remove('highlight-on-edit');
+            }, 1200); // Animasyon süresinden biraz uzun
+
+            return () => clearTimeout(animationTimeout);
+        }
+    }, [editingSourceId]); // Sadece editingSourceId değiştiğinde çalışır
 
     const prevProtocolRef = useRef();
     useEffect(() => {
@@ -107,8 +138,8 @@ const Workbench = () => {
             <TopMenuBar />
             <PanelGroup direction="horizontal" className="app-layout-resizable">
                 <Panel defaultSize={65} minSize={50}>
-                    <div className="main-content-area glass-effect">
-                        <div className="active-editor-container">
+                    <div className="main-content-area glass-effect" ref={mainContentRef}>
+                        <div className="active-editor-container" ref={activeEditorRef}>
                             {activeSession ? (
                                 <div className="active-editor-wrapper">
                                     <HeaderEditor key={activeSession.id} session={activeSession} />
@@ -117,8 +148,6 @@ const Workbench = () => {
                                 <p>Yeni kural oluşturuluyor...</p>
                             )}
                             
-                            {/* ESKİ EYLEM ÇUBUĞU BURADAN SİLİNDİ */}
-
                             <ValidationPanel />
                         </div>
                         {isRulesListVisible && (

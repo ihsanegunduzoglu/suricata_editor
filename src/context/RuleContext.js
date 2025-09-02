@@ -18,6 +18,16 @@ const RuleContext = createContext();
 export const useRule = () => useContext(RuleContext);
 
 export const RuleProvider = ({ children }) => {
+    const [userTemplates, setUserTemplates] = useState(() => {
+        try {
+            const savedTemplates = localStorage.getItem('suricataUserTemplates');
+            return savedTemplates ? JSON.parse(savedTemplates) : [];
+        } catch (error) {
+            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
+            return [];
+        }
+    });
+
     const [ruleSessions, setRuleSessions] = useState(() => {
         try {
             const savedSessions = localStorage.getItem('suricataRuleSessions');
@@ -32,17 +42,6 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
-    // YENİ STATE: Kullanıcının kaydettiği şablonları tutar
-    const [userTemplates, setUserTemplates] = useState(() => {
-        try {
-            const savedTemplates = localStorage.getItem('suricataUserTemplates');
-            return savedTemplates ? JSON.parse(savedTemplates) : [];
-        } catch (error) {
-            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
-            return [];
-        }
-    });
-
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
@@ -60,7 +59,6 @@ export const RuleProvider = ({ children }) => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
 
-    // YENİ useEffect: Kullanıcı şablonları değiştiğinde localStorage'ı günceller
     useEffect(() => {
         localStorage.setItem('suricataUserTemplates', JSON.stringify(userTemplates));
     }, [userTemplates]);
@@ -77,6 +75,7 @@ export const RuleProvider = ({ children }) => {
     const startEditingRule = (sourceSessionId) => {
         const sourceRule = ruleSessions.find(s => s.id === sourceSessionId);
         if (!sourceRule || !activeSession) return;
+        
         const editorWithData = { ...activeSession, headerData: { ...sourceRule.headerData }, ruleOptions: [...sourceRule.ruleOptions] };
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? editorWithData : s));
         setEditingSourceId(sourceSessionId);
@@ -118,7 +117,7 @@ export const RuleProvider = ({ children }) => {
     };
 
     const deleteRule = (sessionId) => {
-        setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
+        setRuleSessions(prev => prev.map(s => (s.id === sessionId ? { ...s, status: 'deleted' } : s)).filter(s => s.status !== 'deleted'));
         setSelectedRuleIds(prev => { const newSet = new Set(prev); newSet.delete(sessionId); return newSet; });
         toast.info('Kural silindi.');
     };
@@ -161,7 +160,6 @@ export const RuleProvider = ({ children }) => {
         toast.info('Şablon kural editörüne yüklendi!');
     };
     
-    // YENİ FONKSİYONLAR
     const saveUserTemplate = () => {
         if (!activeSession || (!Object.values(activeSession.headerData).some(v => v) && activeSession.ruleOptions.length === 0)) {
             toast.warn("Kaydedilecek bir şablon oluşturmak için önce editörü doldurun.");
@@ -183,7 +181,7 @@ export const RuleProvider = ({ children }) => {
             isUserDefined: true,
             data: {
                 headerData: { ...activeSession.headerData },
-                ruleOptions: JSON.parse(JSON.stringify(activeSession.ruleOptions)) // Derin kopya
+                ruleOptions: JSON.parse(JSON.stringify(activeSession.ruleOptions))
             }
         };
 
@@ -197,7 +195,26 @@ export const RuleProvider = ({ children }) => {
             toast.info("Şablon silindi.");
         }
     };
+    
+    // YENİ FONKSİYON
+    const getNextSid = () => {
+        const finalizedSessions = ruleSessions.filter(s => s.status === 'finalized');
+        if (finalizedSessions.length === 0) {
+            return 1000001; // Eğer hiç kayıtlı kural yoksa, buradan başla
+        }
 
+        const highestSid = finalizedSessions.reduce((maxSid, session) => {
+            // Kural metninden sid'yi regex ile çekiyoruz
+            const match = session.ruleString.match(/sid\s*:\s*(\d+)/);
+            if (match && match[1]) {
+                const sid = parseInt(match[1], 10);
+                return sid > maxSid ? sid : maxSid;
+            }
+            return maxSid;
+        }, 1000000); // Başlangıç değeri
+
+        return highestSid + 1;
+    };
 
     const updateActiveTopic = (topic) => setActiveTopic(topic);
     const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
@@ -218,7 +235,7 @@ export const RuleProvider = ({ children }) => {
         setInfoPanelVisibility,
         toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
         deleteRule, duplicateRule, startEditingRule, cancelEditing,
-        applyTemplate, saveUserTemplate, deleteUserTemplate,
+        applyTemplate, saveUserTemplate, deleteUserTemplate, getNextSid,
     };
 
     return (

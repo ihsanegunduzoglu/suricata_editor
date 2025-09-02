@@ -392,14 +392,14 @@ input:checked + .slider:before {
 .options-view-container {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; 
   position: relative;
 }
 
 .options-builder {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; /* OptionsBuilder'ın kendisine ayrılan alanı doldurmasını sağlar */
 }
 
 .options-builder:focus {
@@ -524,10 +524,18 @@ input:checked + .slider:before {
 /* ==========================================================================
    6. OTOMATİK TAMAMLAMA VE ÖNERİ PENCERELERİ
    ========================================================================== */
-.autocomplete-container,
-.add-option-container {
-  position: relative;
+.added-options-list {
+  /* Liste uzarsa kendi içinde scroll olur */
+  overflow-y: auto;
 }
+
+.add-option-container {
+  /* BU KURAL SORUNU ÇÖZER: 
+     Üstündeki tüm boşluğu kaplayarak kendisini en alta iter. */
+  margin-top: auto;
+  padding-top: var(--space-md); /* Üstündeki listeyle arasına biraz boşluk koyar */
+}
+
 
 .add-option-search {
   width: 100%;
@@ -1882,4 +1890,56 @@ input:checked + .slider:before {
 @keyframes suggestionFadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   21. EDİTÖR VURGU ANİMASYONU
+   ========================================================================== */
+
+/* Animasyonun kendisi: Kenarlarda bir parlama efekti yaratır */
+@keyframes highlight-editor {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px color-mix(in srgb, var(--text-accent) 50%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 0%, transparent);
+  }
+}
+
+/* Düzenleme başladığında bu animasyonu tetikle */
+.finalized-rule-container.is-being-edited ~ .finalized-rules-list .active-editor-container,
+.finalized-rule-container.is-being-edited + .active-editor-container { /* Bu seçiciyi de ekleyelim */
+    animation: highlight-editor 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Workbench'deki yapıya göre daha sağlam bir seçici */
+.main-content-area:has(.finalized-rule-container.is-being-edited) > .active-editor-container {
+    animation: highlight-editor 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ==========================================================================
+   21. EDİTÖR VURGU ANİMASYONU (GÜNCELLENMİŞ)
+   ========================================================================== */
+
+@keyframes highlight-editor {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 50%, transparent);
+    border-color: var(--border-primary);
+  }
+  50% {
+    box-shadow: 0 0 25px 5px color-mix(in srgb, var(--text-accent) 40%, transparent);
+    border-color: var(--text-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 0%, transparent);
+    border-color: var(--border-primary);
+  }
+}
+
+/* JavaScript ile eklenip kaldırılacak olan animasyon sınıfı */
+.active-editor-container.highlight-on-edit {
+    animation: highlight-editor 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }

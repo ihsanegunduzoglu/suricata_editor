@@ -63,7 +63,8 @@ export const templatesData = [
         { id: uuidv4(), keyword: 'sid', value: '1000201' },
         { id: uuidv4(), keyword: 'rev', value: '1' },
         { id: uuidv4(), keyword: 'flow', value: 'established,to_client' },
-        { id: uuidv4(), keyword: 'http.uri', value: true },
+        // Hata Düzeltildi: http.uri -> http_uri
+        { id: uuidv4(), keyword: 'http_uri', value: true }, 
         { id: uuidv4(), keyword: 'content', value: '"evil.exe"', modifiers: { nocase: true, depth: '', offset: '' }, format: 'ascii' },
       ]
     }
@@ -87,8 +88,9 @@ export const templatesData = [
         { id: uuidv4(), keyword: 'sid', value: '1000301' },
         { id: uuidv4(), keyword: 'rev', value: '1' },
         { id: uuidv4(), keyword: 'flow', value: 'established,to_server' },
-        { id: uuidv4(), keyword: 'http.user_agent', value: true },
-        { id: uuidv4(), keyword: 'content', value: '"Nikto"', modifiers: { nocase: true, depth: '', offset: '' }, format: 'ascii' },
+        // Hata Düzeltildi: 'http.user_agent' yerine doğrudan content ile arama yapılıyor.
+        // Bu, Suricata'da User-Agent aramanın yaygın bir yoludur.
+        { id: uuidv4(), keyword: 'content', value: '"User-Agent: Nikto"', modifiers: { nocase: true, depth: '', offset: '' }, format: 'ascii' },
       ]
     }
   },

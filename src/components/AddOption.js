@@ -6,7 +6,8 @@ import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
 const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, onNavigateToList, onNavigateBack }, ref) => {
-    const { finalizeRule, updateActiveTopic } = useRule();
+    // getNextSid fonksiyonunu context'ten al
+    const { finalizeRule, updateActiveTopic, getNextSid } = useRule();
     const [searchTerm, setSearchTerm] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const debounceTimeout = useRef(null);
@@ -43,11 +44,18 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
     }, [searchTerm, filteredOptions, updateActiveTopic, isFocused]);
 
     const handleAdd = (keyword) => { 
+        // Değeri, anahtar kelimeye göre dinamik olarak belirle
+        let value = optionsDictionary[keyword].defaultValue;
+        if (keyword === 'sid') {
+            value = getNextSid(); // Eğer keyword 'sid' ise, yeni fonksiyonu çağır
+        }
+
         const newOption = { 
             id: uuidv4(), 
             keyword: keyword, 
-            value: optionsDictionary[keyword].defaultValue 
+            value: value 
         };
+        
         if (keyword === 'content') { 
             newOption.modifiers = { nocase: false, depth: '', offset: '' };
             newOption.format = 'ascii'; 
@@ -91,7 +99,6 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown} 
                 onFocus={() => setIsFocused(true)}
-                // DEĞİŞİKLİK: Odaktan çıkınca Bilgi Panelini temizliyoruz
                 onBlur={() => {
                     setIsFocused(false);
                     updateActiveTopic(null);

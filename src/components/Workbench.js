@@ -13,10 +13,22 @@ import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, selectedRuleIds, setSelectedRuleIds, importRules, updateRuleOptions } = useRule();
+    const {
+        ruleSessions,
+        editingSourceId,
+        isRulesListVisible,
+        isInfoPanelVisible,
+        setInfoPanelVisibility,
+        selectedRuleIds,
+        setSelectedRuleIds,
+        importRules,
+        updateRuleOptions
+    } = useRule();
+
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
     const fileInputRef = useRef(null);
+    const infoPanelRef = useRef(null);
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
 
@@ -39,6 +51,17 @@ const Workbench = () => {
         }
         prevProtocolRef.current = currentProtocol;
     }, [activeSession?.headerData.Protocol, activeSession?.id, activeSession?.ruleOptions, updateRuleOptions]);
+
+    useEffect(() => {
+        const panel = infoPanelRef.current;
+        if (panel) {
+            if (isInfoPanelVisible && panel.isCollapsed()) {
+                panel.expand();
+            } else if (!isInfoPanelVisible && !panel.isCollapsed()) {
+                panel.collapse();
+            }
+        }
+    }, [isInfoPanelVisible]);
 
     const handleExport = () => {
         const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.size === 0 || selectedRuleIds.has(session.id));
@@ -82,7 +105,6 @@ const Workbench = () => {
         <div className="app-container">
             <TopMenuBar />
             <PanelGroup direction="horizontal" className="app-layout-resizable">
-                {/* DEĞİŞİKLİK BURADA: minSize değeri eklendi */}
                 <Panel defaultSize={65} minSize={50}>
                     <div className="main-content-area glass-effect">
                         <div className="active-editor-container">
@@ -124,13 +146,31 @@ const Workbench = () => {
                 
                 <PanelResizeHandle className="resize-handle" />
 
-                {isInfoPanelVisible && (
-                    <Panel defaultSize={35} minSize={20}>
-                        <div className="right-info-panel glass-effect">
-                            <InfoPanel />
-                        </div>
-                    </Panel>
-                )}
+                <Panel
+                    ref={infoPanelRef}
+                    defaultSize={35}
+                    minSize={15}
+                    collapsible={true}
+                    // --- DEĞİŞİKLİK BURADA ---
+                    // Panelin tamamen gizlenmesi için bu değeri 0 yapıyoruz.
+                    collapsedSize={0}
+                    // --- DEĞİŞİKLİK BİTTİ ---
+                    order={2}
+                    onCollapse={() => {
+                        if (isInfoPanelVisible) {
+                            setInfoPanelVisibility(false);
+                        }
+                    }}
+                    onExpand={() => {
+                        if (!isInfoPanelVisible) {
+                            setInfoPanelVisibility(true);
+                        }
+                    }}
+                >
+                    <div className="right-info-panel glass-effect">
+                        <InfoPanel />
+                    </div>
+                </Panel>
             </PanelGroup>
         </div>
     );

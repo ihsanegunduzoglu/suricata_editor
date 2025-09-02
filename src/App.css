@@ -177,6 +177,31 @@ body {
   background-color: var(--text-accent);
 }
 
+/* --- YENİ EKLENEN/GÜNCELLENEN STİL BLOĞU --- */
+/* Yandaki panel kapalıyken tutamacın görünür ve işlevsel kalmasını sağla */
+[data-panel-collapsed="true"] + .resize-handle {
+    cursor: e-resize;
+    z-index: 10; /* Diğer elemanların üzerinde kalmasını garantile */
+}
+
+[data-panel-collapsed="true"] + .resize-handle::before {
+    /* Tutamacı ekranın kenarında bir sekme gibi konumlandır */
+    left: 100%; 
+    transform: translate(-100%, -50%);
+    width: 8px;
+    height: 60px;
+    background-color: var(--text-accent);
+    opacity: 0.5;
+    /* Sadece içe bakan köşeleri yuvarla */
+    border-radius: 6px 0 0 6px;
+}
+
+[data-panel-collapsed="true"] + .resize-handle:hover::before {
+    opacity: 1;
+    transform: translate(-100%, -50%) scale(1.1);
+}
+/* --- YENİ STİL BLOĞU BİTTİ --- */
+
 
 /* ==========================================================================
    3. ÜST MENÜ ÇUBUĞU

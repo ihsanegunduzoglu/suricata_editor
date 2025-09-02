@@ -135,8 +135,15 @@ export const RuleProvider = ({ children }) => {
     const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
     const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
-    const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+
+    // --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
+    const setInfoPanelVisibility = (isVisible) => {
+        setIsInfoPanelVisible(isVisible);
+    };
+    const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
+    // --- DEĞİŞİKLİK BURADA BİTİYOR ---
+
 
     const value = {
         ruleSessions, editingSourceId, activeTopic, optionsViewActive,
@@ -147,6 +154,7 @@ export const RuleProvider = ({ children }) => {
         updateModifierInfoActive, toggleRulesList, toggleInfoPanel,
         toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
         deleteRule, duplicateRule, startEditingRule, cancelEditing,
+        setInfoPanelVisibility, // Yeni fonksiyonu context'e ekledik
     };
 
     return (

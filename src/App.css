@@ -1,4 +1,24 @@
 /* ==========================================================================
+   0. GENEL AYARLAR
+   ========================================================================== */
+html {
+  box-sizing: border-box;
+  scroll-padding-bottom: 20vh;
+  scroll-behavior: smooth;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  margin: 0;
+}
+
+/* ==========================================================================
    1. TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
    ========================================================================== */
 :root {
@@ -63,23 +83,6 @@
   --danger-color: #e53e3e;
 }
 
-html {
-  box-sizing: border-box;
-  scroll-padding-bottom: 20vh;
-  scroll-behavior: smooth;
-}
-
-*, *:before, *:after {
-  box-sizing: inherit;
-  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-  transition-duration: 0.2s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-body {
-  margin: 0;
-}
-
 .theme-wrapper {
   height: 100vh;
   display: flex;
@@ -96,9 +99,8 @@ body {
   border: 1px solid var(--border-primary);
 }
 
-
 /* ==========================================================================
-   2. ANA YERLEŞİM (WORKBENCH & AYARLANABİLİR PANELLER)
+   2. ANA YERLEŞİM (WORKBENCH)
    ========================================================================== */
 .app-container {
   display: flex;
@@ -107,11 +109,41 @@ body {
   overflow: hidden;
 }
 
-.app-layout-resizable {
-  flex-grow: 1 !important;
-  gap: var(--space-md) !important;
-  padding: var(--space-md) !important;
-  overflow: hidden !important;
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  flex-grow: 1;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.app-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+.main-content-area,
+.right-info-panel {
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  min-height: 0;
+  height: 100%;
+}
+
+.right-info-panel {
+  background-color: var(--bg-panel);
+  border-left: 1px solid var(--border-primary);
+}
+
+.active-editor-container {
+  flex-shrink: 0;
+  overflow-y: auto !important;
+  min-height: 350px;
+  padding-right: var(--space-sm);
 }
 
 .resize-handle {
@@ -120,7 +152,6 @@ body {
   outline: none;
   background-clip: padding-box;
   background-color: transparent;
-  cursor: ew-resize;
 }
 
 .resize-handle::before {
@@ -133,7 +164,6 @@ body {
   height: 40px;
   background-color: var(--border-primary);
   border-radius: 4px;
-  transition: var(--transition-fast);
 }
 
 .resize-handle:hover::before,
@@ -159,27 +189,6 @@ body {
 [data-panel-collapsed="true"] + .resize-handle:hover::before {
   opacity: 1;
   transform: translate(-100%, -50%) scale(1.1);
-}
-
-.main-content-area, .right-info-panel {
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100%;
-  min-height: 0;
-}
-
-.main-content-area {
-  gap: var(--space-xl) !important;
-  padding: var(--space-lg) !important;
-  overflow-y: auto !important;
-}
-
-.right-info-panel {
-  padding: var(--space-lg);
-  overflow-y: auto;
-  background-color: var(--bg-panel);
 }
 
 /* ==========================================================================
@@ -269,7 +278,6 @@ body {
   bottom: 0;
   background-color: #555;
   border-radius: 22px;
-  transition: .4s;
 }
 
 .slider:before {
@@ -295,13 +303,6 @@ input:checked + .slider:before {
 /* ==========================================================================
    4. AKTİF KURAL EDİTÖRÜ
    ========================================================================== */
-.active-editor-container {
-  flex-shrink: 0;
-  overflow-y: auto !important;
-  min-height: 350px;
-  padding-right: var(--space-sm);
-}
-
 .active-editor-wrapper {
   display: flex;
   flex-direction: column;
@@ -361,7 +362,6 @@ input:checked + .slider:before {
   font-family: var(--font-mono);
   text-align: center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-group input:focus {
@@ -384,21 +384,22 @@ input:checked + .slider:before {
 }
 
 .closing-paren {
-  margin-top: auto;
-  padding-bottom: 0.5rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  line-height: 1.5;
 }
 
 .options-view-container {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; 
   position: relative;
 }
 
 .options-builder {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 1; /* OptionsBuilder'ın kendisine ayrılan alanı doldurmasını sağlar */
 }
 
 .options-builder:focus {
@@ -430,7 +431,6 @@ input:checked + .slider:before {
   background-color: var(--bg-hover);
   color: var(--text-accent);
 }
-
 
 /* ==========================================================================
    5. SEÇENEK (OPTION) SATIRLARI
@@ -505,7 +505,6 @@ input:checked + .slider:before {
   height: 28px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease-in-out, background-color 0.2s, transform 0.2s;
 }
 
 .option-row:hover .delete-option-btn {
@@ -522,21 +521,21 @@ input:checked + .slider:before {
   transform: translateY(-50%) scale(1.1);
 }
 
-
 /* ==========================================================================
    6. OTOMATİK TAMAMLAMA VE ÖNERİ PENCERELERİ
    ========================================================================== */
 .added-options-list {
-  flex-grow: 1;
+  /* Liste uzarsa kendi içinde scroll olur */
   overflow-y: auto;
 }
 
-.autocomplete-container,
 .add-option-container {
-  position: relative;
+  /* BU KURAL SORUNU ÇÖZER: 
+     Üstündeki tüm boşluğu kaplayarak kendisini en alta iter. */
   margin-top: auto;
-  padding-top: var(--space-md);
+  padding-top: var(--space-md); /* Üstündeki listeyle arasına biraz boşluk koyar */
 }
+
 
 .add-option-search {
   width: 100%;
@@ -549,6 +548,7 @@ input:checked + .slider:before {
   font-size: 1rem;
   font-family: inherit;
   box-sizing: border-box;
+  border-radius: 0;
 }
 
 .add-option-search:focus {
@@ -614,7 +614,6 @@ input:checked + .slider:before {
   text-overflow: ellipsis;
 }
 
-
 /* ==========================================================================
    7. CONTENT DEĞER EDİTÖRÜ VE DEĞİŞTİRİCİLER
    ========================================================================== */
@@ -656,7 +655,7 @@ input:checked + .slider:before {
   margin-top: 0.20rem;
   border-bottom: 2px solid transparent;
   border-radius: 4px;
-  padding-right: 150px !important; /* Format seçiciye ve PV butonuna yer aç */
+  padding-right: 150px !important;
 }
 
 .option-value-input:focus {
@@ -686,7 +685,6 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   opacity: 0.6;
   background-color: transparent;
-  transition: all 0.2s ease;
 }
 
 .format-option-inline:hover:not(.active) {
@@ -721,7 +719,6 @@ input:checked + .slider:before {
   border: 1px solid var(--border-primary);
   border-radius: 6px;
   padding: 0.75rem 1rem;
-  transition: all 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -750,7 +747,6 @@ input:checked + .slider:before {
   font-family: var(--font-mono);
   padding: 0.25rem 0;
   width: 100%;
-  transition: border-color 0.2s ease;
   -moz-appearance: textfield;
 }
 
@@ -792,7 +788,6 @@ input:checked + .slider:before {
   background-color: var(--bg-input);
   border-radius: 22px;
   border: 1px solid var(--border-primary);
-  transition: background-color 0.3s;
 }
 
 .toggle-switch::after {
@@ -804,7 +799,6 @@ input:checked + .slider:before {
   background-color: var(--text-secondary);
   top: 2px;
   left: 2px;
-  transition: transform 0.3s, background-color 0.3s;
 }
 
 .modifier-item.modifier-toggle input:checked + .toggle-switch {
@@ -816,7 +810,6 @@ input:checked + .slider:before {
   transform: translateX(18px);
   background-color: white;
 }
-
 
 /* ==========================================================================
    8. FİNALİZE EDİLMİŞ KURALLAR LİSTESİ
@@ -855,7 +848,6 @@ input:checked + .slider:before {
   font-family: var(--font-sans);
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition-fast);
 }
 
 .rules-toolbar button:hover {
@@ -866,8 +858,6 @@ input:checked + .slider:before {
 .rules-scroll-wrapper {
   padding-right: var(--space-sm);
   padding-top: 45px;
-  overflow-y: auto;
-  flex-grow: 1;
 }
 
 .finalized-rule-container {
@@ -876,7 +866,6 @@ input:checked + .slider:before {
   border-radius: var(--radius);
   margin-bottom: var(--space-lg);
   margin-top: var(--space-xl);
-  transition: var(--transition-fast);
   background-color: var(--bg-panel-solid);
 }
 
@@ -892,20 +881,6 @@ input:checked + .slider:before {
 
 .finalized-rule-container.is-selected {
   border-left: 4px solid var(--text-accent);
-}
-
-/* Light tema için finalize kutuları daha belirgin olsun */
-.theme-light .finalized-rule-container {
-  background-color: #f5f5f5;
-  border-color: #bdbdbd;
-}
-.theme-light .finalized-rule-container:hover {
-  border-color: #9e9e9e;
-  background-color: #efefef;
-}
-.theme-light .finalized-rule-container.is-being-edited {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 12px rgba(0, 119, 255, 0.25);
 }
 
 .rule-actions {
@@ -941,7 +916,6 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition-fast);
 }
 
 .rule-action-btn:hover:not(:disabled) {
@@ -954,7 +928,6 @@ input:checked + .slider:before {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 
 /* ==========================================================================
    9. SAĞ BİLGİ PANELİ (GENEL)
@@ -997,7 +970,6 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   border-left: 4px solid var(--text-secondary);
-  transition: all 0.3s ease-in-out;
 }
 
 .theme-light .info-options-list li:hover {
@@ -1065,7 +1037,6 @@ input:checked + .slider:before {
   color: var(--text-value);
 }
 
-
 /* ==========================================================================
    10. SAĞ BİLGİ PANELİ (SEKMELİ YAPI VE PAYLOAD ANALİZİ)
    ========================================================================== */
@@ -1093,7 +1064,6 @@ input:checked + .slider:before {
   font-weight: 500;
   font-size: 0.9rem;
   border-bottom: 2px solid transparent;
-  transition: var(--transition-fast);
 }
 
 .tab-button:hover {
@@ -1175,7 +1145,6 @@ input:checked + .slider:before {
   font-size: 0.9rem !important;
   width: 100% !important;
   box-sizing: border-box !important;
-  transition: var(--transition-fast) !important;
 }
 
 .payload-visualizer-panel textarea,
@@ -1215,7 +1184,6 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   cursor: pointer;
   padding: var(--space-xs);
-  transition: var(--transition-fast);
 }
 
 .pv-matcher-action-btn:hover:not(:disabled) {
@@ -1238,8 +1206,6 @@ input:checked + .slider:before {
   border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition-fast);
-  margin-top: var(--space-sm);
 }
 
 .pv-add-matcher-btn:hover {
@@ -1257,8 +1223,6 @@ input:checked + .slider:before {
   font-weight: 600;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: var(--transition-fast);
-  margin-top: var(--space-lg);
 }
 
 .pv-analyze-btn:hover {
@@ -1288,7 +1252,6 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   cursor: pointer;
   opacity: 0.5;
-  transition: var(--transition-fast);
 }
 
 .pv-copy-btn:hover {
@@ -1337,7 +1300,6 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   cursor: pointer;
   opacity: 0.5;
-  transition: var(--transition-fast);
 }
 
 .pv-calc-value:hover button {
@@ -1374,7 +1336,6 @@ input:checked + .slider:before {
   padding: var(--space-md);
   text-align: center;
 }
-
 
 /* ==========================================================================
    11. DENETİM (VALIDATION) PANELİ
@@ -1422,7 +1383,6 @@ input:checked + .slider:before {
   flex-grow: 1;
 }
 
-
 /* ==========================================================================
    12. MITRE ATT&CK EDİTÖRÜ
    ========================================================================== */
@@ -1442,7 +1402,6 @@ input:checked + .slider:before {
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  transition: var(--transition-fast);
 }
 
 .mitre-toggle-btn {
@@ -1505,7 +1464,6 @@ input:checked + .slider:before {
   font-size: 0.9rem;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .mitre-selectors select:focus {
@@ -1531,7 +1489,6 @@ input:checked + .slider:before {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .mitre-add-btn:hover:not(:disabled) {
@@ -1574,7 +1531,6 @@ input:checked + .slider:before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: border-color 0.2s ease;
 }
 
 .custom-select-container:not(.disabled) .custom-select-display:hover {
@@ -1614,7 +1570,6 @@ input:checked + .slider:before {
   background-color: var(--bg-suggestion-hover);
 }
 
-
 /* ==========================================================================
    13. ÇEŞİTLİ BİLEŞEN VE ANİMASYONLAR
    ========================================================================== */
@@ -1632,6 +1587,12 @@ input:checked + .slider:before {
   transform: scale(1.1);
 }
 
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(56, 157, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0); }
+}
+
 .pulse-animation {
   animation: pulse 2s infinite;
 }
@@ -1647,14 +1608,12 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   opacity: 0.6;
-  transition: var(--transition-fast);
 }
 
 .pv-open-btn:hover {
   opacity: 1;
   color: var(--text-accent);
 }
-
 
 /* ==========================================================================
    14. PAYLOAD VISUALIZER MODAL PENCERESİ
@@ -1685,7 +1644,6 @@ input:checked + .slider:before {
   flex-direction: column;
   position: relative;
   box-shadow: 0 10px 30px var(--shadow-color);
-  /* Not: Bu pencereye .glass-effect class'ı eklenirse cam gibi görünür. */
 }
 
 .pv-close-btn {
@@ -1698,7 +1656,6 @@ input:checked + .slider:before {
   cursor: pointer;
   padding: var(--space-xs);
   border-radius: 50%;
-  transition: var(--transition-fast);
 }
 
 .pv-close-btn:hover {
@@ -1726,7 +1683,6 @@ input:checked + .slider:before {
   font-size: 0.9rem;
   width: 100%;
   box-sizing: border-box;
-  transition: var(--transition-fast);
 }
 
 .pv-modal textarea {
@@ -1740,7 +1696,6 @@ input:checked + .slider:before {
   border-color: var(--text-accent);
   box-shadow: 0 0 0 2px var(--text-accent);
 }
-
 
 /* ==========================================================================
    15. BİLGİ PANELİ ARAMA KUTUSU
@@ -1781,7 +1736,6 @@ input:checked + .slider:before {
   color: var(--text-accent);
   opacity: 1;
 }
-
 
 /* ==========================================================================
    17. REGEX TEST PANELİ
@@ -1915,16 +1869,9 @@ input:checked + .slider:before {
   color: var(--text-value);
 }
 
-
 /* ==========================================================================
    ANİMASYONLAR
    ========================================================================== */
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(56, 157, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(56, 157, 255, 0); }
-}
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1945,10 +1892,38 @@ input:checked + .slider:before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-
 /* ==========================================================================
    21. EDİTÖR VURGU ANİMASYONU
    ========================================================================== */
+
+/* Animasyonun kendisi: Kenarlarda bir parlama efekti yaratır */
+@keyframes highlight-editor {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px color-mix(in srgb, var(--text-accent) 50%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 0%, transparent);
+  }
+}
+
+/* Düzenleme başladığında bu animasyonu tetikle */
+.finalized-rule-container.is-being-edited ~ .finalized-rules-list .active-editor-container,
+.finalized-rule-container.is-being-edited + .active-editor-container { /* Bu seçiciyi de ekleyelim */
+    animation: highlight-editor 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Workbench'deki yapıya göre daha sağlam bir seçici */
+.main-content-area:has(.finalized-rule-container.is-being-edited) > .active-editor-container {
+    animation: highlight-editor 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ==========================================================================
+   21. EDİTÖR VURGU ANİMASYONU (GÜNCELLENMİŞ)
+   ========================================================================== */
+
 @keyframes highlight-editor {
   0% {
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-accent) 50%, transparent);
@@ -1966,5 +1941,5 @@ input:checked + .slider:before {
 
 /* JavaScript ile eklenip kaldırılacak olan animasyon sınıfı */
 .active-editor-container.highlight-on-edit {
-  animation: highlight-editor 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: highlight-editor 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }

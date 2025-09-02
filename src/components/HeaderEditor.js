@@ -10,12 +10,9 @@ import { validateHeaderField } from '../utils/ruleValidator';
 import { BookmarkPlus } from 'lucide-react';
 
 const HeaderEditor = ({ session }) => {
-
-
-    // DEĞİŞİKLİK: 'cancelEditing' fonksiyonunu context'ten alıyoruz.
-    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, saveUserTemplate, headerFocusRequest, clearHeaderFocusRequest } = useRule();
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, saveUserTemplate } = useRule();
+    
     const [activeInput, setActiveInput] = useState(null);
-    const [forceOpenSuggestionsFlag, setForceOpenSuggestionsFlag] = useState(false);
 
     const editorRef = useRef(null);
     const inputRefs = useRef([]);
@@ -25,10 +22,9 @@ const HeaderEditor = ({ session }) => {
         if (!activeInput || !suggestionsData[activeInput]) return [];
         const value = session.headerData[activeInput] || '';
         const allSuggestions = suggestionsData[activeInput];
-        if (forceOpenSuggestionsFlag) return allSuggestions;
         if (!value) return allSuggestions;
         return allSuggestions.filter(s => s.toLowerCase().startsWith(value.toLowerCase()));
-    }, [activeInput, session.headerData, forceOpenSuggestionsFlag]);
+    }, [activeInput, session.headerData]);
 
     const handleChange = (label, value) => {
         const newHeaderData = { ...session.headerData, [label]: value };
@@ -138,24 +134,6 @@ const HeaderEditor = ({ session }) => {
             }
         }
     }, [optionsViewActive, session.id, session.ruleString]);
-
-    // Gelen odak isteğine göre ilgili başlık kutusunu aç ve odakla
-    useEffect(() => {
-        if (!headerFocusRequest) return;
-        const targetLabel = headerFocusRequest.label;
-        const idx = labels.indexOf(targetLabel);
-        if (idx >= 0) {
-            setActiveInput(targetLabel);
-            setForceOpenSuggestionsFlag(!!headerFocusRequest.forceOpen);
-            if (typeof headerFocusRequest.value === 'string' && session.headerData[targetLabel] !== headerFocusRequest.value) {
-                const newHeaderData = { ...session.headerData, [targetLabel]: headerFocusRequest.value };
-                updateHeaderData(session.id, newHeaderData);
-            }
-            setTimeout(() => inputRefs.current[idx]?.focus(), 0);
-        }
-        clearHeaderFocusRequest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [headerFocusRequest]);
     
     if (optionsViewActive) {
         const finalHeaderString = labels.map(label => session.headerData[label]).join(' ');

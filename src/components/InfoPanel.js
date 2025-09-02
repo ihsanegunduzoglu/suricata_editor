@@ -5,9 +5,9 @@ import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 import PayloadVisualizer from './PayloadVisualizer';
-import { Search } from 'lucide-react'; // Arama ikonu import edildi
+import RegexTester from './RegexTester';
+import { Search } from 'lucide-react';
 
-// ... MitreTacticList, MitreTechniqueList, MitreSubtechniqueList bileşenleri aynı kalacak ...
 const MitreTacticList = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
@@ -128,16 +128,13 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
     );
 };
 
-
-// DEĞİŞİKLİK: Arama kutusu ve filtreleme mantığı eklendi
 const AllOptionsInfo = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
-    const [searchTerm, setSearchTerm] = useState(''); // Arama terimini tutan state
+    const [searchTerm, setSearchTerm] = useState('');
     
     const optionKeywords = Object.keys(optionsDictionary).filter(k => !optionsDictionary[k].isModifier);
 
-    // Arama terimine göre listeyi filtrele
     const filteredKeywords = optionKeywords.filter(keyword => 
         keyword.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (optionsDictionary[keyword].description.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -156,7 +153,6 @@ const AllOptionsInfo = () => {
         <div className="all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
             
-            {/* YENİ: Arama Kutusu */}
             <div className="info-panel-search-box">
                 <Search size={18} className="search-icon" />
                 <input 
@@ -197,8 +193,6 @@ const AllModifiersInfo = () => {
     );
 };
 
-
-// ... InfoView ve InfoPanel bileşenleri aynı kalacak ...
 const InfoView = () => {
     const { activeTopic, optionsViewActive, modifierInfoActive, mitreInfo } = useRule();
     const currentInfo = (typeof activeTopic === 'string' && activeTopic) ? infoData[activeTopic] : null;
@@ -251,10 +245,17 @@ const InfoPanel = () => {
                 >
                     Payload Analiz
                 </button>
+                <button 
+                    className={`tab-button ${infoPanelTab === 'regex' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('regex')}
+                >
+                    Regex Test
+                </button>
             </div>
             <div className="info-panel-body">
                 {infoPanelTab === 'info' && <InfoView />}
                 {infoPanelTab === 'payload' && <PayloadVisualizer />}
+                {infoPanelTab === 'regex' && <RegexTester />}
             </div>
         </div>
     );

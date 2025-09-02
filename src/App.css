@@ -2332,3 +2332,358 @@ input:checked + .slider:before { transform: translateX(18px); }
    9. SAĞ BİLGİ PANELİ
    ========================================================================== */
 /* ... (Bu bölümdeki ve sonraki tüm stiller aynı kalacak) ... */
+
+/* ==========================================================================
+   (MEVCUT CSS DOSYANIZIN SONUNA EKLEYİN)
+   17. REGEX TEST PANELİ STİLLERİ
+   ========================================================================== */
+
+.regex-tester-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: var(--space-lg);
+}
+
+.rt-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    flex-shrink: 0;
+}
+
+.rt-results {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.rt-results .pv-section {
+    height: 100%;
+}
+
+.rt-results .pv-visualization {
+    height: 100%;
+    overflow-y: auto;
+    background-color: var(--bg-code);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-primary);
+}
+
+.rt-match {
+    background-color: color-mix(in srgb, var(--text-accent) 40%, transparent);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 2px 0;
+    border-radius: 3px;
+}
+
+.rt-input {
+    font-family: var(--font-mono) !important;
+}
+
+/* ==========================================================================
+   17. REGEX TEST PANELİ STİLLERİ (GELİŞTİRİLMİŞ)
+   ========================================================================== */
+
+.regex-tester-panel {
+    height: 100%;
+    overflow: hidden;
+}
+
+.rt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    height: 100%;
+    overflow: hidden;
+}
+
+.rt-inputs, .rt-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    overflow-y: auto;
+    padding-right: var(--space-sm);
+}
+
+.rt-results-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.rt-input {
+    font-family: var(--font-mono) !important;
+}
+
+.rt-summary {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--bg-hover);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.rt-highlighted-text {
+    padding: var(--space-md);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    background-color: var(--bg-code);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-mono);
+}
+
+.rt-match {
+    background-color: color-mix(in srgb, var(--text-accent) 40%, transparent);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 2px 1px;
+    border-radius: 3px;
+    box-shadow: 0 0 5px color-mix(in srgb, var(--text-accent) 50%, transparent);
+}
+
+.rt-match-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.rt-match-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.rt-match-item {
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    background-color: var(--bg-hover);
+    overflow: hidden; /* for child border-radius */
+}
+
+.rt-full-match, .rt-capture-group {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--border-primary);
+    display: flex;
+    gap: var(--space-md);
+}
+
+.rt-match-item li:last-child {
+    border-bottom: none;
+}
+
+.rt-full-match span, .rt-capture-group span {
+    color: var(--text-keyword);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.rt-full-match {
+    background-color: var(--bg-panel-solid);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.rt-capture-group {
+    color: var(--text-value);
+}
+
+/* ==========================================================================
+   0. GENEL AYARLAR
+   ========================================================================== */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   1. TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', 'Courier New', monospace;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius: 8px;
+}
+
+.theme-dark {
+  --bg-main: #111014;
+  --bg-panel: rgba(28, 27, 34, 0.6);
+  --bg-panel-solid: #1c1b22;
+  --bg-input: #2a2d2e;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-suggestion-hover: #3c3c3c;
+  --bg-code: rgba(0, 0, 0, 0.3);
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-keyword: #c586c0;
+  --text-value: #ce9178;
+  --text-accent: #389dff;
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-accent: var(--text-accent);
+  --border-left-accent: var(--text-accent);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --danger-color: #ff6b6b;
+}
+
+.theme-light {
+  --bg-main: #f0f2f5;
+  --bg-panel: rgba(255, 255, 255, 0.7); /* Hafifçe opaklık artırıldı */
+  /* --- DEĞİŞİKLİK BURADA BAŞLIYOR --- */
+  --bg-panel-solid: #f8f9fa; /* Panel arkaplanı artık beyaz değil, çok hafif kırık beyaz/gri */
+  --bg-input: #ffffff; /* Input alanları ise temiz beyaz olacak */
+  /* --- DEĞİŞİKLİK BİTTİ --- */
+  --bg-hover: rgba(0, 0, 0, 0.05);
+  --bg-suggestion-hover: #e0e0e0;
+  --bg-code: #e8e8e8;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-keyword: #9b229b;
+  --text-value: #b85a3c;
+  --text-accent: #007acc;
+  --border-primary: #dee2e6; /* Kenarlık rengi yeni arkaplana göre ayarlandı */
+  --border-accent: #374151;
+  --border-left-accent: var(--text-accent);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --danger-color: #e53e3e;
+}
+
+html {
+  scroll-padding-bottom: 20vh;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+.theme-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.glass-effect {
+  background-color: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+}
+
+
+/* ==========================================================================
+   2. ANA YERLEŞİM (WORKBENCH)
+   ========================================================================== */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  flex-grow: 1;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.app-layout.single-column {
+  grid-template-columns: 1fr;
+}
+
+.main-content-area, .right-info-panel {
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  min-height: 0;
+  height: 100%;
+}
+
+.right-info-panel {
+  background-color: var(--bg-panel);
+  border-left: 1px solid var(--border-primary);
+}
+
+.active-editor-container {
+  flex-shrink: 0;
+}
+
+.resize-handle {
+  width: var(--space-md);
+  position: relative;
+  outline: none;
+  background-clip: padding-box;
+  background-color: transparent;
+}
+
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+}
+
+.resize-handle:hover::before,
+.resize-handle[data-resize-handle-state="drag"]::before {
+  background-color: var(--text-accent);
+}
+
+[data-panel-collapsed="true"] + .resize-handle {
+    cursor: e-resize;
+    z-index: 10;
+}
+
+[data-panel-collapsed="true"] + .resize-handle::before {
+    left: 100%; 
+    transform: translate(-100%, -50%);
+    width: 8px;
+    height: 60px;
+    background-color: var(--text-accent);
+    opacity: 0.5;
+    border-radius: 6px 0 0 6px;
+}
+
+[data-panel-collapsed="true"] + .resize-handle:hover::before {
+    opacity: 1;
+    transform: translate(-100%, -50%) scale(1.1);
+}
+
+/* ... (Dosyanın geri kalanı aynı şekilde devam ediyor, bu renk değişkenleri tüm uygulamaya yansıyacaktır) ... */

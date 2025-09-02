@@ -1,4 +1,14 @@
 /* ==========================================================================
+   0. GENEL AYARLAR (YENİ EKLENDİ)
+   ========================================================================== */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/* ==========================================================================
    1. TEMA DEĞİŞKENLERİ VE TEMEL AYARLAR
    ========================================================================== */
 
@@ -92,10 +102,7 @@ body {
 
 
 /* ==========================================================================
-   2. ANA YERLEŞİM (WORKBENCH & AYARLANABİLİR PANELLER)
-   ========================================================================== */
-/* ==========================================================================
-   2. ANA YERLEŞİM (WORKBENCH) - DÜZELTİLMİŞ YAPI
+   2. ANA YERLEŞİM (WORKBENCH) - DÜZENLENMİŞ VE BİRLEŞTİRİLMİŞ YAPI
    ========================================================================== */
 
 .app-container {
@@ -107,27 +114,34 @@ body {
 
 .app-layout {
   display: grid;
+  /* DİKEY SATIR TANIMI EKLENDİ (KAYDIRMA SORUNU İÇİN) */
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   flex-grow: 1;
   gap: var(--space-md);
   padding: var(--space-md);
   overflow: hidden;
+  /* ESNEK KUTU (FLEXBOX) HATALARINI ÖNLEMEK İÇİN EKLENDİ */
+  min-height: 0;
 }
+
 .app-layout.single-column {
   grid-template-columns: 1fr;
 }
 
-/* ANA DEĞİŞİKLİK BURADA: Artık her sütun kendi kaydırmasını yönetiyor */
 .main-content-area, .right-info-panel {
   border-radius: var(--radius);
   display: flex;
   flex-direction: column;
   overflow-y: auto; /* Kendi dikey kaydırma çubuğuna sahip olacak */
   padding: var(--space-lg);
+  /* SÜTUNLARIN KÜÇÜLMESİNİ SAĞLAMAK İÇİN EKLENDİ */
+  min-height: 0;
+
+  height: 100%;
 }
 
 .right-info-panel {
-  background-color: var(--bg-panel); /* Bu stilin kalması önemli */
+  background-color: var(--bg-panel);
   border-left: 1px solid var(--border-primary);
 }
 
@@ -163,47 +177,6 @@ body {
   background-color: var(--text-accent);
 }
 
-/* ==========================================================================
-   2. ANA YERLEŞİM (WORKBENCH) - DÜZELTİLMİŞ YAPI
-   ========================================================================== */
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.app-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  flex-grow: 1;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  overflow: hidden;
-}
-.app-layout.single-column {
-  grid-template-columns: 1fr;
-}
-
-/* ANA DEĞİŞİKLİK BURADA: Artık her sütun kendi kaydırmasını yönetiyor */
-.main-content-area, .right-info-panel {
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto; /* Kendi dikey kaydırma çubuğuna sahip olacak */
-  padding: var(--space-lg);
-}
-
-.right-info-panel {
-  background-color: var(--bg-panel); /* Bu stilin kalması önemli */
-  border-left: 1px solid var(--border-primary);
-}
-
-/* Kural yazma alanının kendi içinde kaymasını engelliyoruz */
-.active-editor-container {
-  flex-shrink: 0; /* Bu, küçülmesini engeller ve içeriğe göre büyümesini sağlar */
-}
 
 /* ==========================================================================
    3. ÜST MENÜ ÇUBUĞU
@@ -1420,7 +1393,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 /* ==========================================================================
-   YENİ: BİLGİ PANELİ ARAMA KUTUSU STİLLERİ
+   15. BİLGİ PANELİ ARAMA KUTUSU STİLLERİ
    ========================================================================== */
 
 .info-panel-search-box {

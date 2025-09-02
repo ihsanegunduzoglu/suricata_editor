@@ -5,6 +5,8 @@ import { useRule } from '../context/RuleContext';
 import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 import PayloadVisualizer from './PayloadVisualizer';
+import RegexTester from './RegexTester';
+import { Search } from 'lucide-react';
 
 const MitreTacticList = () => {
     const { activeTopic } = useRule();
@@ -129,7 +131,14 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
 const AllOptionsInfo = () => {
     const { activeTopic } = useRule();
     const listRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    
     const optionKeywords = Object.keys(optionsDictionary).filter(k => !optionsDictionary[k].isModifier);
+
+    const filteredKeywords = optionKeywords.filter(keyword => 
+        keyword.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (optionsDictionary[keyword].description.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
     
     useEffect(() => {
         if (typeof activeTopic === 'string' && activeTopic && listRef.current) {
@@ -141,11 +150,21 @@ const AllOptionsInfo = () => {
     }, [activeTopic]);
 
     return (
-        <div className="info-panel-content all-options-info">
+        <div className="all-options-info">
             <h3>Tüm Kural Seçenekleri</h3>
-            <p>Mevcut tüm kural seçeneklerinin bir listesi aşağıdadır.</p>
+            
+            <div className="info-panel-search-box">
+                <Search size={18} className="search-icon" />
+                <input 
+                    type="text"
+                    placeholder="Seçeneklerde ara..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
             <ul className={`info-options-list ${activeTopic ? 'has-highlight' : ''}`} ref={listRef}>
-                {optionKeywords.map(keyword => (
+                {filteredKeywords.map(keyword => (
                     <li key={keyword} id={`info-item-${CSS.escape(keyword)}`} className={activeTopic === keyword ? 'is-highlighted' : ''}>
                         <strong>{keyword}</strong>
                         <span>{infoData[keyword]?.summary || optionsDictionary[keyword].description}</span>
@@ -226,13 +245,21 @@ const InfoPanel = () => {
                 >
                     Payload Analiz
                 </button>
+                <button 
+                    className={`tab-button ${infoPanelTab === 'regex' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('regex')}
+                >
+                    Regex Test
+                </button>
             </div>
             <div className="info-panel-body">
                 {infoPanelTab === 'info' && <InfoView />}
                 {infoPanelTab === 'payload' && <PayloadVisualizer />}
+                {infoPanelTab === 'regex' && <RegexTester />}
             </div>
         </div>
     );
 };
+
 
 export default InfoPanel;

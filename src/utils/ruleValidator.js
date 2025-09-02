@@ -7,36 +7,11 @@ import { optionsDictionary } from '../data/optionsDictionary';
  */
 export const validateHeaderField = (fieldName, value) => {
     if (!value || value.trim() === '') return null;
-    const trimmed = value.trim();
-    if (trimmed.startsWith('$') || trimmed.toLowerCase() === 'any') return null;
-
-    const IPV4_PART = '(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)';
-    const ipv4Regex = new RegExp(`^(?:${IPV4_PART}\\.){3}${IPV4_PART}$`);
-    const ipv4CidrRegex = new RegExp(`^(?:${IPV4_PART}\\.){3}${IPV4_PART}\\/(?:3[0-2]|[12]?\\d)$`);
-    const portRegex = /^([0-9]{1,5})$/;
-    const portRangeRegex = /^([0-9]{1,5}):([0-9]{1,5})$/;
-
-    if (fieldName === 'Source IP' || fieldName === 'Destination IP') {
-        if (ipv4Regex.test(trimmed) || ipv4CidrRegex.test(trimmed)) return null;
-        return `Geçersiz ${fieldName}: "${value}". Geçerli bir IPv4 veya CIDR değeri giriniz.`;
+    if (value.startsWith('$') || value.toLowerCase() === 'any') {
+        return null;
     }
-
-    if (fieldName === 'Source Port' || fieldName === 'Destination Port') {
-        if (portRegex.test(trimmed)) {
-            const p = Number(trimmed);
-            if (p >= 0 && p <= 65535) return null;
-        }
-        const m = trimmed.match(portRangeRegex);
-        if (m) {
-            const p1 = Number(m[1]);
-            const p2 = Number(m[2]);
-            if (p1 >= 0 && p1 <= 65535 && p2 >= 0 && p2 <= 65535 && p1 <= p2) return null;
-        }
-        return `Geçersiz ${fieldName}: "${value}". Geçerli bir port veya port aralığı (örn: 80 ya da 1024:65535) giriniz.`;
-    }
-
     const validValues = suggestionsData[fieldName];
-    if (validValues && !validValues.includes(trimmed.toLowerCase())) {
+    if (validValues && !validValues.includes(value.toLowerCase())) {
         return `Geçersiz ${fieldName}: "${value}". Önerilen değerlerden birini kullanın.`;
     }
     return null;

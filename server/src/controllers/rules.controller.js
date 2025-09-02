@@ -9,7 +9,6 @@ async function validateRule(req, res) {
   return res.json(result);
 }
 
-
 async function formatRule(req, res) {
   const { rule } = req.body || {};
   if (typeof rule !== 'string' || !rule.trim()) {
@@ -20,12 +19,10 @@ async function formatRule(req, res) {
   return res.json({ rule: formatted });
 }
 
-
 async function getNextSid(_req, res) {
   const { sid } = RulesService.allocateSid();
   res.json({ sid });
 }
-
 
 async function parseRulesFile(req, res) {
   if (!req.file || !req.file.buffer) {

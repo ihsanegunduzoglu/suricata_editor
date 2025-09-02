@@ -7,7 +7,7 @@ import AddOption from './AddOption';
 import { toast } from 'react-toastify';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
-    const { updateRuleOptions, updateActiveTopic } = useRule();
+    const { updateRuleOptions, updateActiveTopic, optionFocusRequest, clearOptionFocusRequest } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -15,6 +15,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
+        // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
         if (editingIndex === null && !selectedIndex) {
              setTimeout(() => {
                 addOptionInputRef.current?.focus();
@@ -22,16 +23,15 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         }
     }, [editingIndex, selectedIndex]);
 
-    // BİLGİ PANELİ GÜNCELLEME - DÜZELTİLDİ
     useEffect(() => {
         const activeIndex = editingIndex ?? selectedIndex;
-        // DEĞİŞİKLİK: Bu useEffect artık sadece listede bir öğe seçiliyse çalışıyor.
-        // Diğer durumlarda (örneğin arama kutusu aktifken) bilgi paneline karışmıyor.
         if (activeIndex !== null) {
             const activeKeyword = session.ruleOptions[activeIndex]?.keyword;
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
                 updateActiveTopic(activeKeyword);
             }
+        } else {
+             updateActiveTopic(null);
         }
     }, [editingIndex, selectedIndex, session.ruleOptions, updateActiveTopic]);
 
@@ -97,6 +97,25 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         }
     }, [selectedIndex, editingIndex]);
 
+
+    // Dışarıdan gelen option odak isteğini uygula
+    useEffect(() => {
+        if (!optionFocusRequest) return;
+        const { keyword, index } = optionFocusRequest;
+        let targetIndex = index;
+        if (typeof targetIndex !== 'number') {
+            targetIndex = session.ruleOptions.findIndex(o => o.keyword === keyword);
+        }
+        if (targetIndex >= 0) {
+            setEditingIndex(targetIndex);
+            updateActiveTopic(keyword);
+        }
+        clearOptionFocusRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [optionFocusRequest]);
+
+    // BU FONKSİYON ÇOK ÖNEMLİ
+
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
         const targetOption = updatedOptions[index];
@@ -132,6 +151,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
+        
+        // DÜZELTME: Yeni eklenen seçeneği otomatik olarak düzenleme moduna alan satır geri eklendi.
         handleStartEditing(newRuleOptions.length - 1);
     };
 

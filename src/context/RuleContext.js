@@ -34,6 +34,16 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
+    const [userTemplates, setUserTemplates] = useState(() => {
+        try {
+            const savedTemplates = localStorage.getItem('suricataUserTemplates');
+            return savedTemplates ? JSON.parse(savedTemplates) : [];
+        } catch (error) {
+            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
+            return [];
+        }
+    });
+
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
@@ -42,21 +52,28 @@ export const RuleProvider = ({ children }) => {
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
-    // Info panel sekmesi: 'info' | 'payload' | 'regex'
+    // Info panel sekmesi: 'info' | 'payload' | 'regex' | 'templates' | 'test_lab'
     const [infoPanelTab, setInfoPanelTab] = useState('info');
 
-    // Senin eklediğin focus istekleri
+    // Odak istekleri (FinalizedRule -> Header/Options fokus için)
     const [headerFocusRequest, setHeaderFocusRequest] = useState(null);
     const [optionFocusRequest, setOptionFocusRequest] = useState(null);
 
-    // DİZİ olarak tutuyoruz (Workbench'le uyumlu)
+    // DİZİ olarak tutuyoruz (Workbench ile uyumlu)
     const [selectedRuleIds, setSelectedRuleIds] = useState([]);
+    // Test Lab entegrasyonu (ihsan2'den)
+    const [ruleToTest, setRuleToTest] = useState(null);
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
     useEffect(() => {
         localStorage.setItem('suricataRuleSessions', JSON.stringify(ruleSessions));
     }, [ruleSessions]);
+
+    useEffect(() => {
+        localStorage.setItem('suricataUserTemplates', JSON.stringify(userTemplates));
+    }, [userTemplates]);
+
 
     const updateHeaderData = (sessionId, newHeaderData) => {
         setRuleSessions(prev => prev.map(s => s.id === sessionId ? { ...s, headerData: newHeaderData } : s));
@@ -69,6 +86,7 @@ export const RuleProvider = ({ children }) => {
     const startEditingRule = (sourceSessionId) => {
         const sourceRule = ruleSessions.find(s => s.id === sourceSessionId);
         if (!sourceRule || !activeSession) return;
+        
         const editorWithData = { ...activeSession, headerData: { ...sourceRule.headerData }, ruleOptions: [...sourceRule.ruleOptions] };
         setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? editorWithData : s));
         setEditingSourceId(sourceSessionId);
@@ -173,6 +191,74 @@ export const RuleProvider = ({ children }) => {
         toast.success(`${newSessions.length} kural başarıyla içe aktarıldı.`);
     };
 
+    const applyTemplate = (templateData) => {
+        if (!activeSession) return;
+        const sessionWithTemplate = { 
+            ...activeSession, 
+            headerData: { ...templateData.headerData }, 
+            ruleOptions: [...templateData.ruleOptions] 
+        };
+        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? sessionWithTemplate : s));
+        setEditingSourceId(null);
+        updateOptionsViewActive(false);
+        setInfoPanelTab('info');
+        toast.info('Şablon kural editörüne yüklendi!');
+    };
+    
+    const saveUserTemplate = () => {
+        if (!activeSession || (!Object.values(activeSession.headerData).some(v => v) && activeSession.ruleOptions.length === 0)) {
+            toast.warn("Kaydedilecek bir şablon oluşturmak için önce editörü doldurun.");
+            return;
+        }
+        
+        const name = prompt("Şablon için bir ad girin:");
+        if (!name || name.trim() === '') {
+            toast.error("Geçerli bir şablon adı girmelisiniz.");
+            return;
+        }
+        
+        const description = prompt("Şablon için kısa bir açıklama girin (opsiyonel):");
+
+        const newTemplate = {
+            id: uuidv4(),
+            name,
+            description: description || "Kullanıcı tarafından oluşturulmuş şablon.",
+            isUserDefined: true,
+            data: {
+                headerData: { ...activeSession.headerData },
+                ruleOptions: JSON.parse(JSON.stringify(activeSession.ruleOptions))
+            }
+        };
+
+        setUserTemplates(prev => [...prev, newTemplate]);
+        toast.success(`"${name}" şablonu başarıyla kaydedildi!`);
+    };
+
+    const deleteUserTemplate = (templateId) => {
+        if (window.confirm("Bu şablonu silmek istediğinizden emin misiniz?")) {
+            setUserTemplates(prev => prev.filter(t => t.id !== templateId));
+            toast.info("Şablon silindi.");
+        }
+    };
+    
+    const getNextSid = () => {
+        const finalizedSessions = ruleSessions.filter(s => s.status === 'finalized');
+        if (finalizedSessions.length === 0) {
+            return 1000001;
+        }
+
+        const highestSid = finalizedSessions.reduce((maxSid, session) => {
+            const match = session.ruleString.match(/sid\s*:\s*(\d+)/);
+            if (match && match[1]) {
+                const sid = parseInt(match[1], 10);
+                return sid > maxSid ? sid : maxSid;
+            }
+            return maxSid;
+        }, 1000000);
+
+        return highestSid + 1;
+    };
+
     const updateActiveTopic = (topic) => setActiveTopic(topic);
     const updateOptionsViewActive = (isActive) => setOptionsViewActive(isActive);
     const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
@@ -227,6 +313,7 @@ export const RuleProvider = ({ children }) => {
 
     const value = {
         ruleSessions,
+        userTemplates,
         editingSourceId,
         activeTopic,
         optionsViewActive,
@@ -234,19 +321,14 @@ export const RuleProvider = ({ children }) => {
         isRulesListVisible,
         isInfoPanelVisible,
         theme,
-
         selectedRuleIds,
-        setSelectedRuleIds,   // Workbench kullanıyor
-
+        setSelectedRuleIds,
         headerFocusRequest,
         optionFocusRequest,
-
         activeSession,
         mitreInfo,
-
         importRules,
         updateMitreInfo,
-
         updateActiveTopic,
         updateOptionsViewActive,
         updateModifierInfoActive,
@@ -255,18 +337,14 @@ export const RuleProvider = ({ children }) => {
         toggleTheme,
         infoPanelTab,
         setInfoPanelTab,
-
         focusHeaderField,
         clearHeaderFocusRequest,
         focusOption,
         clearOptionFocusRequest,
-
         appendImportedRules,
-
         toggleRuleSelected,
         selectAllFinalized,
         clearSelection,
-
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,
@@ -275,6 +353,12 @@ export const RuleProvider = ({ children }) => {
         duplicateRule,
         startEditingRule,
         cancelEditing,
+        applyTemplate,
+        saveUserTemplate,
+        deleteUserTemplate,
+        getNextSid,
+        ruleToTest,
+        setRuleToTest,
     };
 
     return (

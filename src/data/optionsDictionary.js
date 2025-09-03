@@ -89,17 +89,20 @@ const optionsDictionary = {
     defaultValue: '', 
     format: (option) => option.value,
     category: 'fixed_option',
+    // --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
+    // Öneri listesini daha kapsamlı hale getiriyoruz.
     suggestions: [
+        { name: 'to_server', description: 'İstemciden sunucuya giden trafik' },
+        { name: 'to_client', description: 'Sunucudan istemciye giden trafik' },
+        { name: 'from_server', description: 'Sunucudan giden trafik (aynı)' },
+        { name: 'from_client', description: 'İstemciden giden trafik (aynı)' },
         { name: 'established', description: 'Kurulmuş TCP bağlantıları' },
         { name: 'not_established', description: 'Henüz kurulmamış TCP bağlantıları' },
         { name: 'stateless', description: 'Bağlantı takibinden bağımsız' },
-        { name: 'to_client', description: 'Sunucudan istemciye giden trafik' },
-        { name: 'to_server', description: 'İstemciden sunucuya giden trafik' },
-        { name: 'from_client', description: 'İstemciden giden trafik (aynı)' },
-        { name: 'from_server', description: 'Sunucudan giden trafik (aynı)' },
         { name: 'established,to_server', description: 'Kurulmuş bağlantıda istemciden sunucuya' },
         { name: 'established,to_client', description: 'Kurulmuş bağlantıda sunucudan istemciye' },
-    ], 
+    ],
+    // --- DEĞİŞİKLİK BURADA BİTİYOR ---
   },
   'content': { 
     description: 'Aranacak içerik', 
@@ -111,7 +114,7 @@ const optionsDictionary = {
 
         if (option.format === 'hex') {
             valuePart = isAlreadyHex ? option.value : asciiToHex(option.value);
-        } else { // 'ascii'
+        } else {
             const escapedValue = option.value.replace(/"/g, '\\"');
             valuePart = `"${escapedValue}"`;
         }

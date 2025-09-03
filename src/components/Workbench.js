@@ -9,10 +9,30 @@ import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
+import { FileUp, FileDown, CheckSquare, Square, Save, X, BookmarkPlus, TestTube2, Trash2 } from 'lucide-react';
+import { generateRuleString } from '../utils/ruleGenerator';
 
 const Workbench = () => {
 
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection, deleteRulesByIds, updateRuleOptions, theme } = useRule();
+    const {
+        ruleSessions,
+        editingSourceId,
+        isRulesListVisible,
+        isInfoPanelVisible,
+        appendImportedRules,
+        selectedRuleIds,
+        toggleRuleSelected,
+        selectAllFinalized,
+        clearSelection,
+        deleteRulesByIds,
+        updateRuleOptions,
+        theme,
+        finalizeRule,
+        cancelEditing,
+        saveUserTemplate,
+        setRuleToTest,
+        setInfoPanelTab,
+    } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
     const finalizedSessions = useMemo(() => ruleSessions.filter(session => session.status === 'finalized'), [ruleSessions]);
@@ -21,8 +41,7 @@ const Workbench = () => {
     const [toolbarOpacity, setToolbarOpacity] = useState(0.9);
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = selectedRuleIds.length > 0 && selectedRuleIds.length === finalizedRuleIds.length;
-    
-    
+
     const prevProtocolRef = useRef();
     useEffect(() => {
         if (!activeSession) return;
@@ -61,11 +80,21 @@ const Workbench = () => {
         URL.revokeObjectURL(url);
     };
 
- const handleImportClick = () => {
+    const handleActiveRuleTest = () => {
+        if (!activeSession) return;
+        const currentRuleString = generateRuleString(activeSession.headerData, activeSession.ruleOptions);
+        if (!currentRuleString || !currentRuleString.includes('sid:')) {
+            toast.warn('Test etmek için lütfen önce geçerli bir kural oluşturun.');
+            return;
+        }
+        setRuleToTest(currentRuleString);
+        setInfoPanelTab('test_lab');
+        toast.info('Aktif kural, test için laboratuvara gönderildi.');
+    };
+
+    const handleImportClick = () => {
         fileInputRef.current?.click();
     };
- 
- 
 
     const handleBulkDelete = () => {
         if (selectedRuleIds.length === 0) {
@@ -74,7 +103,6 @@ const Workbench = () => {
         }
         deleteRulesByIds(selectedRuleIds);
     };
-    
 
     const handleImportFile = async (e) => {
         const file = e.target.files?.[0];
@@ -90,13 +118,12 @@ const Workbench = () => {
         } catch (err) {
             toast.error('İçe aktarma başarısız: ' + (err?.message || 'Bilinmeyen hata'));
         } finally {
-            // aynı dosyayı tekrar seçebilmek için inputu sıfırla
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
-    
+
     const layoutClassName = `app-layout ${!isInfoPanelVisible ? 'single-column' : ''}`;
-    
+
     return (
         <div className="app-container">
             <TopMenuBar />
@@ -113,55 +140,42 @@ const Workbench = () => {
                         <ValidationPanel />
                     </div>
 
+                    <div className="global-action-bar">
+                        <div className="toolbar-group-left">
+                            <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
+                            <button onClick={handleExport}><FileDown size={16}/> Export</button>
+                            <button onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}>
+                                {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>} {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
+                            </button>
+                            <button onClick={handleBulkDelete}><Trash2 size={16}/> Sil</button>
+                        </div>
+
+                        <div className='action-bar-spacer'></div>
+
+                        <div className="toolbar-group-right">
+                            <button onClick={() => activeSession && finalizeRule(activeSession.id)}><Save size={16}/> Kaydet</button>
+                            <button onClick={cancelEditing}><X size={16}/> İptal Et</button>
+                            <button onClick={saveUserTemplate}><BookmarkPlus size={16}/> Şablon Yap</button>
+                            <button onClick={handleActiveRuleTest}><TestTube2 size={16}/> Test Et</button>
+                        </div>
+                    </div>
+
                     {isRulesListVisible && (
                         <div className="finalized-rules-list">
-                            <div className="rules-toolbar" style={{
-                                backgroundColor: theme === 'light' 
-                                    ? `rgba(255,255,255, ${toolbarOpacity})` 
-                                    : `rgba(28,27,34, ${toolbarOpacity})`,
-                                border: toolbarOpacity > 0.15 ? '1px solid var(--border-primary)' : '1px solid transparent',
-                                boxShadow: toolbarOpacity > 0.5 ? '0 4px 12px var(--shadow-color)' : 'none',
-                                backdropFilter: 'blur(8px)'
-                            }}>
-                                <button 
-                                    onClick={handleExport} 
-                                    className="toolbar-button export-button"
-                                    title="Kuralları .rules dosyası olarak indir"
-                                >
-                                    ⇩
-                                </button>
-                                <button 
-                                    onClick={handleImportClick}
-                                    className="toolbar-button import-button"
-                                    title=".rules dosyasından içe aktar"
-                                >
-                                    ⇧
-                                </button>
-                                <button
-                                    onClick={handleBulkDelete}
-                                    className="toolbar-button delete-button"
-                                    title="Seçilen kuralları sil"
-                                >
-                                    🗑
-                                </button>
-                                <button 
-                                    onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}
-                                    className="toolbar-button select-all-button"
-                                    title={allSelected ? "Tüm tikleri kaldır" : "Tümünü seç"}
-                                >
-                                    ✓
-                                </button>
-                            </div>
                             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
-                            <div className="rules-scroll-wrapper" ref={rulesScrollRef} onScroll={(e) => {
-                                const t = e.currentTarget.scrollTop || 0;
-                                const next = Math.max(0.2, 1 - t / 300);
-                                setToolbarOpacity(next);
-                            }}> 
+                            <div
+                                className="rules-scroll-wrapper"
+                                ref={rulesScrollRef}
+                                onScroll={(e) => {
+                                    const t = e.currentTarget.scrollTop || 0;
+                                    const next = Math.max(0.2, 1 - t / 300);
+                                    setToolbarOpacity(next);
+                                }}
+                            >
                                 {finalizedSessions.slice().reverse().map(session => (
-                                    <FinalizedRule 
-                                        key={session.id} 
-                                        session={session} 
+                                    <FinalizedRule
+                                        key={session.id}
+                                        session={session}
                                         isBeingEdited={session.id === editingSourceId}
                                         isSelected={selectedRuleIds.includes(session.id)}
                                         onToggleSelected={() => toggleRuleSelected(session.id)}
@@ -182,6 +196,5 @@ const Workbench = () => {
 
     );
 };
-
 
 export default Workbench;

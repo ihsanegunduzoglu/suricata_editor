@@ -11,7 +11,7 @@ import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected }) => {
     // DEĞİŞİKLİK: cancelEditing fonksiyonunu da context'ten alıyoruz
     const { deleteRule, duplicateRule, startEditingRule, cancelEditing ,theme, focusHeaderField, focusOption } = useRule();
-  
+    
     
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(session.ruleString);
@@ -20,8 +20,8 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
     const handleEditToggle = () => {
         if (isBeingEdited) { cancelEditing(); } else { startEditingRule(session.id); }
     };
-
-    const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
+     
+const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
     const containerClassName = `finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''} ${isSelected ? 'is-selected' : ''}`;
 
     return (

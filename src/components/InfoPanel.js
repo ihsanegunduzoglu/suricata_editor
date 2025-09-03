@@ -6,6 +6,8 @@ import { infoData } from '../data/infoData';
 import { optionsDictionary } from '../data/optionsDictionary';
 import PayloadVisualizer from './PayloadVisualizer';
 import RegexTester from './RegexTester';
+import TemplatesPanel from './TemplatesPanel';
+import RuleTesterPanel from './RuleTesterPanel';
 import { Search } from 'lucide-react';
 
 const MitreTacticList = () => {
@@ -127,6 +129,7 @@ const MitreSubtechniqueList = ({ techniqueId }) => {
         </div>
     );
 };
+
 
 const AllOptionsInfo = () => {
     const { activeTopic } = useRule();
@@ -251,11 +254,25 @@ const InfoPanel = () => {
                 >
                     Regex Test
                 </button>
+                <button 
+                    className={`tab-button ${infoPanelTab === 'templates' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('templates')}
+                >
+                    Şablonlar
+                </button>
+                <button 
+                    className={`tab-button ${infoPanelTab === 'test_lab' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('test_lab')}
+                >
+                    Test Laboratuvarı
+                </button>
             </div>
             <div className="info-panel-body">
                 {infoPanelTab === 'info' && <InfoView />}
                 {infoPanelTab === 'payload' && <PayloadVisualizer />}
                 {infoPanelTab === 'regex' && <RegexTester />}
+                {infoPanelTab === 'templates' && <TemplatesPanel />}
+                {infoPanelTab === 'test_lab' && <RuleTesterPanel />}
             </div>
         </div>
     );

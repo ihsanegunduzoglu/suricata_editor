@@ -96,7 +96,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     }, [selectedIndex, editingIndex]);
-
+    
 
     // Dışarıdan gelen option odak isteğini uygula
     useEffect(() => {
@@ -111,7 +111,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             updateActiveTopic(keyword);
         }
         clearOptionFocusRequest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
     }, [optionFocusRequest]);
 
     // BU FONKSİYON ÇOK ÖNEMLİ

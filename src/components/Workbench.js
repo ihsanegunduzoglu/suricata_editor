@@ -1,6 +1,6 @@
 // src/components/Workbench.js
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRule } from '../context/RuleContext';
 import HeaderEditor from './HeaderEditor';
 import FinalizedRule from './FinalizedRule';
@@ -9,19 +9,20 @@ import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
-import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Workbench = () => {
 
-    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection, deleteRulesByIds } = useRule();
+    const { ruleSessions, editingSourceId, isRulesListVisible, isInfoPanelVisible, appendImportedRules, selectedRuleIds, toggleRuleSelected, selectAllFinalized, clearSelection, deleteRulesByIds, updateRuleOptions, theme } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
-    const finalizedSessions = ruleSessions.filter(session => session.status === 'finalized');
+    const finalizedSessions = useMemo(() => ruleSessions.filter(session => session.status === 'finalized'), [ruleSessions]);
     const fileInputRef = useRef(null);
+    const rulesScrollRef = useRef(null);
+    const [toolbarOpacity, setToolbarOpacity] = useState(0.9);
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
-    const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
-
+    const allSelected = selectedRuleIds.length > 0 && selectedRuleIds.length === finalizedRuleIds.length;
+    
+    
     const prevProtocolRef = useRef();
     useEffect(() => {
         if (!activeSession) return;
@@ -43,7 +44,7 @@ const Workbench = () => {
     }, [activeSession?.headerData.Protocol, activeSession?.id, activeSession?.ruleOptions, updateRuleOptions]);
 
     const handleExport = () => {
-        const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.size === 0 || selectedRuleIds.has(session.id));
+        const rulesToExport = finalizedSessions.filter(session => selectedRuleIds.length === 0 || selectedRuleIds.includes(session.id));
         if (rulesToExport.length === 0) {
             toast.warn('Dışa aktarılacak kural bulunmuyor.');
             return;
@@ -63,6 +64,8 @@ const Workbench = () => {
  const handleImportClick = () => {
         fileInputRef.current?.click();
     };
+ 
+ 
 
     const handleBulkDelete = () => {
         if (selectedRuleIds.length === 0) {
@@ -71,6 +74,7 @@ const Workbench = () => {
         }
         deleteRulesByIds(selectedRuleIds);
     };
+    
 
     const handleImportFile = async (e) => {
         const file = e.target.files?.[0];
@@ -96,48 +100,29 @@ const Workbench = () => {
     return (
         <div className="app-container">
             <TopMenuBar />
-            <PanelGroup direction="horizontal" className="app-layout-resizable">
-                {/* DEĞİŞİKLİK BURADA: minSize değeri eklendi */}
-                <Panel defaultSize={65} minSize={50}>
-                    <div className="main-content-area glass-effect">
-                        <div className="active-editor-container">
-                            {activeSession ? (
-                                <div className="active-editor-wrapper">
-                                    <HeaderEditor key={activeSession.id} session={activeSession} />
-                                </div>
-                            ) : (
-                                <p>Yeni kural oluşturuluyor...</p>
-                            )}
-                            <ValidationPanel />
-                        </div>
-                        {isRulesListVisible && (
-                            <div className="finalized-rules-list">
-                                <div className="rules-toolbar">
-                                    <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
-                                    <button onClick={handleExport}><FileDown size={16}/> Export</button>
-                                    <button onClick={allSelected ? clearSelection : selectAllFinalized}>
-                                        {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>}
-                                        {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
-                                    </button>
-                                </div>
-                                <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
-                                <div className="rules-scroll-wrapper"> 
-                                    {finalizedSessions.slice().reverse().map(session => (
-                                        <FinalizedRule 
-                                            key={session.id} 
-                                            session={session} 
-                                            isBeingEdited={session.id === editingSourceId}
-                                            isSelected={selectedRuleIds.has(session.id)}
-                                            onToggleSelect={() => handleToggleSelect(session.id)}
-                                        />
-                                    ))}
-                                </div>
+            <div className={layoutClassName}>
+                <div className="main-content-area glass-effect">
+                    <div className="active-editor-container">
+                        {activeSession ? (
+                            <div className="active-editor-wrapper">
+                                <HeaderEditor key={activeSession.id} session={activeSession} />
                             </div>
+                        ) : (
+                            <p>Yeni kural oluşturuluyor...</p>
                         )}
+                        <ValidationPanel />
                     </div>
-                   {isRulesListVisible && (
+
+                    {isRulesListVisible && (
                         <div className="finalized-rules-list">
-                            <div className="rules-toolbar">
+                            <div className="rules-toolbar" style={{
+                                backgroundColor: theme === 'light' 
+                                    ? `rgba(255,255,255, ${toolbarOpacity})` 
+                                    : `rgba(28,27,34, ${toolbarOpacity})`,
+                                border: toolbarOpacity > 0.15 ? '1px solid var(--border-primary)' : '1px solid transparent',
+                                boxShadow: toolbarOpacity > 0.5 ? '0 4px 12px var(--shadow-color)' : 'none',
+                                backdropFilter: 'blur(8px)'
+                            }}>
                                 <button 
                                     onClick={handleExport} 
                                     className="toolbar-button export-button"
@@ -167,15 +152,19 @@ const Workbench = () => {
                                     ✓
                                 </button>
                             </div>
-                            <input type="file" ref={fileInputRef} accept=".rules,.txt" style={{ display: 'none' }} onChange={handleImportFile} />
-                            <div className="rules-scroll-wrapper"> 
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
+                            <div className="rules-scroll-wrapper" ref={rulesScrollRef} onScroll={(e) => {
+                                const t = e.currentTarget.scrollTop || 0;
+                                const next = Math.max(0.2, 1 - t / 300);
+                                setToolbarOpacity(next);
+                            }}> 
                                 {finalizedSessions.slice().reverse().map(session => (
                                     <FinalizedRule 
                                         key={session.id} 
                                         session={session} 
+                                        isBeingEdited={session.id === editingSourceId}
                                         isSelected={selectedRuleIds.includes(session.id)}
                                         onToggleSelected={() => toggleRuleSelected(session.id)}
-                                        isBeingEdited={session.id === editingSourceId}
                                     />
                                 ))}
                             </div>
@@ -190,6 +179,7 @@ const Workbench = () => {
                 )}
             </div>
         </div>
+
     );
 };
 

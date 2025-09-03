@@ -161,7 +161,7 @@ const HeaderEditor = ({ session }) => {
             setTimeout(() => inputRefs.current[idx]?.focus(), 0);
         }
         clearHeaderFocusRequest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
     }, [headerFocusRequest]);
     
     if (optionsViewActive) {

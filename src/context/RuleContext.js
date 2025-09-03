@@ -42,6 +42,8 @@ export const RuleProvider = ({ children }) => {
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
+    // Info panel sekmesi: 'info' | 'payload' | 'regex'
+    const [infoPanelTab, setInfoPanelTab] = useState('info');
 
     // Senin eklediğin focus istekleri
     const [headerFocusRequest, setHeaderFocusRequest] = useState(null);
@@ -251,6 +253,8 @@ export const RuleProvider = ({ children }) => {
         toggleRulesList,
         toggleInfoPanel,
         toggleTheme,
+        infoPanelTab,
+        setInfoPanelTab,
 
         focusHeaderField,
         clearHeaderFocusRequest,

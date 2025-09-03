@@ -7,10 +7,11 @@ import RuleInputBox from './RuleInputBox';
 import OptionsBuilder from './OptionsBuilder';
 import { toast } from 'react-toastify';
 import { validateHeaderField } from '../utils/ruleValidator';
-import { BookmarkPlus } from 'lucide-react';
+// BookmarkPlus ikonu artık burada kullanılmadığı için kaldırıldı.
 
 const HeaderEditor = ({ session }) => {
-    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, saveUserTemplate } = useRule();
+    // "saveUserTemplate" fonksiyonu artık burada kullanılmıyor.
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing } = useRule();
     
     const [activeInput, setActiveInput] = useState(null);
 
@@ -146,12 +147,9 @@ const HeaderEditor = ({ session }) => {
                     onNavigateBack={() => updateOptionsViewActive(false)}
                 />
                 
+                {/* "Şablon Olarak Kaydet" butonu ve footer bar buradan kaldırıldı. */}
                 <div className="options-footer-bar">
                     <div className="final-header-text closing-paren">)</div>
-                    <button className="action-btn-template" onClick={saveUserTemplate}>
-                        <BookmarkPlus size={16} />
-                        Şablon Olarak Kaydet
-                    </button>
                 </div>
             </div>
         );

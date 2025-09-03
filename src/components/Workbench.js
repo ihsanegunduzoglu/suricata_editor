@@ -9,8 +9,10 @@ import InfoPanel from './InfoPanel';
 import TopMenuBar from './TopMenuBar';
 import ValidationPanel from './ValidationPanel';
 import { optionsDictionary } from '../data/optionsDictionary';
-import { FileUp, FileDown, CheckSquare, Square } from 'lucide-react';
+import { FileUp, FileDown, CheckSquare, Square, Save, X, BookmarkPlus, TestTube2 } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { generateRuleString } from '../utils/ruleGenerator';
+
 
 const Workbench = () => {
     const {
@@ -23,6 +25,11 @@ const Workbench = () => {
         setSelectedRuleIds,
         importRules,
         updateRuleOptions,
+        finalizeRule,
+        cancelEditing,
+        saveUserTemplate,
+        setRuleToTest,
+        setInfoPanelTab,
     } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
@@ -32,37 +39,31 @@ const Workbench = () => {
     const finalizedRuleIds = finalizedSessions.map(s => s.id);
     const allSelected = finalizedRuleIds.length > 0 && finalizedRuleIds.every(id => selectedRuleIds.has(id));
     
-    // YENİ REFLER
-    const mainContentRef = useRef(null); // Kaydırılacak ana panel
-    const activeEditorRef = useRef(null); // Kaydırılacak ve vurgulanacak hedef
+    const mainContentRef = useRef(null);
+    const activeEditorRef = useRef(null);
 
-    // YENİ useEffect: Düzenleme başladığında kaydırma ve vurgu yapar
     useEffect(() => {
         if (editingSourceId && mainContentRef.current && activeEditorRef.current) {
             const mainPanel = mainContentRef.current;
             const editorElement = activeEditorRef.current;
             
-            // 1. Kaydırma
             const editorTopOffset = editorElement.offsetTop;
             mainPanel.scrollTo({
-                top: editorTopOffset - 24, // 24px'lik bir üst boşluk bırak
+                top: editorTopOffset - 24,
                 behavior: 'smooth'
             });
 
-            // 2. Vurgu animasyonunu yeniden tetikleme
             editorElement.classList.remove('highlight-on-edit');
-            // Tarayıcının class'ın kaldırıldığını fark etmesi için küçük bir "hile"
             void editorElement.offsetWidth; 
             editorElement.classList.add('highlight-on-edit');
             
-            // Animasyon bittikten sonra class'ı temizle ki tekrar tetiklenebilsin
             const animationTimeout = setTimeout(() => {
                 editorElement.classList.remove('highlight-on-edit');
-            }, 1200); // Animasyon süresinden biraz uzun
+            }, 1200);
 
             return () => clearTimeout(animationTimeout);
         }
-    }, [editingSourceId]); // Sadece editingSourceId değiştiğinde çalışır
+    }, [editingSourceId]);
 
     const prevProtocolRef = useRef();
     useEffect(() => {
@@ -112,6 +113,18 @@ const Workbench = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
+    
+    const handleActiveRuleTest = () => {
+        if (!activeSession) return;
+        const currentRuleString = generateRuleString(activeSession.headerData, activeSession.ruleOptions);
+        if (!currentRuleString || !currentRuleString.includes('sid:')) {
+            toast.warn("Test etmek için lütfen önce geçerli bir kural oluşturun.");
+            return;
+        }
+        setRuleToTest(currentRuleString);
+        setInfoPanelTab('test_lab');
+        toast.info("Aktif kural, test için laboratuvara gönderildi.");
+    };
 
     const handleImportClick = () => { fileInputRef.current?.click(); };
     const handleImportFile = (event) => {
@@ -150,16 +163,30 @@ const Workbench = () => {
                             
                             <ValidationPanel />
                         </div>
+                        
+                        {/* YENİ MERKEZİ EYLEM ÇUBUĞU */}
+                        <div className="global-action-bar">
+                            <div className="toolbar-group-left">
+                                <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
+                                <button onClick={handleExport}><FileDown size={16}/> Export</button>
+                                <button onClick={allSelected ? clearSelection : selectAllFinalized}>
+                                    {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>}
+                                    {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
+                                </button>
+                            </div>
+                            
+                            <div className='action-bar-spacer'></div>
+
+                            <div className="toolbar-group-right">
+                                <button onClick={() => activeSession && finalizeRule(activeSession.id)}><Save size={16}/> Kaydet</button>
+                                <button onClick={cancelEditing}><X size={16}/> İptal Et</button>
+                                <button onClick={saveUserTemplate}><BookmarkPlus size={16}/> Şablon Yap</button>
+                                <button onClick={handleActiveRuleTest}><TestTube2 size={16}/> Test Et</button>
+                            </div>
+                        </div>
+
                         {isRulesListVisible && (
                             <div className="finalized-rules-list">
-                                <div className="rules-toolbar">
-                                    <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
-                                    <button onClick={handleExport}><FileDown size={16}/> Export</button>
-                                    <button onClick={allSelected ? clearSelection : selectAllFinalized}>
-                                        {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>}
-                                        {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
-                                    </button>
-                                </div>
                                 <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportFile} accept=".rules,.txt" />
                                 <div className="rules-scroll-wrapper"> 
                                     {finalizedSessions.slice().reverse().map(session => (

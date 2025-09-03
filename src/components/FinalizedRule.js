@@ -5,10 +5,11 @@ import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Pencil, Trash2, Copy, PlusSquare, Undo2, TestTube2 } from 'lucide-react';
+import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
 
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) => {
-    const { deleteRule, duplicateRule, startEditingRule, cancelEditing, theme, setRuleToTest, setInfoPanelTab } = useRule();
+    // "setRuleToTest" ve "setInfoPanelTab" kaldırıldı, artık burada kullanılmıyor.
+    const { deleteRule, duplicateRule, startEditingRule, cancelEditing, theme } = useRule();
     
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(session.ruleString);
@@ -21,12 +22,6 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
         } else { 
             startEditingRule(session.id);
         }
-    };
-
-    const handleTestClick = () => {
-        setRuleToTest(session.ruleString);
-        setInfoPanelTab('test_lab');
-        toast.info("Kural, test için laboratuvara gönderildi.");
     };
 
     const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
@@ -42,9 +37,7 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelect }) =
                     onChange={onToggleSelect}
                     title="Bu kuralı seç"
                 />
-                <button className="rule-action-btn" title="Bu Kuralı Test Et" onClick={handleTestClick}>
-                    <TestTube2 size={16} />
-                </button>
+                {/* Test Et butonu buradan kaldırıldı */}
                 <button 
                     className={`rule-action-btn ${isBeingEdited ? 'is-editing-active-btn pulse-animation' : ''}`}
                     title={isBeingEdited ? "Düzenlemeyi İptal Et" : "Düzenle"} 

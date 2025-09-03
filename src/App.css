@@ -140,11 +140,14 @@ body {
 }
 
 .active-editor-container {
-  flex-shrink: 0;
-  overflow-y: auto !important;
+  /* overflow-y: auto !important; satırını overflow: visible; ile değiştiriyoruz */
+  overflow: visible;
   min-height: 350px;
+  display: flex;
+  flex-direction: column;
   padding-right: var(--space-sm);
 }
+
 
 .resize-handle {
   width: var(--space-md);
@@ -467,8 +470,10 @@ input:checked + .slider:before {
   color: var(--text-primary) !important;
 }
 
-.option-row.is-editing {
-  background-color: var(--bg-hover);
+.option-row.is-editing ,
+.option-row.is-selected{
+  position: relative;
+  z-index: 2100;
 }
 
 .option-keyword {
@@ -526,12 +531,12 @@ input:checked + .slider:before {
    ========================================================================== */
 .added-options-list {
   /* Liste uzarsa kendi içinde scroll olur */
-  overflow-y: auto;
 }
 
 .add-option-container {
   /* BU KURAL SORUNU ÇÖZER: 
      Üstündeki tüm boşluğu kaplayarak kendisini en alta iter. */
+  position: relative;
   margin-top: auto;
   padding-top: var(--space-md); /* Üstündeki listeyle arasına biraz boşluk koyar */
 }
@@ -560,21 +565,28 @@ input:checked + .slider:before {
 .suggestions-list,
 .add-option-list {
   position: absolute;
-  top: 100%;
+  /* Üst menü (2000) gibi elemanların üzerinde olmasını garantile */
+  z-index: 9999; 
+  top: calc(100% + 6px); /* Input ile arasında küçük bir boşluk bırak */
   left: 0;
-  right: 0;
-  z-index: 200;
-  background-color: var(--bg-panel-solid);
+  width: auto; /* İçeriğe göre genişlesin */
+  min-width: 240px; /* Çok dar olmasını engelle */
+  
+  /* Modern panel görünümü */
+  background-color: var(--bg-panel); /* Cam efekti için yarı saydam arka plan */
+  backdrop-filter: blur(10px); /* Arka planı bulanıklaştır */
   border: 1px solid var(--border-primary);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius); /* Tamamen yuvarlak köşeler */
+  box-shadow: 0 10px 30px -5px var(--shadow-color); /* Daha belirgin ve yumuşak gölge */
+  
   list-style: none;
   margin: 0;
-  padding: 0;
-  max-height: 250px;
+  padding: var(--space-xs) 0; /* İç boşluk */
+  max-height: 280px;
   overflow-y: auto;
-  box-shadow: 0 8px 16px var(--shadow-color);
   animation: suggestionFadeIn 0.3s;
 }
+
 
 .suggestions-list li,
 .add-option-list li {
@@ -1942,4 +1954,506 @@ input:checked + .slider:before {
 /* JavaScript ile eklenip kaldırılacak olan animasyon sınıfı */
 .active-editor-container.highlight-on-edit {
     animation: highlight-editor 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+/* ==========================================================================
+   OPTIONS BUILDER YERLEŞİMİ (STACKING CONTEXT NİHAİ ÇÖZÜMÜ)
+   ========================================================================== */
+
+.options-view-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+  position: relative;
+}
+
+.options-builder {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  /* YENİ: Bu konteyneri en üst katmanlardan birine taşıyoruz. */
+  position: relative;
+  z-index: 1;
+}
+
+.added-options-list {
+  /* overflow kuralının olmadığından emin oluyoruz. */
+  overflow: visible; 
+}
+
+.add-option-container {
+  margin-top: auto;
+  padding-top: var(--space-md);
+  /* YENİ: Input'un da kendi katmanında olduğundan emin oluyoruz. */
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   22. KURAL TEST LABORATUVARI STİLLERİ
+   ========================================================================== */
+
+.rule-tester-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.rt-file-upload-area {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.rt-upload-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--bg-hover);
+    border: 1px dashed var(--border-primary);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.rt-upload-btn:hover:not(:disabled) {
+    border-style: solid;
+    border-color: var(--text-accent);
+    color: var(--text-accent);
+}
+
+.rt-upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.rt-file-name {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-value);
+    background-color: var(--bg-code);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 4px;
+}
+
+.rt-results-container {
+    margin-top: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.rt-results-output {
+    background-color: var(--bg-code);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    min-height: 200px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rt-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   23. TEST SONUÇLARI GÖRÜNÜMÜ STİLLERİ
+   ========================================================================== */
+
+.rt-results-output {
+    padding: 0;
+    min-height: 200px;
+}
+
+.rt-placeholder-text, .rt-no-alerts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 150px;
+    color: var(--text-secondary);
+    text-align: center;
+    gap: var(--space-md);
+}
+
+.rt-error-title {
+    color: var(--danger-color);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    padding: var(--space-md);
+    background-color: color-mix(in srgb, var(--danger-color) 15%, transparent);
+    border-bottom: 1px solid var(--danger-color);
+}
+
+.rt-error-details-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 var(--space-md);
+    margin-bottom: var(--space-sm);
+}
+
+.rt-error-details {
+    background-color: var(--bg-code);
+    padding: var(--space-md);
+    margin: 0 var(--space-md) var(--space-md) var(--space-md);
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.8rem;
+}
+
+.rt-alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+}
+
+.rt-alert-item {
+    background-color: var(--bg-hover);
+    border: 1px solid var(--border-primary);
+    border-left: 3px solid var(--text-accent);
+    border-radius: var(--radius);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.rt-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: var(--space-xs);
+}
+
+.rt-alert-signature {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.rt-alert-timestamp {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.rt-alert-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.rt-alert-flow {
+    color: var(--text-value);
+}
+
+.rt-alert-proto {
+    background-color: var(--bg-code);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   22. KURAL TEST LABORATUVARI STİLLERİ (YENİ TASARIM)
+   ========================================================================== */
+
+.rule-tester-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl); /* Ana bölümler arası boşluk */
+    height: 100%;
+}
+
+.rule-tester-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem; /* Daha kompakt başlık */
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: var(--space-md);
+}
+
+.rt-setup-section, .rt-results-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.rt-results-section {
+    flex-grow: 1; /* Sonuçlar bölümü kalan tüm alanı doldurur */
+    min-height: 0; /* Flexbox hatasını önlemek için */
+}
+
+.rt-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.rt-section > label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.rt-file-upload-area.standalone {
+    background-color: var(--bg-hover);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-primary);
+}
+
+.rt-upload-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--bg-panel-solid);
+    border: 1px dashed var(--border-primary);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.rt-upload-btn:hover:not(:disabled) {
+    border-style: solid;
+    border-color: var(--text-accent);
+    color: var(--text-accent);
+}
+
+.rt-upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.rt-file-name {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-value);
+    background-color: var(--bg-code);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rt-mode-selector {
+    display: flex;
+    background-color: var(--bg-hover);
+    border-radius: var(--radius);
+    padding: var(--space-xs);
+    border: 1px solid var(--border-primary);
+}
+
+.rt-mode-btn {
+    flex-grow: 1;
+    padding: var(--space-sm);
+    background-color: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.rt-mode-btn.active {
+    background-color: var(--bg-panel-solid);
+    color: var(--text-primary);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.rt-active-rule-display {
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    min-height: 50px;
+    background-color: color-mix(in srgb, var(--bg-code) 50%, transparent);
+}
+
+.rt-start-btn {
+    margin-top: var(--space-md);
+}
+
+.rt-results-output {
+    background-color: var(--bg-code);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    height: 100%;
+    overflow-y: auto;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rt-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* YENİ SONUÇ GÖRÜNÜMÜ STİLLERİ */
+.rt-placeholder-text, .rt-no-alerts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 150px;
+    color: var(--text-secondary);
+    text-align: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+}
+
+.rt-error-container {
+    padding: var(--space-md);
+}
+
+.rt-error-title {
+    color: var(--danger-color);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--danger-color);
+}
+
+.rt-error-details-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+.rt-error-details {
+    background-color: var(--bg-panel-solid);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.8rem;
+}
+
+.rt-alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-md);
+}
+
+.rt-alert-card {
+    background-color: var(--bg-panel-solid);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.rt-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--bg-hover);
+}
+
+.rt-alert-signature {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.rt-alert-severity[data-severity="1"] { border-left: 4px solid #ef4444; }
+.rt-alert-severity[data-severity="2"] { border-left: 4px solid #f97316; }
+.rt-alert-severity[data-severity="3"] { border-left: 4px solid #eab308; }
+.rt-alert-severity {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: var(--bg-code);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.rt-alert-details {
+    padding: var(--space-md);
+    font-size: 0.9rem;
+}
+
+.rt-alert-details p {
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--text-secondary);
+}
+
+.rt-alert-details p:last-child {
+    margin-bottom: 0;
+}
+
+.rt-alert-details strong {
+    color: var(--text-primary);
+    min-width: 100px;
+    display: inline-block;
+}
+
+.rt-alert-flow {
+    font-family: var(--font-mono);
+    color: var(--text-value) !important;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.rt-alert-payload {
+    margin: 0 var(--space-md) var(--space-md) var(--space-md);
+}
+
+.rt-alert-payload label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xs);
+    display: block;
+}
+
+.rt-alert-payload pre {
+    background-color: var(--bg-code);
+    border: 1px solid var(--border-primary);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--text-primary);
 }

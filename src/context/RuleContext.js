@@ -18,16 +18,6 @@ const RuleContext = createContext();
 export const useRule = () => useContext(RuleContext);
 
 export const RuleProvider = ({ children }) => {
-    const [userTemplates, setUserTemplates] = useState(() => {
-        try {
-            const savedTemplates = localStorage.getItem('suricataUserTemplates');
-            return savedTemplates ? JSON.parse(savedTemplates) : [];
-        } catch (error) {
-            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
-            return [];
-        }
-    });
-
     const [ruleSessions, setRuleSessions] = useState(() => {
         try {
             const savedSessions = localStorage.getItem('suricataRuleSessions');
@@ -42,6 +32,16 @@ export const RuleProvider = ({ children }) => {
         return [createNewSession()];
     });
     
+    const [userTemplates, setUserTemplates] = useState(() => {
+        try {
+            const savedTemplates = localStorage.getItem('suricataUserTemplates');
+            return savedTemplates ? JSON.parse(savedTemplates) : [];
+        } catch (error) {
+            console.error("Kullanıcı şablonları okunurken bir hata oluştu:", error);
+            return [];
+        }
+    });
+
     const [editingSourceId, setEditingSourceId] = useState(null);
     const [activeTopic, setActiveTopic] = useState(null);
     const [optionsViewActive, setOptionsViewActive] = useState(false);
@@ -52,6 +52,7 @@ export const RuleProvider = ({ children }) => {
     const [mitreInfo, setMitreInfo] = useState(null);
     const [selectedRuleIds, setSelectedRuleIds] = useState(new Set());
     const [infoPanelTab, setInfoPanelTab] = useState('info');
+    const [ruleToTest, setRuleToTest] = useState(null);
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
@@ -117,7 +118,7 @@ export const RuleProvider = ({ children }) => {
     };
 
     const deleteRule = (sessionId) => {
-        setRuleSessions(prev => prev.map(s => (s.id === sessionId ? { ...s, status: 'deleted' } : s)).filter(s => s.status !== 'deleted'));
+        setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
         setSelectedRuleIds(prev => { const newSet = new Set(prev); newSet.delete(sessionId); return newSet; });
         toast.info('Kural silindi.');
     };
@@ -196,22 +197,20 @@ export const RuleProvider = ({ children }) => {
         }
     };
     
-    // YENİ FONKSİYON
     const getNextSid = () => {
         const finalizedSessions = ruleSessions.filter(s => s.status === 'finalized');
         if (finalizedSessions.length === 0) {
-            return 1000001; // Eğer hiç kayıtlı kural yoksa, buradan başla
+            return 1000001;
         }
 
         const highestSid = finalizedSessions.reduce((maxSid, session) => {
-            // Kural metninden sid'yi regex ile çekiyoruz
             const match = session.ruleString.match(/sid\s*:\s*(\d+)/);
             if (match && match[1]) {
                 const sid = parseInt(match[1], 10);
                 return sid > maxSid ? sid : maxSid;
             }
             return maxSid;
-        }, 1000000); // Başlangıç değeri
+        }, 1000000);
 
         return highestSid + 1;
     };
@@ -236,6 +235,7 @@ export const RuleProvider = ({ children }) => {
         toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
         deleteRule, duplicateRule, startEditingRule, cancelEditing,
         applyTemplate, saveUserTemplate, deleteUserTemplate, getNextSid,
+        ruleToTest, setRuleToTest,
     };
 
     return (

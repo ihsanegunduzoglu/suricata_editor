@@ -105,8 +105,7 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .app-layout {
@@ -115,7 +114,6 @@ body {
   flex-grow: 1;
   gap: var(--space-md);
   padding: var(--space-md);
-  overflow: hidden;
   min-height: 0;
 }
 
@@ -128,10 +126,8 @@ body {
   border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   padding: var(--space-lg);
   min-height: 0;
-  height: 100%;
 }
 
 .right-info-panel {
@@ -145,6 +141,9 @@ body {
   display: flex;
   flex-direction: column;
   padding-right: var(--space-sm);
+
+  position: relative;
+  z-index: 100;
 }
 
 
@@ -567,10 +566,10 @@ input:checked + .slider:before {
   z-index: 9999;
   top: calc(100% + 6px);
   left: 0;
-  width: auto;
-  min-width: 240px;
-  background-color: var(--bg-panel);
-  backdrop-filter: blur(10px);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background-color: var(--bg-panel-solid);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius);
   box-shadow: 0 10px 30px -5px var(--shadow-color);
@@ -1053,6 +1052,15 @@ input:checked + .slider:before {
   overflow-y: auto;
   min-height: 0;
   padding-right: var(--space-sm);
+
+  display: flex;
+  flex-direction: column ;
+}
+
+.info-panel-body > * {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-placeholder {
@@ -2338,6 +2346,102 @@ input:checked + .slider:before {
   flex-direction: column !important;
   min-height: 400px;
   margin-top: var(--space-lg); 
+}
+
+.rules-scroll-wrapper {
+  padding-right: var(--space-sm);
+  padding-top: 0;
+}
+
+/* ==========================================================================
+   24. GLOBAL EYLEM ÇUBUĞU (NİHAİ POZİSYONLAMA DÜZELTMESİ)
+   ========================================================================== */
+
+/* Ana eylem çubuğu kapsayıcısı.
+   position: static; -> Bu kural, elementin sayfa akışında kalmasını ve 
+   diğer elementleri ittirmesini %100 garanti altına alır.
+*/
+.global-action-bar {
+  position: static; /* En Önemli Düzeltme! */
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 24px 0; /* Üstünde ve altında boşluk bırakır */
+}
+
+/* Sol buton grubu */
+.toolbar-group-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--border-primary);
+  padding-top: 8px; 
+  flex-grow: 1; /* Çizginin uzamasını sağlar */
+}
+
+/* Sağ buton grubu */
+.toolbar-group-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 8px;
+  flex-grow: 1; /* Çizginin uzamasını sağlar */
+  justify-content: flex-end; /* Butonları sağa yaslar */
+}
+
+/* Esnek ara parça ve ayırıcı çizgi */
+.action-bar-spacer {
+  position: relative;
+  flex-grow: 1; 
+  min-width: 60px;
+  height: 60px;
+}
+
+.action-bar-spacer::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-20deg);
+  height: 45px;
+  border-left: 1px solid var(--border-primary);
+  opacity: 0.6;
+}
+
+/* Eylem çubuğundaki tüm butonlar için genel stil */
+.global-action-bar button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.global-action-bar button:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+
+/* ==========================================================================
+   LİSTE POZİSYONUNU GARANTİYE ALMA
+   ========================================================================== */
+
+.finalized-rules-list {
+  position: static; /* Bu da akışta kalmasını garantiler */
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 400px;
+  /* margin-top'a gerek yok, eylem çubuğu onu zaten itecektir */
 }
 
 .rules-scroll-wrapper {

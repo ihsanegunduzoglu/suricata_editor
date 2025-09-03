@@ -266,6 +266,7 @@ export const RuleProvider = ({ children }) => {
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
     const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    const setInfoPanelVisibility = (isVisible) => setIsInfoPanelVisible(isVisible);
 
     // Focus yardımcıları
     const focusHeaderField = (label, forceOpenSuggestions = false, initialValue = undefined) => {
@@ -335,6 +336,7 @@ export const RuleProvider = ({ children }) => {
         toggleRulesList,
         toggleInfoPanel,
         toggleTheme,
+        setInfoPanelVisibility,
         infoPanelTab,
         setInfoPanelTab,
         focusHeaderField,

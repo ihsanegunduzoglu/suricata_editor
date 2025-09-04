@@ -595,3 +595,7 @@ html { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
 /* Make results column occupy full height; placeholder fills it */
 .pv-results { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .pv-placeholder { flex: 1; min-height: 0; }
+
+/* === Finalized rules: wrap long rule text inside card === */
+.finalized-rule-container pre,
+.finalized-rule-container code { white-space: pre-wrap !important; word-break: break-word; overflow-wrap: anywhere; }

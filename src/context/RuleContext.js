@@ -64,6 +64,16 @@ export const RuleProvider = ({ children }) => {
     // Test Lab entegrasyonu (ihsan2'den)
     const [ruleToTest, setRuleToTest] = useState(null);
 
+    // Gruplar
+    const [ruleGroups, setRuleGroups] = useState(() => {
+        try {
+            const saved = localStorage.getItem('rule_groups_v1');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    });
+
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
 
     useEffect(() => {
@@ -73,6 +83,10 @@ export const RuleProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('suricataUserTemplates', JSON.stringify(userTemplates));
     }, [userTemplates]);
+
+    useEffect(() => {
+        try { localStorage.setItem('rule_groups_v1', JSON.stringify(ruleGroups)); } catch {}
+    }, [ruleGroups]);
 
 
     const updateHeaderData = (sessionId, newHeaderData) => {
@@ -312,6 +326,87 @@ export const RuleProvider = ({ children }) => {
     };
     const clearSelection = () => setSelectedRuleIds([]);
 
+    // Ana liste sıralaması
+    const reorderRules = (newOrderIds) => {
+        if (!Array.isArray(newOrderIds) || newOrderIds.length === 0) return;
+        setRuleSessions(prev => {
+            const finalized = prev.filter(s => s.status === 'finalized');
+            const editing = prev.find(s => s.status === 'editing');
+            const idToSession = new Map(finalized.map(s => [s.id, s]));
+            const reordered = newOrderIds.map(id => idToSession.get(id)).filter(Boolean);
+            const missing = finalized.filter(s => !newOrderIds.includes(s.id));
+            const next = [...reordered, ...missing];
+            return editing ? [...next, editing] : next;
+        });
+    };
+
+    // === Groups API ===
+    const createGroup = (name) => {
+        const id = uuidv4();
+        const group = { id, name: (name || '').trim() || 'Yeni Grup', ruleIds: [], createdAt: new Date().toISOString() };
+        setRuleGroups(prev => [...prev, group]);
+        return id;
+    };
+
+    const addRulesToGroup = (groupId, ruleIds) => {
+        if (!groupId || !Array.isArray(ruleIds) || ruleIds.length === 0) return;
+        setRuleGroups(prev => prev.map(g => {
+            if (g.id !== groupId) return g;
+            const existing = new Set(g.ruleIds);
+            const next = [...g.ruleIds];
+            ruleIds.forEach(id => { if (!existing.has(id)) next.push(id); });
+            return { ...g, ruleIds: next };
+        }));
+        toast.success(`${ruleIds.length} kural gruba eklendi.`);
+    };
+
+    const renameGroup = (groupId, name) => {
+        setRuleGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: (name || '').trim() || g.name } : g));
+    };
+
+    const deleteGroup = (groupId) => {
+        setRuleGroups(prev => prev.filter(g => g.id !== groupId));
+    };
+
+    const getGroupRules = (groupId) => {
+        const g = ruleGroups.find(rg => rg.id === groupId);
+        if (!g) return [];
+        const map = new Map(ruleSessions.map(s => [s.id, s]));
+        return g.ruleIds.map(id => map.get(id)).filter(Boolean);
+    };
+
+    const reorderGroup = (groupId, newOrderIds) => {
+        setRuleGroups(prev => prev.map(g => g.id === groupId ? { ...g, ruleIds: [...newOrderIds] } : g));
+    };
+
+    const removeRuleFromGroup = (groupId, ruleId) => {
+        setRuleGroups(prev => prev.map(g => g.id === groupId ? { ...g, ruleIds: g.ruleIds.filter(id => id !== ruleId) } : g));
+    };
+
+    const exportGroup = (groupId) => {
+        const g = ruleGroups.find(rg => rg.id === groupId);
+        if (!g) { toast.error('Grup bulunamadı.'); return; }
+        const idToSession = new Map(ruleSessions.map(s => [s.id, s]));
+        const lines = [];
+        lines.push(`# Group: ${g.name} ${new Date().toISOString()}`);
+        const seen = new Set();
+        g.ruleIds.forEach(id => {
+            if (seen.has(id)) return; seen.add(id);
+            const s = idToSession.get(id);
+            if (s?.ruleString) { lines.push(s.ruleString); lines.push(''); }
+        });
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const safe = (g.name || 'group').replace(/[^a-z0-9-_]+/gi, '_');
+        a.download = `${safe}.rules`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     const value = {
         ruleSessions,
         userTemplates,
@@ -324,6 +419,7 @@ export const RuleProvider = ({ children }) => {
         theme,
         selectedRuleIds,
         setSelectedRuleIds,
+        ruleGroups,
         headerFocusRequest,
         optionFocusRequest,
         activeSession,
@@ -347,6 +443,15 @@ export const RuleProvider = ({ children }) => {
         toggleRuleSelected,
         selectAllFinalized,
         clearSelection,
+        reorderRules,
+        createGroup,
+        addRulesToGroup,
+        renameGroup,
+        deleteGroup,
+        getGroupRules,
+        reorderGroup,
+        removeRuleFromGroup,
+        exportGroup,
         updateHeaderData,
         updateRuleOptions,
         finalizeRule,

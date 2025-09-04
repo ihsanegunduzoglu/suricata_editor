@@ -7,6 +7,7 @@ import { optionsDictionary } from '../data/optionsDictionary';
 import PayloadVisualizer from './PayloadVisualizer';
 import RegexTester from './RegexTester';
 import TemplatesPanel from './TemplatesPanel';
+import RuleGroupsPanel from './RuleGroupsPanel';
 import RuleTesterPanel from './RuleTesterPanel';
 import { Search } from 'lucide-react';
 
@@ -263,6 +264,12 @@ const InfoPanel = () => {
                     Şablonlar
                 </button>
                 <button 
+                    className={`tab-button ${infoPanelTab === 'groups' ? 'active' : ''}`}
+                    onClick={() => setInfoPanelTab('groups')}
+                >
+                    Gruplar
+                </button>
+                <button 
                     className={`tab-button ${infoPanelTab === 'test_lab' ? 'active' : ''}`}
                     onClick={() => setInfoPanelTab('test_lab')}
                 >
@@ -274,6 +281,7 @@ const InfoPanel = () => {
                 {infoPanelTab === 'payload' && <PayloadVisualizer />}
                 {infoPanelTab === 'regex' && <RegexTester />}
                 {infoPanelTab === 'templates' && <TemplatesPanel />}
+                {infoPanelTab === 'groups' && <RuleGroupsPanel />}
                 {infoPanelTab === 'test_lab' && <RuleTesterPanel />}
             </div>
         </div>

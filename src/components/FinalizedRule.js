@@ -5,12 +5,15 @@ import { useRule } from '../context/RuleContext';
 import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Pencil, Trash2, Copy, PlusSquare, Undo2 } from 'lucide-react';
+import { Pencil, Trash2, Copy, PlusSquare, Undo2, Move } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // DEĞİŞİKLİK: isBeingEdited prop'unu alıyoruz
 const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected }) => {
     // DEĞİŞİKLİK: cancelEditing fonksiyonunu da context'ten alıyoruz
     const { deleteRule, duplicateRule, startEditingRule, cancelEditing ,theme, focusHeaderField, focusOption } = useRule();
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: session.id });
     
     
     const handleCopyToClipboard = () => {
@@ -24,8 +27,13 @@ const FinalizedRule = ({ session, isBeingEdited, isSelected, onToggleSelected })
 const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
     const containerClassName = `finalized-rule-container ${isBeingEdited ? 'is-being-edited' : ''} ${isSelected ? 'is-selected' : ''}`;
 
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
     return (
-        <div className={containerClassName}>
+        <div className={containerClassName} ref={setNodeRef} style={style}>
             <div className="rule-actions">
                 <input 
                     type="checkbox" 
@@ -51,6 +59,9 @@ const syntaxTheme = theme === 'light' ? vs : vscDarkPlus;
                     <PlusSquare size={16} />
                 </button>
             </div>
+            <button className="rule-drag-btn" {...attributes} {...listeners} title="Sürüklemek için basılı tut" aria-label="Taşı">
+                <Move size={16} />
+            </button>
  {(() => {
                 const text = session.ruleString || '';
                 const m = text.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(->|<->)\s+(\S+)\s+(\S+)\s*\(/);

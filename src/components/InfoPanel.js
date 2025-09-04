@@ -22,8 +22,10 @@ const MitreTacticList = () => {
             .then(data => { setTactics(data); setIsLoading(false); })
             .catch(() => setIsLoading(false));
     }, []);
+     
+    
 
-    useEffect(() => {
+   useEffect(() => {
         if (activeTopic && listRef.current) {
             const el = listRef.current.querySelector(`#info-item-${CSS.escape(activeTopic)}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });

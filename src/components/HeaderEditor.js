@@ -119,7 +119,7 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
-                updateActiveTopic(null);
+                // updateActiveTopic(null); // Bilgi panelini boş tıklamada temizleme
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);

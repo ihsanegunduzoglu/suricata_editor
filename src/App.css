@@ -70,12 +70,24 @@ body { margin: 0; }
 /* ==========================================================================
    1. ANA YERLEŞİM (WORKBENCH)
    ========================================================================== */
-.app-container { display: flex; flex-direction: column; min-height: 100vh; }
+.app-container { height: 100vh; display: flex; flex-direction: column; overflow: auto; }
 .app-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); flex-grow: 1; gap: var(--space-md); padding: var(--space-md); min-height: 0; }
 .app-layout.single-column { grid-template-columns: 1fr; }
+
+/* Resizable düzen (ihsan2 stili) */
+.app-layout-resizable { flex-grow: 1; gap: var(--space-md); padding: var(--space-md); min-height: 0; display: flex; flex-direction: column; }
+.app-layout-resizable > .react-resizable-panels { flex-grow: 1; min-height: 0; }
+
 .main-content-area, .right-info-panel { border-radius: var(--radius); display: flex; flex-direction: column; padding: var(--space-lg); min-height: 0; }
+/* Sol kolon kendi içinde kaydırılabilir olsun ki sayfada scrollbar görünsün */
+.main-content-area { overflow-y: auto; }
 .right-info-panel { background-color: var(--bg-panel); border-left: 1px solid var(--border-primary); }
 .active-editor-container { overflow: visible; min-height: 350px; display: flex; flex-direction: column; padding-right: var(--space-sm); position: relative; z-index: 100; }
+
+/* Resize tutamaç */
+.resize-handle { width: var(--space-md); position: relative; outline: none; background-clip: padding-box; background-color: transparent; }
+.resize-handle::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 40px; background-color: var(--border-primary); border-radius: 4px; }
+.resize-handle:hover::before, .resize-handle[data-resize-handle-state="drag"]::before { background-color: var(--text-accent); }
 
 /* ==========================================================================
    2. ÜST MENÜ ÇUBUĞU
@@ -164,7 +176,8 @@ input:checked + .slider:before { transform: translateX(18px); }
    5. FİNALİZE EDİLMİŞ KUTULAR & EYLEMLER
    ========================================================================== */
 .finalized-rules-list { display: flex !important; flex-direction: column !important; position: static; min-height: 400px; margin-top: var(--space-lg); }
-.rules-scroll-wrapper { padding-right: var(--space-sm); padding-top: 0; }
+/* Liste gövdesi kaydırılabilir olsun */
+.rules-scroll-wrapper { padding-right: var(--space-sm); padding-top: 0; overflow-y: auto; min-height: 0; flex-grow: 1; }
 .finalized-rule-container { position: relative; border: 1px solid var(--border-primary); border-radius: var(--radius); margin-bottom: var(--space-lg); margin-top: var(--space-xl); background-color: var(--bg-panel-solid); }
 .finalized-rule-container:hover { border-color: var(--text-secondary); box-shadow: 0 4px 20px var(--shadow-color); }
 .finalized-rule-container.is-being-edited { border-color: var(--text-accent); box-shadow: 0 0 10px var(--text-accent); }
@@ -289,7 +302,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .rt-capture-group { color: var(--text-value); }
 
 /* ==========================================================================
-   12. ANİMASYONLAR VE GLOBAL ACTION BAR
+   12. ANİMASYONLAR & GLOBAL ACTION BAR
    ========================================================================== */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -306,3 +319,84 @@ input:checked + .slider:before { transform: translateX(18px); }
 .action-bar-spacer::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-20deg); height: 45px; border-left: 1px solid var(--border-primary); opacity: 0.6; }
 .global-action-bar button { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-xs) var(--space-md); background-color: transparent; border: 1px solid transparent; color: var(--text-secondary); border-radius: var(--radius); font-size: 0.9rem; font-family: var(--font-sans); font-weight: 500; cursor: pointer; white-space: nowrap; }
 .global-action-bar button:hover { background-color: var(--bg-hover); color: var(--text-primary); }
+
+/* ==========================================================================
+   ihsan2 layout fixes: full-height right panel and dark scrollbars
+   ========================================================================== */
+.main-content-area, .right-info-panel { flex: 1; min-height: 0; }
+.right-info-panel { display: flex; flex-direction: column; }
+.info-panel-container { flex: 1; }
+
+/* App container should allow page scroll */
+.app-container { height: 100vh; display: flex; flex-direction: column; overflow: auto; }
+
+/* PanelGroup root full-height helper */
+.panels-root { height: 100%; display: flex; min-height: 0; }
+
+/* Right panel should always span full height */
+.right-info-panel { height: 100%; display: flex; flex-direction: column; }
+.info-panel-container { height: 100%; display: flex; flex-direction: column; }
+
+/* Dark scrollbar on page (html/body) */
+html, body { height: 100%; }
+html::-webkit-scrollbar { width: 10px; }
+html::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+html::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+html::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+
+/* Firefox */
+html { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
+.theme-light html { scrollbar-color: #9aa0a6 transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+*::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+.theme-light *::-webkit-scrollbar-thumb { background: #9aa0a6; }
+.theme-light *::-webkit-scrollbar-thumb:hover { background: #7a7f83; }
+
+/* Explicit dark scrollbar styling for inner scroll containers */
+.main-content-area,
+.rules-scroll-wrapper,
+.info-panel-body {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d2e transparent;
+}
+.theme-light .main-content-area,
+.theme-light .rules-scroll-wrapper,
+.theme-light .info-panel-body {
+  scrollbar-width: thin;
+  scrollbar-color: #9aa0a6 transparent;
+}
+.main-content-area::-webkit-scrollbar,
+.rules-scroll-wrapper::-webkit-scrollbar,
+.info-panel-body::-webkit-scrollbar { width: 10px; height: 10px; }
+.main-content-area::-webkit-scrollbar-track,
+.rules-scroll-wrapper::-webkit-scrollbar-track,
+.info-panel-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+.main-content-area::-webkit-scrollbar-thumb,
+.rules-scroll-wrapper::-webkit-scrollbar-thumb,
+.info-panel-body::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.main-content-area::-webkit-scrollbar-thumb:hover,
+.rules-scroll-wrapper::-webkit-scrollbar-thumb:hover,
+.info-panel-body::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+.theme-light .main-content-area::-webkit-scrollbar-thumb,
+.theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb,
+.theme-light .info-panel-body::-webkit-scrollbar-thumb { background: #9aa0a6; }
+.theme-light .main-content-area::-webkit-scrollbar-thumb:hover,
+.theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb:hover,
+.theme-light .info-panel-body::-webkit-scrollbar-thumb:hover { background: #7a7f83; }
+
+/* overrides: rules list scroll + full-height panel */
+.main-content-area { overflow-y: auto; height: 100%; }
+.finalized-rules-list { flex: 1; min-height: 0; display: flex; flex-direction: column; height: 100%; }
+.rules-scroll-wrapper { flex: 1; min-height: 0; max-height: 100%; overflow-y: auto !important; }
+
+/* dark scrollbar for rules list explicitly */
+.rules-scroll-wrapper { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
+.rules-scroll-wrapper::-webkit-scrollbar { width: 10px; height: 10px; }
+.rules-scroll-wrapper::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+.rules-scroll-wrapper::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.rules-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+.theme-light .rules-scroll-wrapper { scrollbar-width: thin; scrollbar-color: #9aa0a6 transparent; }
+.theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb { background: #9aa0a6; }
+.theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #7a7f83; }

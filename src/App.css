@@ -400,3 +400,202 @@ html { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
 .theme-light .rules-scroll-wrapper { scrollbar-width: thin; scrollbar-color: #9aa0a6 transparent; }
 .theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb { background: #9aa0a6; }
 .theme-light .rules-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #7a7f83; }
+
+/* === Right panel refinement for Payload/Regex/Test === */
+.right-info-panel { gap: var(--space-md); }
+.right-info-panel h3 { margin-top: 0; }
+
+/* Shared card-like containers */
+.syntax-highlight-container,
+.rt-results-output,
+.pv-visualization,
+.rt-file-upload-area.standalone,
+.rt-active-rule-display {
+  background-color: var(--bg-panel-solid);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius);
+}
+
+/* Section spacing */
+.payload-visualizer-panel .rt-section,
+.regex-tester-panel .rt-section,
+.rule-tester-panel .rt-section { gap: var(--space-sm); }
+
+/* Inputs in right panel */
+.right-info-panel textarea,
+.right-info-panel input[type="text"] {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+}
+
+/* Buttons width and emphasis */
+.pv-analyze-btn,
+.regex-tester-panel .pv-analyze-btn,
+.rule-tester-panel .pv-analyze-btn,
+.rule-tester-panel button { min-height: 40px; font-weight: 600; }
+
+/* Results column box look */
+.rt-results-output { padding: var(--space-md); }
+.syntax-highlight-container { padding: var(--space-sm); }
+
+/* Panel inner scroll to avoid clipping */
+.right-info-panel { overflow: hidden; }
+.info-panel-body { overflow: hidden; }
+.info-panel-body > * { overflow: hidden; }
+/* Allow inner areas to scroll when needed */
+.rule-tester-panel .rt-results-output,
+.payload-visualizer-panel .pv-visualization,
+.regex-tester-panel .rt-results .pv-visualization { overflow-y: auto; }
+
+/* Dark scrollbar on panel inner scrolls */
+.right-info-panel .rt-results-output,
+.right-info-panel .pv-visualization,
+.right-info-panel .syntax-highlight-container {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d2e transparent;
+}
+.right-info-panel .rt-results-output::-webkit-scrollbar,
+.right-info-panel .pv-visualization::-webkit-scrollbar,
+.right-info-panel .syntax-highlight-container::-webkit-scrollbar { width: 10px; height: 10px; }
+.right-info-panel .rt-results-output::-webkit-scrollbar-track,
+.right-info-panel .pv-visualization::-webkit-scrollbar-track,
+.right-info-panel .syntax-highlight-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+.right-info-panel .rt-results-output::-webkit-scrollbar-thumb,
+.right-info-panel .pv-visualization::-webkit-scrollbar-thumb,
+.right-info-panel .syntax-highlight-container::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.right-info-panel .rt-results-output::-webkit-scrollbar-thumb:hover,
+.right-info-panel .pv-visualization::-webkit-scrollbar-thumb:hover,
+.right-info-panel .syntax-highlight-container::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+.theme-light .right-info-panel .rt-results-output,
+.theme-light .right-info-panel .pv-visualization,
+.theme-light .right-info-panel .syntax-highlight-container { scrollbar-color: #9aa0a6 transparent; }
+.theme-light .right-info-panel .rt-results-output::-webkit-scrollbar-thumb,
+.theme-light .right-info-panel .pv-visualization::-webkit-scrollbar-thumb,
+.theme-light .right-info-panel .syntax-highlight-container::-webkit-scrollbar-thumb { background: #9aa0a6; }
+.theme-light .right-info-panel .rt-results-output::-webkit-scrollbar-thumb:hover,
+.theme-light .right-info-panel .pv-visualization::-webkit-scrollbar-thumb:hover,
+.theme-light .right-info-panel .syntax-highlight-container::-webkit-scrollbar-thumb:hover { background: #7a7f83; }
+
+/* === Right panel: precise styles for Payload/Regex/Test + scrollbar fix === */
+/* Ensure panel body scrolls (override previous hidden) */
+.right-info-panel .info-panel-body { overflow-y: auto !important; }
+.right-info-panel .info-panel-body > * { overflow: visible; }
+
+/* Section containers */
+.rule-tester-panel, .regex-tester-panel, .payload-visualizer-panel { gap: var(--space-lg); }
+.rule-tester-panel .rt-section { background: var(--bg-panel-solid); border: 1px solid var(--border-primary); border-radius: var(--radius); padding: var(--space-md); }
+.rule-tester-panel h3 { margin: 0 0 var(--space-md) 0; border-bottom: 1px solid var(--border-primary); padding-bottom: var(--space-sm); }
+.rt-results-section h3 { margin: 0 0 var(--space-sm) 0; }
+
+/* Mode selector segmented buttons */
+.rt-mode-selector { display: inline-flex; gap: 0; border: 1px solid var(--border-primary); border-radius: 8px; overflow: hidden; background: var(--bg-input); }
+.rt-mode-btn { appearance: none; background: transparent; color: var(--text-secondary); border: none; padding: 8px 12px; font-weight: 600; cursor: pointer; }
+.rt-mode-btn + .rt-mode-btn { border-left: 1px solid var(--border-primary); }
+.rt-mode-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.rt-mode-btn.active { background: var(--text-accent); color: #fff; }
+
+/* Upload areas */
+.rt-file-upload-area { display: flex; align-items: center; gap: var(--space-sm); }
+.rt-file-upload-area.standalone { background: var(--bg-panel-solid); border: 1px solid var(--border-primary); border-radius: var(--radius); padding: var(--space-sm) var(--space-md); }
+.rt-upload-btn { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-primary); border-radius: 6px; padding: 8px 12px; font-weight: 600; cursor: pointer; }
+.rt-upload-btn:hover:not(:disabled) { background: var(--bg-hover); }
+.rt-file-name { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* Primary actions */
+.pv-analyze-btn, .rt-start-btn { width: 100%; background: var(--text-accent); color: #fff; border: none; border-radius: 8px; padding: 12px 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+.pv-analyze-btn:hover:not(:disabled), .rt-start-btn:hover:not(:disabled) { filter: brightness(1.07); }
+.pv-analyze-btn:disabled, .rt-start-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Placeholders */
+.pv-placeholder, .rt-placeholder-text { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-secondary); min-height: 160px; gap: 8px; border: 2px dashed var(--border-primary); border-radius: var(--radius); background: rgba(0,0,0,0.08); }
+
+/* Results output card */
+.rt-results-output { background: var(--bg-panel-solid); border: 1px solid var(--border-primary); border-radius: var(--radius); min-height: 180px; }
+
+/* Regex grid: inputs left, results right with boxed result */
+.regex-tester-panel .rt-grid { grid-template-columns: 1.1fr 0.9fr; }
+.regex-tester-panel .rt-results .rt-results-content { background: transparent; }
+.regex-tester-panel .rt-results .pv-visualization { background: var(--bg-panel-solid); border: 1px solid var(--border-primary); }
+
+/* Payload viz cards */
+.pv-results .pv-section, .regex-tester-panel .pv-section { gap: var(--space-sm); }
+.pv-visualization { border: 1px solid var(--border-primary); background: var(--bg-panel-solid); color: var(--text-primary); padding: var(--space-md); border-radius: var(--radius); }
+.pv-viz-match { background: color-mix(in srgb, var(--text-accent) 35%, transparent); color: #fff; padding: 0 2px; border-radius: 3px; }
+
+/* Errors */
+.pv-error, .rt-error-container { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.35); color: #fca5a5; padding: var(--space-sm) var(--space-md); border-radius: var(--radius); }
+.rt-error-title { margin: 0 0 6px 0; font-weight: 700; }
+.rt-error-details { margin: 0; background: transparent; color: #fca5a5; }
+
+/* Alerts list */
+.rt-alerts-list { display: flex; flex-direction: column; gap: var(--space-md); }
+.rt-alert-card { background: var(--bg-panel); border: 1px solid var(--border-primary); border-radius: var(--radius); overflow: hidden; }
+.rt-alert-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-panel-solid); border-bottom: 1px solid var(--border-primary); }
+.rt-alert-severity { font-weight: 700; color: var(--text-accent); }
+.rt-alert-details { padding: 10px 12px; color: var(--text-secondary); }
+.rt-alert-payload { border-top: 1px dashed var(--border-primary); padding: 10px 12px; }
+
+/* Right panel inner scrollbars */
+.right-info-panel .rt-results-output,
+.right-info-panel .rt-inputs,
+.right-info-panel .rt-results,
+.right-info-panel .pv-inputs,
+.right-info-panel .pv-results {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d2e transparent;
+}
+.right-info-panel .rt-results-output::-webkit-scrollbar,
+.right-info-panel .rt-inputs::-webkit-scrollbar,
+.right-info-panel .rt-results::-webkit-scrollbar,
+.right-info-panel .pv-inputs::-webkit-scrollbar,
+.right-info-panel .pv-results::-webkit-scrollbar { width: 10px; height: 10px; }
+.right-info-panel .rt-results-output::-webkit-scrollbar-thumb,
+.right-info-panel .rt-inputs::-webkit-scrollbar-thumb,
+.right-info-panel .rt-results::-webkit-scrollbar-thumb,
+.right-info-panel .pv-inputs::-webkit-scrollbar-thumb,
+.right-info-panel .pv-results::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.right-info-panel .rt-results-output::-webkit-scrollbar-thumb:hover,
+.right-info-panel .rt-inputs::-webkit-scrollbar-thumb:hover,
+.right-info-panel .rt-results::-webkit-scrollbar-thumb:hover,
+.right-info-panel .pv-inputs::-webkit-scrollbar-thumb:hover,
+.right-info-panel .pv-results::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+
+/* === Full-height right panel + no page scroll (override) === */
+.app-container { overflow: hidden !important; }
+.app-layout-resizable { height: 100% !important; overflow: hidden; }
+.panels-root { height: 100% !important; }
+.right-info-panel { height: 100% !important; display: flex; flex-direction: column; }
+.info-panel-container { height: 100% !important; display: flex; flex-direction: column; }
+.right-info-panel .info-panel-body { flex: 1; overflow-y: auto !important; padding-right: var(--space-sm); }
+
+/* Dark scrollbar specifically for the right panel body */
+.right-info-panel .info-panel-body { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
+.right-info-panel .info-panel-body::-webkit-scrollbar { width: 10px; height: 10px; }
+.right-info-panel .info-panel-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+.right-info-panel .info-panel-body::-webkit-scrollbar-thumb { background: #2a2d2e; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.right-info-panel .info-panel-body::-webkit-scrollbar-thumb:hover { background: #3a3f41; }
+
+/* === Test Laboratuvarı: place mode buttons under section label === */
+.rule-tester-panel .rt-section { display: flex; flex-direction: column; align-items: stretch; }
+.rt-mode-selector { align-self: flex-start; margin-top: var(--space-sm); }
+
+/* === Payload Analiz: matcher controls and tall placeholder === */
+.pv-matchers-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-matcher-item { display: flex; align-items: center; gap: var(--space-sm); }
+.pv-matcher-item > span { color: var(--text-secondary); width: 18px; text-align: right; }
+.pv-matcher-item input { flex: 1; }
+.pv-matcher-action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-primary); border-radius: 6px; cursor: pointer; }
+.pv-matcher-action-btn:hover { background: rgba(239,68,68,.1); color: #ff6b6b; border-color: rgba(239,68,68,.4); }
+
+.pv-add-matcher-btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--border-primary); background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; }
+.pv-add-matcher-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-accent); }
+
+/* Make results column occupy full height; placeholder fills it */
+.pv-results { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pv-placeholder { flex: 1; min-height: 0; }
+
+/* === Finalized rules: wrap long rule text inside card === */
+.finalized-rule-container pre,
+.finalized-rule-container code { white-space: pre-wrap !important; word-break: break-word; overflow-wrap: anywhere; }

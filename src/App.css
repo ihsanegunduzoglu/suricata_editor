@@ -580,3 +580,18 @@ html { scrollbar-width: thin; scrollbar-color: #2a2d2e transparent; }
 /* === Test Laboratuvarı: place mode buttons under section label === */
 .rule-tester-panel .rt-section { display: flex; flex-direction: column; align-items: stretch; }
 .rt-mode-selector { align-self: flex-start; margin-top: var(--space-sm); }
+
+/* === Payload Analiz: matcher controls and tall placeholder === */
+.pv-matchers-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+.pv-matcher-item { display: flex; align-items: center; gap: var(--space-sm); }
+.pv-matcher-item > span { color: var(--text-secondary); width: 18px; text-align: right; }
+.pv-matcher-item input { flex: 1; }
+.pv-matcher-action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-primary); border-radius: 6px; cursor: pointer; }
+.pv-matcher-action-btn:hover { background: rgba(239,68,68,.1); color: #ff6b6b; border-color: rgba(239,68,68,.4); }
+
+.pv-add-matcher-btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--border-primary); background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; }
+.pv-add-matcher-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-accent); }
+
+/* Make results column occupy full height; placeholder fills it */
+.pv-results { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pv-placeholder { flex: 1; min-height: 0; }

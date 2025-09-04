@@ -127,7 +127,7 @@ const Workbench = () => {
             <TopMenuBar />
             <div className="app-layout-resizable">
                 <PanelGroup direction="horizontal" className="panels-root" style={{ height: '100%' }}>
-                    <Panel defaultSize={65} minSize={45}>
+                    <Panel defaultSize={65} minSize={55}>
                 <div className="main-content-area glass-effect">
                     <div className="active-editor-container">
                             {activeSession ? (

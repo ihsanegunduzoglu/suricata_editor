@@ -25,28 +25,23 @@ const PayloadVisualizer = () => {
         navigator.clipboard.writeText(textToCopy);
         toast.success(message);
     };
-
-    // YENİ: Görselleştirmeyi renklendiren fonksiyon
+    
     const renderVisualization = () => {
         if (!analysisResult?.visualization) return null;
 
-        const contentValues = new Set(analysisResult.results.filter(r => r.found).map(r => r.value));
         const parts = [];
         let lastIndex = 0;
 
         analysisResult.results.forEach(match => {
             if (match.found) {
-                // Eşleşmeden önceki kısım (noktalar)
                 if (match.start > lastIndex) {
                     parts.push(<span key={`pre-${match.start}`}>{'.'.repeat(match.start - lastIndex)}</span>);
                 }
-                // Eşleşen kısım (renkli)
                 parts.push(<span key={match.start} className="pv-viz-match">{match.value}</span>);
                 lastIndex = match.end + 1;
             }
         });
 
-        // Sondaki kısım (noktalar)
         if (lastIndex < analysisResult.visualization.length) {
             parts.push(<span key="post">{'.'.repeat(analysisResult.visualization.length - lastIndex)}</span>);
         }
@@ -58,8 +53,8 @@ const PayloadVisualizer = () => {
         <div className="payload-visualizer-panel">
             <div className="pv-grid">
                 <div className="pv-inputs">
-                    <div className="pv-section">
-                        <label>Örnek Payload (Metin veya Hex)</label>
+                    <div className="info-panel-section">
+                        <h4 className="info-panel-section-header">Örnek Payload (Metin veya Hex)</h4>
                         <textarea
                             value={rawPayload}
                             onChange={(e) => setRawPayload(e.target.value)}
@@ -67,8 +62,8 @@ const PayloadVisualizer = () => {
                             rows={8}
                         />
                     </div>
-                    <div className="pv-section">
-                        <label>Aranacak Content'ler (Sırasıyla)</label>
+                    <div className="info-panel-section">
+                        <h4 className="info-panel-section-header">Aranacak Content'ler (Sırasıyla)</h4>
                         <div className="pv-matchers-list">
                             {contentMatchers.map((matcher, index) => (
                                 <div key={matcher.id} className="pv-matcher-item">
@@ -97,19 +92,19 @@ const PayloadVisualizer = () => {
                         <>
                             {analysisResult.error && <div className="pv-error">{analysisResult.error}</div>}
                             {analysisResult.visualization && (
-                                 <div className="pv-section">
-                                    <div className="pv-section-header">
-                                        <label>Görselleştirme</label>
+                                 <div className="info-panel-section">
+                                    <h4 className="info-panel-section-header">
+                                        <span>Görselleştirme</span>
                                         <button onClick={() => handleCopyToClipboard(analysisResult.payload, "Payload kopyalandı!")} className="pv-copy-btn" title="Payload'ı Kopyala">
                                             <ClipboardCopy size={14} />
                                         </button>
-                                    </div>
-                                    <pre className="pv-visualization">{renderVisualization()}</pre>
+                                    </h4>
+                                    <pre className="info-panel-output-box">{renderVisualization()}</pre>
                                  </div>
                             )}
                             {analysisResult.results?.filter(r => r.found).length > 1 && (
-                                <div className="pv-section">
-                                    <label>Hesaplanan Değerler</label>
+                                <div className="info-panel-section">
+                                    <h4 className="info-panel-section-header">Hesaplanan Değerler</h4>
                                     <div className="pv-calculations">
                                         {analysisResult.results.map((result, index) => {
                                             if (index === 0 || !result.found) return null;
@@ -143,9 +138,11 @@ const PayloadVisualizer = () => {
                             )}
                         </>
                     ) : (
-                        <div className="pv-placeholder">
-                            <SearchCode size={48} strokeWidth={1} />
-                            <p>Analiz sonuçları burada görünecektir.</p>
+                        <div className="info-panel-section">
+                            <div className="panel-placeholder">
+                                <SearchCode size={48} strokeWidth={1} />
+                                <p>Analiz sonuçları burada görünecektir.</p>
+                            </div>
                         </div>
                     )}
                 </div>

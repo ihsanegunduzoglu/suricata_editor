@@ -65,8 +65,8 @@ const RegexTester = () => {
         <div className="regex-tester-panel">
             <div className="rt-grid">
                 <div className="rt-inputs">
-                    <div className="pv-section">
-                        <label>PCRE Deseni</label>
+                    <div className="info-panel-section">
+                        <h4 className="info-panel-section-header">PCRE Deseni</h4>
                         <input
                             type="text"
                             value={pattern}
@@ -75,8 +75,8 @@ const RegexTester = () => {
                             className="rt-input"
                         />
                     </div>
-                    <div className="pv-section">
-                        <label>Test Edilecek Metin (Payload)</label>
+                    <div className="info-panel-section">
+                        <h4 className="info-panel-section-header">Test Edilecek Metin (Payload)</h4>
                         <textarea
                             value={testString}
                             onChange={(e) => setTestString(e.target.value)}
@@ -92,17 +92,19 @@ const RegexTester = () => {
                 <div className="rt-results">
                     {result?.error && <div className="pv-error">{result.error}</div>}
                     {!result && (
-                         <div className="pv-placeholder">
-                            <TestTube2 size={48} strokeWidth={1} />
-                            <p>Test sonuçları burada görünecektir.</p>
-                        </div>
+                         <div className="info-panel-section">
+                             <div className="panel-placeholder">
+                                <TestTube2 size={48} strokeWidth={1} />
+                                <p>Test sonuçları burada görünecektir.</p>
+                            </div>
+                         </div>
                     )}
                     {result && !result.error && (
-                        <div className="rt-results-content">
+                        <div className="info-panel-section">
                              <div className="rt-summary">
                                 <strong>{result.matches.length}</strong> adet eşleşme bulundu.
                             </div>
-                            <pre className="pv-visualization rt-highlighted-text">
+                            <pre className="info-panel-output-box">
                                 {result.matches.length > 0 ? renderedResult : <span style={{opacity: 0.6}}>Eşleşme bulunamadı.</span>}
                             </pre>
                             {result.matches.length > 0 && (

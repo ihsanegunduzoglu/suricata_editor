@@ -10,10 +10,13 @@ import { validateHeaderField } from '../utils/ruleValidator';
 // BookmarkPlus ikonu artık burada kullanılmadığı için kaldırıldı.
 
 const HeaderEditor = ({ session }) => {
-    // "saveUserTemplate" fonksiyonu artık burada kullanılmıyor.
-    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing } = useRule();
-    
-    const [activeInput, setActiveInput] = useState(null);
+
+
+    // DEĞİŞİKLİK: 'cancelEditing' fonksiyonunu context'ten alıyoruz.
+    const { updateHeaderData, updateActiveTopic, optionsViewActive, updateOptionsViewActive, cancelEditing, headerFocusRequest, clearHeaderFocusRequest } = useRule();
+
+   const [activeInput, setActiveInput] = useState(null);
+    const [forceOpenSuggestionsFlag, setForceOpenSuggestionsFlag] = useState(false);
 
     const editorRef = useRef(null);
     const inputRefs = useRef([]);
@@ -23,9 +26,10 @@ const HeaderEditor = ({ session }) => {
         if (!activeInput || !suggestionsData[activeInput]) return [];
         const value = session.headerData[activeInput] || '';
         const allSuggestions = suggestionsData[activeInput];
+        if (forceOpenSuggestionsFlag) return allSuggestions;
         if (!value) return allSuggestions;
         return allSuggestions.filter(s => s.toLowerCase().startsWith(value.toLowerCase()));
-    }, [activeInput, session.headerData]);
+    }, [activeInput, session.headerData, forceOpenSuggestionsFlag]);
 
     const handleChange = (label, value) => {
         const newHeaderData = { ...session.headerData, [label]: value };
@@ -115,7 +119,7 @@ const HeaderEditor = ({ session }) => {
         const handleClickOutside = (e) => { 
             if (editorRef.current && !editorRef.current.contains(e.target)) { 
                 setActiveInput(null); 
-                updateActiveTopic(null);
+                // updateActiveTopic(null); // Bilgi panelini boş tıklamada temizleme
             } 
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -135,6 +139,24 @@ const HeaderEditor = ({ session }) => {
             }
         }
     }, [optionsViewActive, session.id, session.ruleString]);
+
+    // Gelen odak isteğine göre ilgili başlık kutusunu aç ve odakla
+    useEffect(() => {
+        if (!headerFocusRequest) return;
+        const targetLabel = headerFocusRequest.label;
+        const idx = labels.indexOf(targetLabel);
+        if (idx >= 0) {
+            setActiveInput(targetLabel);
+            setForceOpenSuggestionsFlag(!!headerFocusRequest.forceOpen);
+            if (typeof headerFocusRequest.value === 'string' && session.headerData[targetLabel] !== headerFocusRequest.value) {
+                const newHeaderData = { ...session.headerData, [targetLabel]: headerFocusRequest.value };
+                updateHeaderData(session.id, newHeaderData);
+            }
+            setTimeout(() => inputRefs.current[idx]?.focus(), 0);
+        }
+        clearHeaderFocusRequest();
+    // eslint-disable-next-line
+    }, [headerFocusRequest]);
     
     if (optionsViewActive) {
         const finalHeaderString = labels.map(label => session.headerData[label]).join(' ');

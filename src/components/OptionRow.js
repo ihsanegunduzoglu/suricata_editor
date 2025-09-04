@@ -147,6 +147,7 @@ const OptionRow = ({ option, index, isSelected, isEditing, onStartEditing, onSto
                         onChange={changeHandler}
                         onKeyDown={handleEditKeyDown}
                         autoFocus
+                        
                     />
                 )}
                 <span className="option-semicolon">;</span>

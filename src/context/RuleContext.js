@@ -28,7 +28,9 @@ export const RuleProvider = ({ children }) => {
                     return [...finalizedOnly, createNewSession()];
                 }
             }
-        } catch (error) { console.error("Kaydedilmiş kurallar okunurken bir hata oluştu:", error); }
+        } catch (error) {
+            console.error("Kaydedilmiş kurallar okunurken bir hata oluştu:", error);
+        }
         return [createNewSession()];
     });
     
@@ -50,8 +52,16 @@ export const RuleProvider = ({ children }) => {
     const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
     const [theme, setTheme] = useState('dark');
     const [mitreInfo, setMitreInfo] = useState(null);
-    const [selectedRuleIds, setSelectedRuleIds] = useState(new Set());
+    // Info panel sekmesi: 'info' | 'payload' | 'regex' | 'templates' | 'test_lab'
     const [infoPanelTab, setInfoPanelTab] = useState('info');
+
+    // Odak istekleri (FinalizedRule -> Header/Options fokus için)
+    const [headerFocusRequest, setHeaderFocusRequest] = useState(null);
+    const [optionFocusRequest, setOptionFocusRequest] = useState(null);
+
+    // DİZİ olarak tutuyoruz (Workbench ile uyumlu)
+    const [selectedRuleIds, setSelectedRuleIds] = useState([]);
+    // Test Lab entegrasyonu (ihsan2'den)
     const [ruleToTest, setRuleToTest] = useState(null);
 
     const activeSession = useMemo(() => ruleSessions?.find(s => s.status === 'editing'), [ruleSessions]);
@@ -89,18 +99,21 @@ export const RuleProvider = ({ children }) => {
         setEditingSourceId(null);
         updateOptionsViewActive(false);
         setMitreInfo(null);
-        setSelectedRuleIds(new Set());
+        setSelectedRuleIds([]); // dizi
     };
     
     const finalizeRule = (editorSessionId) => {
         const sessionToFinalize = ruleSessions.find(s => s.id === editorSessionId);
         if (!sessionToFinalize) return;
+
         const finalValidationError = validateRuleForFinalization(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
         if (finalValidationError) {
             toast.error(finalValidationError);
             return;
         }
+        
         const finalRuleString = generateRuleString(sessionToFinalize.headerData, sessionToFinalize.ruleOptions);
+        
         if (editingSourceId) {
             setRuleSessions(prev => prev.map(s => {
                 if (s.id === editingSourceId) { return { ...sessionToFinalize, id: editingSourceId, status: 'finalized', ruleString: finalRuleString }; }
@@ -119,26 +132,57 @@ export const RuleProvider = ({ children }) => {
 
     const deleteRule = (sessionId) => {
         setRuleSessions(prev => prev.filter(session => session.id !== sessionId));
-        setSelectedRuleIds(prev => { const newSet = new Set(prev); newSet.delete(sessionId); return newSet; });
+        setSelectedRuleIds(prev => prev.filter(id => id !== sessionId)); // dizi
         toast.info('Kural silindi.');
     };
     
-    const duplicateRule = (sessionToDuplicate) => {
-        if (!activeSession) return;
-        const duplicatedDataToEditor = { ...activeSession, headerData: { ...sessionToDuplicate.headerData }, ruleOptions: [...sessionToDuplicate.ruleOptions] };
-        setRuleSessions(prev => prev.map(s => s.id === activeSession.id ? duplicatedDataToEditor : s));
-        setEditingSourceId(null);
-        setSelectedRuleIds(new Set());
-        toast.info('Kural çoğaltıldı ve düzenleyiciye yüklendi.');
+    const deleteRulesByIds = (ids) => {
+        if (!Array.isArray(ids) || ids.length === 0) return;
+        setRuleSessions(prev => prev.filter(s => !(s.status === 'finalized' && ids.includes(s.id))));
+        setSelectedRuleIds(prev => prev.filter(id => !ids.includes(id))); // dizi
+        toast.info(`${ids.length} kural silindi.`);
     };
     
+    // Çoğalt: finalized kural olarak ekle (senin davranışın)
+    const duplicateRule = (sessionToDuplicate) => {
+        if (!sessionToDuplicate) return;
+        const clonedHeader = { ...sessionToDuplicate.headerData };
+        const clonedOptions = (sessionToDuplicate.ruleOptions || []).map(opt => ({
+            ...opt,
+            modifiers: opt.modifiers ? { ...opt.modifiers } : undefined,
+        }));
+        const newId = uuidv4();
+        const newRuleString = generateRuleString(clonedHeader, clonedOptions);
+        const duplicatedFinalized = {
+            id: newId,
+            status: 'finalized',
+            headerData: clonedHeader,
+            ruleOptions: clonedOptions,
+            ruleString: newRuleString,
+        };
+        setRuleSessions(prev => {
+            const finalized = prev.filter(s => s.status === 'finalized');
+            const editing = prev.find(s => s.status === 'editing') || createNewSession();
+            return [...finalized, duplicatedFinalized, editing];
+        });
+        toast.success('Kural başarıyla çoğaltıldı.');
+    };
+    
+    // Metinden import
     const importRules = (rulesString) => {
         const lines = rulesString.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
         if (lines.length === 0) {
             toast.warn('İçe aktarılacak geçerli kural bulunamadı.');
             return;
         }
-        const newSessions = lines.map(line => ({ id: uuidv4(), status: 'finalized', ruleString: line.trim(), headerData: {}, ruleOptions: [] }));
+        const newSessions = lines.map(line => ({
+            id: uuidv4(),
+            status: 'finalized',
+            ruleString: line.trim(),
+            headerData: {},
+            ruleOptions: [],
+        }));
+        
         setRuleSessions(prev => {
             const editing = prev.find(s => s.status === 'editing');
             const finalized = prev.filter(s => s.status === 'finalized');
@@ -220,22 +264,103 @@ export const RuleProvider = ({ children }) => {
     const updateModifierInfoActive = (isActive) => setModifierInfoActive(isActive);
     const updateMitreInfo = (info) => setMitreInfo(info);
     const toggleRulesList = () => setIsRulesListVisible(prev => !prev);
-    const setInfoPanelVisibility = (isVisible) => setIsInfoPanelVisible(isVisible);
     const toggleInfoPanel = () => setIsInfoPanelVisible(prev => !prev);
-    const toggleTheme = () => setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+    const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    const setInfoPanelVisibility = (isVisible) => setIsInfoPanelVisible(isVisible);
+
+    // Focus yardımcıları
+    const focusHeaderField = (label, forceOpenSuggestions = false, initialValue = undefined) => {
+        setOptionsViewActive(false);
+        setHeaderFocusRequest({ label, forceOpen: !!forceOpenSuggestions, value: initialValue });
+    };
+    const clearHeaderFocusRequest = () => setHeaderFocusRequest(null);
+
+    const focusOption = (keyword, expandDetails = false, preferredIndex = null) => {
+        setOptionsViewActive(true);
+        setOptionFocusRequest({ keyword, expandDetails: !!expandDetails, index: preferredIndex });
+    };
+    const clearOptionFocusRequest = () => setOptionFocusRequest(null);
+
+    // Sunucudan parse edilen kuralların eklenmesi
+    const appendImportedRules = (specs) => {
+        if (!Array.isArray(specs) || specs.length === 0) return;
+        const newFinalized = specs.map(spec => {
+            const id = uuidv4();
+            const status = 'finalized';
+            const headerData = spec.headerData || { 'Action': '', 'Protocol': '', 'Source IP': '', 'Source Port': '', 'Direction': '', 'Destination IP': '', 'Destination Port': '' };
+            const ruleOptions = Array.isArray(spec.ruleOptions) ? spec.ruleOptions : [];
+            const ruleString = generateRuleString(headerData, ruleOptions);
+            return { id, status, headerData, ruleOptions, ruleString };
+        });
+        setRuleSessions(prev => {
+            const existingFinalized = prev.filter(s => s.status === 'finalized');
+            const existingEditing = prev.find(s => s.status === 'editing') || createNewSession();
+            return [...existingFinalized, ...newFinalized, existingEditing];
+        });
+        toast.success(`${specs.length} kural içe aktarıldı.`);
+    };
+
+    // Dizi tabanlı seçim yardımcıları (Workbench ile uyumlu)
+    const toggleRuleSelected = (ruleId) => {
+        setSelectedRuleIds(prev => (
+            prev.includes(ruleId) ? prev.filter(id => id !== ruleId) : [...prev, ruleId]
+        ));
+    };
+    const selectAllFinalized = () => {
+        const allFinalizedIds = ruleSessions.filter(s => s.status === 'finalized').map(s => s.id);
+        setSelectedRuleIds(allFinalizedIds);
+    };
+    const clearSelection = () => setSelectedRuleIds([]);
 
     const value = {
-        ruleSessions, userTemplates, editingSourceId, activeTopic, optionsViewActive,
-        modifierInfoActive, isRulesListVisible, isInfoPanelVisible, theme,
-        activeSession, mitreInfo, selectedRuleIds, setSelectedRuleIds,
-        importRules, infoPanelTab, setInfoPanelTab,
-        updateMitreInfo, updateActiveTopic, updateOptionsViewActive,
-        updateModifierInfoActive, toggleRulesList, toggleInfoPanel,
+        ruleSessions,
+        userTemplates,
+        editingSourceId,
+        activeTopic,
+        optionsViewActive,
+        modifierInfoActive,
+        isRulesListVisible,
+        isInfoPanelVisible,
+        theme,
+        selectedRuleIds,
+        setSelectedRuleIds,
+        headerFocusRequest,
+        optionFocusRequest,
+        activeSession,
+        mitreInfo,
+        importRules,
+        updateMitreInfo,
+        updateActiveTopic,
+        updateOptionsViewActive,
+        updateModifierInfoActive,
+        toggleRulesList,
+        toggleInfoPanel,
+        toggleTheme,
         setInfoPanelVisibility,
-        toggleTheme, updateHeaderData, updateRuleOptions, finalizeRule,
-        deleteRule, duplicateRule, startEditingRule, cancelEditing,
-        applyTemplate, saveUserTemplate, deleteUserTemplate, getNextSid,
-        ruleToTest, setRuleToTest,
+        infoPanelTab,
+        setInfoPanelTab,
+        focusHeaderField,
+        clearHeaderFocusRequest,
+        focusOption,
+        clearOptionFocusRequest,
+        appendImportedRules,
+        toggleRuleSelected,
+        selectAllFinalized,
+        clearSelection,
+        updateHeaderData,
+        updateRuleOptions,
+        finalizeRule,
+        deleteRule,
+        deleteRulesByIds,
+        duplicateRule,
+        startEditingRule,
+        cancelEditing,
+        applyTemplate,
+        saveUserTemplate,
+        deleteUserTemplate,
+        getNextSid,
+        ruleToTest,
+        setRuleToTest,
     };
 
     return (

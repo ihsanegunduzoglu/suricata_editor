@@ -7,7 +7,7 @@ import AddOption from './AddOption';
 import { toast } from 'react-toastify';
 
 const OptionsBuilder = ({ session, onNavigateBack }) => {
-    const { updateRuleOptions, updateActiveTopic } = useRule();
+    const { updateRuleOptions, updateActiveTopic, optionFocusRequest, clearOptionFocusRequest } = useRule();
     
     const [editingIndex, setEditingIndex] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -15,6 +15,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
+        // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
         if (editingIndex === null && !selectedIndex) {
              setTimeout(() => {
                 addOptionInputRef.current?.focus();
@@ -29,6 +30,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             if (activeKeyword && activeKeyword !== 'content' && activeKeyword !== 'metadata') {
                 updateActiveTopic(activeKeyword);
             }
+        } else {
+             updateActiveTopic(null);
         }
     }, [editingIndex, selectedIndex, session.ruleOptions, updateActiveTopic]);
 
@@ -105,6 +108,25 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     }, [selectedIndex, editingIndex]);
+    
+
+    // Dışarıdan gelen option odak isteğini uygula
+    useEffect(() => {
+        if (!optionFocusRequest) return;
+        const { keyword, index } = optionFocusRequest;
+        let targetIndex = index;
+        if (typeof targetIndex !== 'number') {
+            targetIndex = session.ruleOptions.findIndex(o => o.keyword === keyword);
+        }
+        if (targetIndex >= 0) {
+            setEditingIndex(targetIndex);
+            updateActiveTopic(keyword);
+        }
+        clearOptionFocusRequest();
+    // eslint-disable-next-line
+    }, [optionFocusRequest]);
+
+    // BU FONKSİYON ÇOK ÖNEMLİ
 
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
@@ -141,6 +163,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
+        
+        // DÜZELTME: Yeni eklenen seçeneği otomatik olarak düzenleme moduna alan satır geri eklendi.
         handleStartEditing(newRuleOptions.length - 1);
     };
 

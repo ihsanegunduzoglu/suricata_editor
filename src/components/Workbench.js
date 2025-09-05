@@ -168,6 +168,12 @@ const Workbench = () => {
                                     <button onClick={handleActiveRuleTest}><TestTube2 size={16}/> Test Et</button>
                                 </div>
                             </div>
+                            
+                            {selectedRuleIds.length > 0 && (
+                                <div className="rules-list-summary">
+                                    <span>{selectedRuleIds.length} kural seçildi</span>
+                                </div>
+                            )}
 
                             {isRulesListVisible && (
                                 <div className="finalized-rules-list">
@@ -194,6 +200,8 @@ const Workbench = () => {
                                 </div>
                             )}
                         </div>
+
+
                     </Panel>
 
                     <PanelResizeHandle className="resize-handle" />

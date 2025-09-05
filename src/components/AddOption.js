@@ -1,12 +1,10 @@
-// src/components/AddOption.js
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import { optionsDictionary } from '../data/optionsDictionary';
 import { v4 as uuidv4 } from 'uuid';
 
-const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, onNavigateToList, onNavigateBack }, ref) => {
-    // getNextSid fonksiyonunu context'ten al
+// YENİ PROP EKLENDİ: onNavigateToStartOfList
+const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, onNavigateToList, onNavigateToStartOfList, onNavigateBack }, ref) => {
     const { finalizeRule, updateActiveTopic, getNextSid } = useRule();
     const [searchTerm, setSearchTerm] = useState('');
     const [isFocused, setIsFocused] = useState(false);
@@ -44,10 +42,9 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
     }, [searchTerm, filteredOptions, updateActiveTopic, isFocused]);
 
     const handleAdd = (keyword) => { 
-        // Değeri, anahtar kelimeye göre dinamik olarak belirle
         let value = optionsDictionary[keyword].defaultValue;
         if (keyword === 'sid') {
-            value = getNextSid(); // Eğer keyword 'sid' ise, yeni fonksiyonu çağır
+            value = getNextSid();
         }
 
         const newOption = { 
@@ -80,7 +77,12 @@ const AddOption = React.forwardRef(({ onOptionAdd, onDeleteLastOption, session, 
         }
         if (e.key === 'ArrowUp') {
             e.preventDefault();
-            onNavigateToList();
+            onNavigateToList(); // Listenin sonuna gider
+        }
+        // YENİ: Aşağı ok tuşu ile listenin başına git
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            onNavigateToStartOfList(); // Listenin başına gider
         }
         if (e.key === 'Escape') {
             e.preventDefault();

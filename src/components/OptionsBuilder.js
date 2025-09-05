@@ -1,5 +1,3 @@
-// src/components/OptionsBuilder.js
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useRule } from '../context/RuleContext';
 import OptionRow from './OptionRow';
@@ -15,7 +13,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
         if (editingIndex === null && selectedIndex === null) {
              setTimeout(() => {
                 addOptionInputRef.current?.focus();
@@ -53,7 +50,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                         else if (selectedIndex < optionsCount - 1) {
                             setSelectedIndex(prev => prev + 1);
                         } else {
-                            containerRef.current?.focus();
+                            setSelectedIndex(null);
+                            addOptionInputRef.current?.focus();
                         }
                     }
                     break;
@@ -61,15 +59,11 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                     e.preventDefault();
                     if (optionsCount > 0) {
                          if (selectedIndex === 0) {
-                            // En üstteyiz, daha fazla yukarı gitme.
-                            // Hiçbir şey yapmadan fonksiyondan çıkıyoruz.
-                            return; 
-                        }
-
-                        if (selectedIndex === null) {
+                            setSelectedIndex(null);
+                            addOptionInputRef.current?.focus();
+                        } else if (selectedIndex === null) { // Mantıksal olarak daha doğru bir yapı
                             setSelectedIndex(optionsCount - 1);
-                        }
-                        else {
+                        } else {
                             setSelectedIndex(prev => prev - 1);
                         }
                     }
@@ -109,9 +103,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
             row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     }, [selectedIndex, editingIndex]);
-    
 
-    // Dışarıdan gelen option odak isteğini uygula
     useEffect(() => {
         if (!optionFocusRequest) return;
         const { keyword, index } = optionFocusRequest;
@@ -126,8 +118,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         clearOptionFocusRequest();
     // eslint-disable-next-line
     }, [optionFocusRequest]);
-
-    // BU FONKSİYON ÇOK ÖNEMLİ
 
     const handleValueChange = (index, newValue) => {
         const updatedOptions = [...session.ruleOptions];
@@ -164,8 +154,6 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
     const handleAddOption = (newOption) => { 
         const newRuleOptions = [...session.ruleOptions, newOption];
         updateRuleOptions(session.id, newRuleOptions);
-        
-        // DÜZELTME: Yeni eklenen seçeneği otomatik olarak düzenleme moduna alan satır geri eklendi.
         handleStartEditing(newRuleOptions.length - 1);
     };
 
@@ -173,6 +161,14 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
         const lastIndex = session.ruleOptions.length - 1;
         if (lastIndex >= 0) {
             setSelectedIndex(lastIndex);
+            containerRef.current?.focus();
+        }
+    };
+
+    // YENİ FONKSİYON: Input'tan listenin başına gitmek için
+    const handleNavigateToStartOfList = () => {
+        if (session.ruleOptions.length > 0) {
+            setSelectedIndex(0);
             containerRef.current?.focus();
         }
     };
@@ -200,6 +196,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                 onDeleteLastOption={() => session.ruleOptions.length > 0 && handleDeleteOption(session.ruleOptions.length - 1)} 
                 session={session}
                 onNavigateToList={handleNavigateToList}
+                onNavigateToStartOfList={handleNavigateToStartOfList} // YENİ PROP EKLENDİ
                 onNavigateBack={onNavigateBack}
             />
         </div>

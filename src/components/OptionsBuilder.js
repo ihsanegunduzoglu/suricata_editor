@@ -16,7 +16,7 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
 
     useEffect(() => {
         // Yeni bir kurala başlandığında veya düzenleme bittiğinde imlecin seçenek ekleme alanına odaklanmasını sağlar
-        if (editingIndex === null && !selectedIndex) {
+        if (editingIndex === null && selectedIndex === null) {
              setTimeout(() => {
                 addOptionInputRef.current?.focus();
             }, 0);
@@ -61,7 +61,8 @@ const OptionsBuilder = ({ session, onNavigateBack }) => {
                     e.preventDefault();
                     if (optionsCount > 0) {
                          if (selectedIndex === 0) {
-                            containerRef.current?.focus();
+                            // En üstteyiz, daha fazla yukarı gitme.
+                            // Hiçbir şey yapmadan fonksiyondan çıkıyoruz.
                             return; 
                         }
 

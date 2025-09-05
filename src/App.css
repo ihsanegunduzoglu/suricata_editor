@@ -2490,3 +2490,40 @@ html::-webkit-scrollbar-thumb:hover {
   /* Animasyon */
   animation: fadeIn 0.3s ease-out;
 }
+
+/* ==========================================================================
+   21. SURICATA KURAL RENKLENDİRME
+   ========================================================================== */
+.rule-display .rule-part-action {
+  color: var(--text-keyword); /* Eylem (alert, drop) */
+  font-weight: 600;
+}
+.rule-display .rule-part-protocol {
+  color: var(--text-accent); /* Protokol (http, tcp) */
+}
+.rule-display .rule-part-address {
+  color: var(--text-primary); /* IP ve Port */
+}
+.rule-display .rule-part-direction {
+  color: var(--text-accent); /* Yön (->) */
+  font-weight: 600;
+}
+.rule-display .rule-part-punctuation {
+  color: var(--text-secondary); /* Parantez, noktalı virgül, iki nokta üst üste */
+  opacity: 0.8;
+}
+.rule-display .rule-part-option-keyword {
+  color: var(--text-keyword); /* Seçenek anahtar kelimeleri (msg, sid, content) */
+}
+.rule-display .rule-part-option-value {
+  color: var(--text-value); /* Seçenek değerleri ("...") */
+}
+
+/* Üzerine gelince hafif bir vurgu efekti */
+.rule-display span[onclick]:hover {
+    background-color: var(--bg-hover);
+    border-radius: 3px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}

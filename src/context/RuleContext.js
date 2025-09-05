@@ -33,6 +33,62 @@ export const RuleProvider = ({ children }) => {
         }
         return [createNewSession()];
     });
+
+    const exportRulesToFile = () => {
+        // 1. Adım: Dışa aktarılacak seçili kuralları kontrol et
+        if (selectedRuleIds.length === 0) {
+            toast.warn('Dışa aktarmak için lütfen önce bir veya daha fazla kural seçin.');
+            return;
+        }
+
+        // 2. Adım: Kullanıcıdan bir dosya adı iste
+        let filename = prompt("Dosya adını girin:", "suricata_rules.rules");
+
+        // Kullanıcı iptal ederse veya boş bir isim girerse işlemi durdur
+        if (!filename || filename.trim() === '') {
+            toast.info('Dışa aktarma işlemi iptal edildi.');
+            return;
+        }
+
+        // Dosya adının .rules ile bittiğinden emin ol
+        if (!filename.endsWith('.rules')) {
+            filename += '.rules';
+        }
+
+        // 3. Adım: Seçili kuralların içeriğini oluştur
+        const contentToExport = ruleSessions
+            .filter(session => selectedRuleIds.includes(session.id))
+            .map(session => session.ruleString)
+            .join('\n');
+
+        // 4. Adım: Dosyayı oluştur ve indirmeyi tetikle (Browser'da)
+        try {
+            // İçerikten bir Blob (dosya benzeri nesne) oluştur
+            const blob = new Blob([contentToExport], { type: 'text/plain;charset=utf-8' });
+            
+            // Blob için geçici bir URL oluştur
+            const url = URL.createObjectURL(blob);
+            
+            // Gizli bir link (<a>) elementi oluştur
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename; // İndirilecek dosyanın adını ayarla
+            
+            // Linki sayfaya ekle ve tıkla
+            document.body.appendChild(link);
+            link.click();
+            
+            // İşlem bittikten sonra oluşturulan nesneleri temizle
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            toast.success(`"${filename}" dosyası başarıyla indirildi!`);
+
+        } catch (error) {
+            console.error("Dosya dışa aktarılırken bir hata oluştu:", error);
+            toast.error("Dosya oluşturulurken bir hata oluştu.");
+        }
+    };
     
     const [userTemplates, setUserTemplates] = useState(() => {
         try {
@@ -361,6 +417,7 @@ export const RuleProvider = ({ children }) => {
         getNextSid,
         ruleToTest,
         setRuleToTest,
+        exportRulesToFile,
     };
 
     return (

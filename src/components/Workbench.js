@@ -34,6 +34,7 @@ const Workbench = () => {
         setRuleToTest,
         setInfoPanelTab,
         setInfoPanelVisibility,
+        exportRulesToFile,
     } = useRule();
 
     const activeSession = ruleSessions.find(session => session.status === 'editing');
@@ -147,7 +148,10 @@ const Workbench = () => {
                         <div className="global-action-bar">
                             <div className="toolbar-group-left">
                                 <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
-                                <button onClick={handleExport}><FileDown size={16}/> Export</button>
+                                <button 
+                                    onClick={exportRulesToFile}
+                                    disabled={selectedRuleIds.length === 0}
+                                ><FileDown size={16}/> Export</button>
 
                                     <button onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}>
                                         {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>} {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}

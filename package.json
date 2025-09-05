@@ -19,10 +19,16 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "set PORT=3001&& react-scripts start",
-    "dev": "concurrently -n CLIENT,API -c green,magenta \"npm run start\" \"npm --prefix server run dev\"",
-    "server": "npm --prefix server run start",
-    "server:dev": "npm --prefix server run dev",
+    "dev": "concurrently -n CLIENT,NODE_API,PYTHON_MAIN,PYTHON_MITRE -c green,blue,magenta,cyan \"npm run dev:react\" \"npm run dev:node\" \"npm run dev:python:main\" \"npm run dev:python:mitre\"",
+
+    "start": "react-scripts start", 
+    "dev:react": "npm run start",
+
+    "dev:node": "npm --prefix server run dev",
+
+    "dev:python:main": "./backend/venv/bin/python backend/app.py",
+
+    "dev:python:mitre": "./mitre-api/venv/bin/python mitre-api/app.py",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

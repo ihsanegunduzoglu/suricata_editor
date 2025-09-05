@@ -81,7 +81,7 @@ const RegexTester = () => {
                             value={testString}
                             onChange={(e) => setTestString(e.target.value)}
                             placeholder="Regex desenini test etmek için metni buraya yapıştırın..."
-                            rows={15}
+                            rows={12}
                         />
                     </div>
                     <button onClick={handleTest} className="pv-analyze-btn">

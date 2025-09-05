@@ -59,7 +59,7 @@ const PayloadVisualizer = () => {
                             value={rawPayload}
                             onChange={(e) => setRawPayload(e.target.value)}
                             placeholder="Payload verisini buraya yapıştırın..."
-                            rows={8}
+                            rows={12}
                         />
                     </div>
                     <div className="info-panel-section">

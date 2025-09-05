@@ -985,13 +985,18 @@ input:checked + .slider:before {
   gap: var(--space-lg);
   padding: var(--space-xs);
 }
-.pv-grid {
+/* ==========================================================================
+   10. PAYLOAD ANALİZ PANELİ & 14. REGEX TEST PANELİ (Ortak Hizalama)
+   ========================================================================== */
+.pv-grid,
+.rt-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Sol paneli biraz daha geniş, sağ paneli biraz daha dar yapıyoruz. 
+     Her ikisi için de oran aynı olduğundan hizalı görünecekler. */
+  grid-template-columns: 1.1fr 0.9fr; 
   gap: var(--space-lg);
-  flex-grow: 1;
-  overflow: hidden;
   height: 100%;
+  overflow: hidden;
 }
 .pv-inputs, .pv-results {
   display: flex;
@@ -1470,13 +1475,7 @@ input:checked + .slider:before {
   overflow: hidden;
   padding: var(--space-xs);
 }
-.regex-tester-panel .rt-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: var(--space-lg);
-  height: 100%;
-  overflow: hidden;
-}
+
 .rt-inputs, .rt-results {
   display: flex;
   flex-direction: column;
@@ -2093,13 +2092,7 @@ html::-webkit-scrollbar-thumb:hover {
 .rule-tester-panel > .rt-setup-section {
   margin-bottom: 0;
 }
-.rt-inputs > div, .rt-results > div {
-  background-color: var(--bg-panel-solid);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius);
-  padding: var(--space-lg);
-  box-shadow: none;
-}
+
 .pv-section > label, .rt-section > label, .rt-inputs h4, .rt-results h4, .rule-tester-panel .rt-section > label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -2119,18 +2112,6 @@ html::-webkit-scrollbar-thumb:hover {
 /* ==========================================================================
    9.1. SAĞ BİLGİ PANELİ (STANDART İÇERİK STİLLERİ)
    ========================================================================== */
-
-/* Tüm panellerdeki ana içerik kutuları için standart stil */
-.info-panel-section {
-  background-color: var(--bg-panel-solid);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  box-shadow: none; /* Mevcut gölgeleri sıfırlayalım */
-}
 
 /* Bölümlerin başlıkları için standart stil */
 .info-panel-section-header {
@@ -2162,13 +2143,6 @@ html::-webkit-scrollbar-thumb:hover {
   scrollbar-color: #2a2d2e transparent;
 }
 
-.rt-inputs > div, .rt-results > div {
-  background-color: var(--bg-panel-solid);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius);
-  padding: var(--space-lg);
-  box-shadow: none;
-}
 .rt-highlighted-text {
   padding: var(--space-md);
   border: 1px solid var(--border-primary);
@@ -2180,47 +2154,6 @@ html::-webkit-scrollbar-thumb:hover {
   flex: 1;
 }
 
-/* ==========================================================================
-   9.1. SAĞ BİLGİ PANELİ (STANDART İÇERİK STİLLERİ)
-   ========================================================================== */
-
-/* ESKİ HALİ
-.info-panel-section {
-  background-color: var(--bg-panel-solid);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  box-shadow: none; 
-}
-*/
-
-/* YENİ VE SADELEŞTİRİLMİŞ HALİ */
-.info-panel-section {
-  background-color: var(--bg-panel-solid);
-  border: none; /* Çerçeveyi tamamen kaldırıyoruz */
-  border-radius: var(--radius);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  margin-bottom: var(--space-md); /* Bölümler arasına boşluk ekliyoruz */
-}
-
-/* ESKİ HALİ
-.info-panel-output-box {
-  flex-grow: 1; 
-  background-color: var(--bg-code);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius);
-  padding: var(--space-md);
-  ...
-}
-*/
-
-/* YENİ HALİ */
 .info-panel-output-box {
   flex-grow: 1;
   background-color: var(--bg-code);
@@ -2237,21 +2170,6 @@ html::-webkit-scrollbar-thumb:hover {
   scrollbar-color: #2a2d2e transparent;
 }
 
-/* ==========================================================================
-   9. SAĞ BİLGİ PANELİ (SEKMELİ YAPI)
-   ========================================================================== */
-
-/* ESKİ HALİ
-.panel-placeholder {
-  ...
-  border: 2px dashed var(--border-primary);
-  border-radius: var(--radius);
-  background: rgba(0,0,0,0.08);
-  ...
-}
-*/
-
-/* YENİ HALİ */
 .panel-placeholder {
   display: flex;
   flex-direction: column;
@@ -2268,19 +2186,6 @@ html::-webkit-scrollbar-thumb:hover {
   padding: 1.5rem;
 }
 
-/* ==========================================================================
-   10. PAYLOAD ANALİZ PANELİ
-   ========================================================================== */
-
-/* ESKİ HALİ
-.pv-add-matcher-btn {
-  ...
-  border: 1px dashed var(--border-primary);
-  ...
-}
-*/
-
-/* YENİ HALİ */
 .pv-add-matcher-btn {
   width: 100%;
   display: inline-flex;
@@ -2336,4 +2241,22 @@ html::-webkit-scrollbar-thumb:hover {
     font-size: 0.95rem;
     transform: translateY(0);
     transition: all 0.2s ease;
+}
+
+/* ==========================================================================
+   BİRLEŞTİRİLMİŞ VE STANDART PANEL STİLİ (PV & RT)
+   ========================================================================== */
+.pv-inputs .info-panel-section,
+.pv-results .info-panel-section,
+.rt-inputs .info-panel-section,
+.rt-results .info-panel-section {
+  background-color: var(--bg-panel-solid);
+  border: none; /* Tüm panellerde çerçeveyi KESİN olarak kaldırır */
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-shadow: none;
+  margin-bottom: var(--space-md); /* Bölümler arasına boşluk ekler */
 }

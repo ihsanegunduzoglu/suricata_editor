@@ -178,48 +178,55 @@ const RuleTesterPanel = () => {
     return (
         <div className="rule-tester-panel">
             <div className="rt-setup-section">
-                <h3><TestTube2 size={20} /> Test Kurulumu</h3>
+                <h3><TestTube2 size={20} />  Test Kurulumu</h3>
                 
                 <div className="rt-section">
-                    <label>1. Test Edilecek Kural(lar)</label>
-                    <div className="rt-mode-selector">
-                        <button 
-                            className={`rt-mode-btn ${testMode === 'active_rule' ? 'active' : ''}`}
-                            onClick={() => setTestMode('active_rule')}>
-                            <Edit size={14}/> Aktif/Seçili Kural
-                        </button>
-                        <button 
-                            className={`rt-mode-btn ${testMode === 'rules_file' ? 'active' : ''}`}
-                            onClick={() => setTestMode('rules_file')}>
-                            <FileText size={14}/> Kural Dosyası
-                        </button>
+                    <div className='rt-section-header'>
+                        <label>1. Test Edilecek Kural(lar)</label>
+                        <div className="rt-mode-selector">
+                            <button 
+                                className={`rt-mode-btn ${testMode === 'active_rule' ? 'active' : ''}`}
+                                onClick={() => setTestMode('active_rule')}>
+                                <Edit size={14}/> Aktif/Seçili Kural
+                            </button>
+                            <button 
+                                className={`rt-mode-btn ${testMode === 'rules_file' ? 'active' : ''}`}
+                                onClick={() => setTestMode('rules_file')}>
+                                <FileText size={14}/> Kural Dosyası
+                            </button>
+                        </div>
                     </div>
 
-                    {testMode === 'active_rule' ? (
-                        <div className="rt-active-rule-display syntax-highlight-container">
-                             <SyntaxHighlighter language="bash" style={syntaxTheme} customStyle={{ margin: 0, padding: '1em', backgroundColor: 'transparent' }}>
-                                {ruleToTest || "Test edilecek aktif kural yok."}
-                            </SyntaxHighlighter>
-                        </div>
-                    ) : (
-                        <div className="rt-file-upload-area standalone">
-                            <input type="file" accept=".rules" onChange={handleRulesFileChange} ref={rulesInputRef} style={{ display: 'none' }}/>
-                            <button className="rt-upload-btn" onClick={handleRulesUploadClick} disabled={isLoading}>
-                                <UploadCloud size={18} /> .rules Dosyası Yükle
-                            </button>
-                            {rulesFile && <span className="rt-file-name">{rulesFile.name}</span>}
-                        </div>
-                    )}
+                    <div className='rt-rule-content-area'>
+                        {testMode === 'active_rule' ? (
+                            <div className="rt-active-rule-display syntax-highlight-container">
+                                <SyntaxHighlighter language="bash" style={syntaxTheme} customStyle={{ margin: 0, padding: '1em', backgroundColor: 'transparent' }}>
+                                    {ruleToTest || "Test edilecek aktif kural yok."}
+                                </SyntaxHighlighter>
+                            </div>
+                        ) : (
+                            <div className="rt-file-upload-area standalone">
+                                <input type="file" accept=".rules" onChange={handleRulesFileChange} ref={rulesInputRef} style={{ display: 'none' }}/>
+                                <button className="rt-upload-btn" onClick={handleRulesUploadClick} disabled={isLoading}>
+                                    <UploadCloud size={18} /> .rules Dosyası Yükle
+                                </button>
+                                {rulesFile && <span className="rt-file-name">{rulesFile.name}</span>}
+                            </div>
+                        )}
+                    </div>
+
                 </div>
 
                 <div className="rt-section">
-                    <label>2. Test Trafiği</label>
-                    <div className="rt-file-upload-area standalone">
-                        <input type="file" accept=".pcap,.pcapng" onChange={handlePcapFileChange} ref={pcapInputRef} style={{ display: 'none' }}/>
-                        <button className="rt-upload-btn" onClick={handlePcapUploadClick} disabled={isLoading}>
-                            <UploadCloud size={18} /> PCAP Dosyası Yükle
-                        </button>
-                        {pcapFile && <span className="rt-file-name">{pcapFile.name}</span>}
+                    <div className='rt-section-header'>
+                        <label>2. Test Trafiği</label>
+                        <div className="rt-file-upload-area standalone">
+                            <input type="file" accept=".pcap,.pcapng" onChange={handlePcapFileChange} ref={pcapInputRef} style={{ display: 'none' }}/>
+                            <button className="rt-upload-btn" onClick={handlePcapUploadClick} disabled={isLoading}>
+                                <UploadCloud size={18} /> PCAP Dosyası Yükle
+                            </button>
+                            {pcapFile && <span className="rt-file-name">{pcapFile.name}</span>}
+                        </div>
                     </div>
                 </div>
 

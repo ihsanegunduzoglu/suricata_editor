@@ -2113,18 +2113,6 @@ html::-webkit-scrollbar-thumb:hover {
    9.1. SAĞ BİLGİ PANELİ (STANDART İÇERİK STİLLERİ)
    ========================================================================== */
 
-/* Bölümlerin başlıkları için standart stil */
-.info-panel-section-header {
-  font-size: 1.1rem; /* Boyutu biraz küçülterek daha zarif hale getirelim */
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-md) 0;
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 /* Sonuçların, kodların veya vurgulanmış metinlerin gösterildiği kutu için standart stil */
 .info-panel-output-box {
@@ -2259,4 +2247,223 @@ html::-webkit-scrollbar-thumb:hover {
   gap: var(--space-md);
   box-shadow: none;
   margin-bottom: var(--space-md); /* Bölümler arasına boşluk ekler */
+}
+/* ==========================================================================
+   15.1 KURAL TEST LABORATUVARI (GELİŞTİRMELER)
+   ========================================================================== */
+
+/* "Test Kurulumu" içindeki bölümlere (rt-section) dikey boşluk ekliyoruz. */
+.rule-tester-panel .rt-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md); /* Elemanlar arasına 16px boşluk ekler */
+}
+
+/* Kural içeriği (aktif kural veya dosya yükleme) için sabit bir alan oluşturuyoruz. */
+.rt-rule-content-area {
+  min-height: 100px; /* Bu alanın minimum yüksekliğini belirliyoruz. Böylece mod değişince sayfa oynamaz. */
+  display: flex; /* İçindeki elemanı ortalamak için */
+  align-items: center; /* Dikeyde ortala */
+  justify-content: center; /* Yatayda ortala */
+  background-color: transparent; 
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  width: 100%;
+}
+
+/* Aktif kural gösterim alanının yeni container'a tam uymasını sağlıyoruz. */
+.rt-rule-content-area .rt-active-rule-display {
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Kural metni sığmazsa kaydırma çubuğu çıksın */
+  background-color: transparent; /* Arka planı şeffaf yapıyoruz çünkü container'da zaten renk var */
+  border: none;
+  padding: 0;
+}
+
+/* Dosya yükleme alanını yeni container'a göre ayarlıyoruz. */
+.rt-rule-content-area .rt-file-upload-area.standalone {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+}
+
+/* ==========================================================================
+   15.2 KURAL TEST LABORATUVARI (BAŞLIK HİZALAMA)
+   ========================================================================== */
+
+/* Başlık ve butonları yan yana getiren yeni container */
+.rt-section-header {
+  display: flex;
+  justify-content: space-between; /* Öğeleri iki uca yaslar */
+  align-items: center; /* Dikey olarak ortalar */
+  width: 100%;
+}
+
+/* Yeni başlık içindeki etiketin alt boşluğunu sıfırlıyoruz */
+.rt-section-header > label {
+  margin-bottom: 0;
+  font-size: 1.1rem; /* Başlık fontunu ayarlayalım */
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Buton grubunun gereksiz boşluklarını kaldırıyoruz */
+.rt-section-header .rt-mode-selector {
+  margin-top: 0;
+}
+
+/* Butonların boyutlarını küçültüyoruz */
+.rt-section-header .rt-mode-btn {
+  padding: 4px 8px; /* İç boşluğu azalttık */
+  font-size: 0.8rem; /* Yazı tipini küçülttük */
+  font-weight: 500;
+  border-radius: 6px; /* Köşeleri biraz daha yumuşattık */
+}
+
+/* ==========================================================================
+   15.3 KURAL TEST LABORATUVARI (HİZALAMA İYİLEŞTİRME)
+   ========================================================================== */
+
+/* Ana başlık satırı için flex ayarları */
+.rt-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Dikey hizalama için ana kuralımız bu */
+  width: 100%;
+  min-height: 40px; /* Satıra minimum bir yükseklik vererek hizalamayı daha kararlı hale getiriyoruz */
+}
+
+/* Soldaki başlık (label) için stiller */
+.rt-section-header > label {
+  margin: 0; /* Tarayıcı stillerini sıfırlıyoruz */
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  /* Label'ı da flex container yaparak metnin kendi kutusu içinde mükemmel ortalanmasını sağlıyoruz */
+  display: flex;
+  align-items: center;
+}
+
+/* Sağdaki buton grupları için genel ayar */
+.rt-section-header .rt-mode-selector,
+.rt-section-header .rt-file-upload-area {
+  margin: 0; /* Hizalamayı bozabilecek dış boşlukları sıfırlıyoruz */
+}
+
+/* Butonların boyutları (önceki adımla aynı) */
+.rt-section-header .rt-mode-btn {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* ==========================================================================
+   BÖLÜM 19: STANDART TİPOGRAFİ SİSTEMİ
+   ========================================================================== */
+
+/* 1. Ana Panel Başlıkları (örn: "Test Kurulumu") */
+.rule-tester-panel h3 {
+  font-size: 1.4rem; /* Büyük ve dikkat çekici */
+  font-weight: 700; /* Kalın */
+  color: var(--text-primary);
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* BİRLEŞTİRİLMİŞ BÖLÜM BAŞLIKLARI (TÜM PANELLER) */
+.info-panel-section-header,
+.rule-tester-panel .rt-section > .rt-section-header > label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: normal;
+  
+  /* Hizalama ve ortak stiller */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Sadece Payload/Regex panellerindeki h4 başlıklarına özel alt çizgi ve boşlukları ekliyoruz. */
+.info-panel-section-header {
+    width: 100%;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-primary);
+    justify-content: space-between;
+}
+
+/* 3. Etiketler (örn: "1. Test Edilecek Kural(lar)") */
+.rt-section > .rt-section-header > label,
+.rt-alert-payload > label,
+.rt-match-list-container > label {
+  font-size: 0.9rem; /* Daha küçük ve bilgilendirici */
+  font-weight: 500;
+  color: var(--text-secondary); /* İkincil renk, içeriği öne çıkarır */
+  text-transform: uppercase; /* BÜYÜK HARF ile daha belirgin */
+  letter-spacing: 0.5px; /* Harf aralığı */
+  margin: 0;
+}
+
+/* Kural Test panelindeki ana başlık etiketlerini standart etiketlerden ayırıyoruz */
+.rule-tester-panel .rt-section > .rt-section-header > label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+
+/* 4. Genel Metinler ve Butonlar */
+
+/* Dosya adı gibi ikincil bilgiler */
+.rt-file-name {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Buton metinleri için standart */
+.rt-upload-btn, .pv-add-matcher-btn, .pv-analyze-btn {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   BÖLÜM 19: BİRLEŞTİRİLMİŞ TİPOGRAFİ SİSTEMİ (TÜM PANELLER)
+   ========================================================================== */
+
+*/
+.rt-alert-payload > label,
+.rt-match-list-container > label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+
+/* 3. EN ÜST SEVİYE PANEL BAŞLIKLARI (Sadece Kural Test Panelinde Var)
+  - "Test Kurulumu", "Sonuçlar" gibi.
+*/
+.rule-tester-panel h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }

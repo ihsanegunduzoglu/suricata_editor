@@ -2471,20 +2471,21 @@ html::-webkit-scrollbar-thumb:hover {
    20. KURAL LİSTESİ ÖZETİ (SEÇİM SAYACI)
    ========================================================================== */
 .rules-list-summary {
-    /* Çerçeveyi ve arka planı kaldırıyoruz */
+  /* Çerçeveyi, arka planı ve dikey boşlukları kaldırıyoruz */
   background-color: transparent;
   border: none;
-  
-  /* Konumlandırma ve hizalama */
-  text-align: left; /* Metni sola hizalıyoruz */
-  padding: 0; /* Gereksiz iç boşlukları kaldırıyoruz */
-  margin-top: var(--space-lg); /* Üstteki eylem çubuğundan ayırmak için */
-  margin-bottom: var(--space-md);
-  
+  padding: 0;
+  margin: 0;
+
+  /* Eylem çubuğundaki diğer elemanlarla hizalanması için */
+  margin-left: var(--space-md); /* Soldaki butondan ayırmak için boşluk */
+  display: flex;
+  align-items: center;
+
   /* Yazı stili */
   font-size: 0.9rem;
-  font-weight: 600; /* Daha belirgin olması için biraz kalın yapıyoruz */
-  color: var(--text-accent); /* Rengini, dikkat çekmesi için vurgu rengi yapıyoruz */
+  font-weight: 600;
+  color: var(--text-accent); /* Rengini vurgu rengi yapıyoruz */
   
   /* Animasyon */
   animation: fadeIn 0.3s ease-out;

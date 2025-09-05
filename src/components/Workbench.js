@@ -133,30 +133,30 @@ const Workbench = () => {
             <div className="app-layout-resizable">
                 <PanelGroup direction="horizontal" className="panels-root" style={{ height: '100%' }}>
                     <Panel defaultSize={65} minSize={55}>
-                <div className="main-content-area glass-effect">
-                    <div className="active-editor-container">
-                            {activeSession ? (
-                                <div className="active-editor-wrapper">
-                                    <HeaderEditor key={activeSession.id} session={activeSession} />
-                                </div>
-                            ) : (
-                                <p>Yeni kural oluşturuluyor...</p>
-                            )}
-                            <ValidationPanel />
-                        </div>
-                        
-                        <div className="global-action-bar">
-                            <div className="toolbar-group-left">
-                                <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
-                                <button 
-                                    onClick={exportRulesToFile}
-                                    disabled={selectedRuleIds.length === 0}
-                                ><FileDown size={16}/> Export</button>
+                        <div className="main-content-area glass-effect">
+                            <div className="active-editor-container">
+                                {activeSession ? (
+                                    <div className="active-editor-wrapper">
+                                        <HeaderEditor key={activeSession.id} session={activeSession} />
+                                    </div>
+                                ) : (
+                                    <p>Yeni kural oluşturuluyor...</p>
+                                )}
+                                <ValidationPanel />
+                            </div>
+                            
+                            <div className="global-action-bar">
+                                <div className="toolbar-group-left">
+                                    <button onClick={handleImportClick}><FileUp size={16}/> Import</button>
+                                    <button 
+                                        onClick={exportRulesToFile}
+                                        disabled={selectedRuleIds.length === 0}
+                                    ><FileDown size={16}/> Export</button>
 
                                     <button onClick={() => { allSelected ? clearSelection() : selectAllFinalized(); }}>
                                         {allSelected ? <CheckSquare size={16}/> : <Square size={16}/>} {allSelected ? 'Seçimi Bırak' : 'Tümünü Seç'}
                                     </button>
-                                    <button onClick={handleBulkDelete}><Trash2 size={16}/> Sil</button>
+                                    <button onClick={handleBulkDelete} disabled={selectedRuleIds.length === 0}><Trash2 size={16}/> Sil</button>
                                 </div>
 
                                 <div className='action-bar-spacer'></div>
@@ -200,24 +200,28 @@ const Workbench = () => {
                                 </div>
                             )}
                         </div>
-
-
                     </Panel>
 
-                    <PanelResizeHandle className="resize-handle" />
+                    {/* === YAPILAN TEK DEĞİŞİKLİK BURADA BAŞLIYOR === */}
+                    {/* Sağ panel ve ayırıcı, isInfoPanelVisible durumuna göre render ediliyor */}
+                    {isInfoPanelVisible && (
+                        <>
+                            <PanelResizeHandle className="resize-handle" />
 
-                    <Panel defaultSize={35} minSize={15} collapsible collapsedSize={0}
-                        onCollapse={() => { if (isInfoPanelVisible) setInfoPanelVisibility(false); }}
-                        onExpand={() => { if (!isInfoPanelVisible) setInfoPanelVisibility(true); }}
-                    >
-                        <div className="right-info-panel glass-effect">
-                            <InfoPanel />
-                        </div>
-                    </Panel>
+                            <Panel defaultSize={35} minSize={15} collapsible collapsedSize={0}
+                                onCollapse={() => { if (isInfoPanelVisible) setInfoPanelVisibility(false); }}
+                                onExpand={() => { if (!isInfoPanelVisible) setInfoPanelVisibility(true); }}
+                            >
+                                <div className="right-info-panel glass-effect">
+                                    <InfoPanel />
+                                </div>
+                            </Panel>
+                        </>
+                    )}
+                    {/* === DEĞİŞİKLİĞİN SONU === */}
                 </PanelGroup>
             </div>
         </div>
-
     );
 };
 
